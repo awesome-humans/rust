@@ -93,7 +93,7 @@ Branch `chore/scaffold`.
 - **`flagWords` kept.** cspell's default dictionaries accept `color`, `catalog`, `center`, and `analyze` under `en-GB` even without the .NET dictionaries, so the list still does its job.
 - **No `.github/state/` entries** in `.prettierignore` and `cspell.jsonc`. Phase 4 adds them with `rust-release-watch.yml`.
 
-The `protect-main` ruleset (ID `25144742`) is **active** since 2026-10-18, with `dotnet`'s rules apart from required status checks: it blocks deletion and force pushes, and requires a pull request that merges by squash. A required check that never reports would block every merge, so they waited for CI. Since Phase 2 merged, the ruleset requires the `xtask` and `format-and-lint` jobs.
+The `protect-main` ruleset (ID `25144742`) is **active** since 2026-10-18, with `dotnet`'s rules apart from required status checks: it blocks deletion and force pushes, and requires a pull request that merges by squash. A required check that never reports would block every merge, so they waited for CI. Since Phase 2 merged, the ruleset requires the `xtask` and `format-and-lint` jobs, and since Phase 4 merged, the `validate` and `links` jobs too.
 
 `verify-project` is now `review-project`, following [awesome-humans/dotnet#174](https://github.com/awesome-humans/dotnet/pull/174) and [awesome-humans/website#70](https://github.com/awesome-humans/website/pull/70), because "verify" reads as pass or fail while the skill writes a graded report.
 
@@ -135,7 +135,7 @@ Port `export-diagrams.cs` as it stands after [awesome-humans/dotnet#149](https:/
 - **`markdown.yml` arrived early,** with only its `format-and-lint` job, so the prose checks gate pull requests from now on. Phase 4 adds the `links` job and its schedule.
 - **The diagrams aren't in the README yet.** Phase 3 adds source standing under Awesome humans, and phase 4 adds the pipeline and research lifecycle with the Maintenance via skills table, as `dotnet`'s README places them.
 
-**After it merged:** the owner added the `xtask` and `format-and-lint` jobs as required status checks on the `protect-main` ruleset (ID `25144742`) on 2026-10-18. Add Phase 4's `links` job too if it runs on pull requests.
+**After it merged:** the owner added the `xtask` and `format-and-lint` jobs as required status checks on the `protect-main` ruleset (ID `25144742`) on 2026-10-18. Phase 4's `validate` and `links` jobs followed on 2026-10-19.
 
 ## Phase 3: Initial roster for vetting
 
@@ -231,7 +231,7 @@ Add `.github/workflows/rust-release-watch.yml`, which compares [channel-rust-sta
 
 Sort README.md's Maintenance via skills table by skill name, as [awesome-humans/dotnet#176](https://github.com/awesome-humans/dotnet/pull/176) does. Phase 2's `validate-readme-index` ports that PR's order check for the table, along with an out-of-order skill row as a test case.
 
-**Progress (2026-10-18):** the branch ports all eight skills from `dotnet` at `d7d7a39`, adds README.md's Maintenance via skills section with the two diagrams phase 2 already draws, and adds the four workflows. It differs from the steps above in six ways:
+**Done (2026-10-19):** [rust#11](https://github.com/awesome-humans/rust/pull/11) merged, and [rust#13](https://github.com/awesome-humans/rust/pull/13) closed two opt-out gaps that CodeRabbit found in the dotnet copies, which [awesome-humans/dotnet#181](https://github.com/awesome-humans/dotnet/pull/181) fixed there. #11 ports all eight skills from `dotnet` at `d7d7a39`, adds README.md's Maintenance via skills section with the two diagrams phase 2 already draws, and adds the four workflows. It differs from the steps above in six ways:
 
 1. **`validate-skills.yml` runs only `just validate-skills`.** The metadata, sources, README, and diagram checks in `dotnet`'s workflow of the same name already run in the `Rust checks` workflow, so a copy would run them twice.
 2. **The `links` job runs `just links`,** not `lycheeverse/lychee-action`, so the `justfile` stays every entry point. `taiki-e/install-action` installs lychee 0.24.2 through its cargo-binstall fallback, because lychee isn't in the action's own manifests.
@@ -240,7 +240,7 @@ Sort README.md's Maintenance via skills table by skill name, as [awesome-humans/
 5. **`review-project` runs Clippy only on a trusted or sandboxed target,** because building runs the target's build scripts and procedural macros. It also reads a library's `rust-version` as an MSRV promise, and reports one below `targets:` only when the library documents no MSRV policy.
 6. **`vet-source` checks opt-outs as a step of its own,** step 2, before any evidence is gathered. The later steps move down by one.
 
-The table order check needed nothing new: phase 2 ported it. Once this merges, add the `validate` and `links` jobs to the `protect-main` ruleset's required checks.
+The table order check needed nothing new: phase 2 ported it. On 2026-10-19, the agent added the `validate` and `links` jobs to the `protect-main` ruleset's required checks, at the owner's request. A third-party host being down now blocks a merge until the `links` job is re-run.
 
 ## Phase 5: Site integration
 
