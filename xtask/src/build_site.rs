@@ -317,7 +317,7 @@ impl Site<'_> {
             {
                 let copy = house::for_profile(&path, &text, profile);
                 let copy = if repo::has_extension(&path, "md") {
-                    self.absolute_links(&path, &copy)
+                    self.absolute_links(&path, &copy, profile)
                 } else {
                     copy
                 };
@@ -1126,9 +1126,10 @@ impl Site<'_> {
     }
 
     // A raw copy is served from rust/raw/<profile>/, where a relative link to another file in
-    // the repository leads nowhere, so each one points at that file on GitHub instead: its raw
-    // copy for a file, and its tree for a directory. Fenced code blocks are left alone.
-    fn absolute_links(&self, source: &str, text: &str) -> String {
+    // the repository leads nowhere, so each one becomes absolute: the same profile's copy for a
+    // file with house opinions, GitHub's raw copy for any other file, and the GitHub tree for a
+    // directory. Fenced code blocks are left alone.
+    fn absolute_links(&self, source: &str, text: &str, profile: Option<&str>) -> String {
         let mut fenced = false;
         let lines: Vec<String> = text
             .split('\n')
@@ -1157,7 +1158,7 @@ impl Site<'_> {
                         let url = if self.repo.is_dir(&resolved) {
                             github(&resolved, true)
                         } else {
-                            raw(&resolved)
+                            self.raw_link(&resolved, profile)
                         };
                         format!("]({url}{anchor})")
                     })
@@ -1405,7 +1406,7 @@ mod tests {
 
     const ROSTER_TEXT: &str = "# Awesome humans\n\n## Admission criteria\n\nTwo years.\n\n## Citable: quotable in opinions and templates\n\nThe table lists 2 sources: 1 people and 1 publications.\n\n| ID | Kind | Source | Focus | Since |\n| --- | --- | --- | --- | --- |\n| `matklad` | person | [Alex Kladov: Blog](https://matklad.github.io/) | Tooling | 2017 |\n| `rust-docs` | publication | [The Rust Programming Language](https://doc.rust-lang.org/) | Language | ~2015 (book) |\n\n## Watch list\n\n| ID | Kind | Source | Focus | Since |\n| --- | --- | --- | --- | --- |\n\n## Opted out\n\n| ID | Kind | Source | Focus | Since |\n| --- | --- | --- | --- | --- |\n\n## Source notes\n\nEach source's notes.\n\n### `matklad`: Citable, **Corroborate.**\n\nWrites about tooling.\n\n## Decision log\n\n- 2026-10-18: admitted both.\n";
 
-    const OPINION: &str = "---\ntargets: [rust-1.99, edition-2024]\nlast-reviewed: 2026-10-14\nlast-used: 2026-10-14\nsources: [house:simon-mckenna, matklad, rust-docs]\n---\n\n# Rust\n\nUse edition 2024 ([matklad](../AWESOME-HUMANS.md#matklad-citable-corroborate)).\n\n/// house | simon-mckenna\n\n**House:** Deny warnings.\n\n///\n\nMore.\n";
+    const OPINION: &str = "---\ntargets: [rust-1.99, edition-2024]\nlast-reviewed: 2026-10-14\nlast-used: 2026-10-14\nsources: [house:simon-mckenna, matklad, rust-docs]\n---\n\n# Rust\n\nUse edition 2024 ([matklad](../AWESOME-HUMANS.md#matklad-citable-corroborate)), and start from [the config](../templates/.cargo/config.toml).\n\n/// house | simon-mckenna\n\n**House:** Deny warnings.\n\n///\n\nMore.\n";
 
     fn staged(fixture: &Fixture, page: &str) -> String {
         fs::read_to_string(fixture.path().join("out").join(page)).expect(page)
@@ -1529,7 +1530,15 @@ mod tests {
         );
         let copy = staged(&fixture, "rust/raw/none/opinions/rust.md.txt");
         assert!(!copy.contains("House"), "{copy}");
-        assert!(copy.contains("([matklad](https://raw.githubusercontent.com/awesome-humans/rust/main/AWESOME-HUMANS.md#matklad-citable-corroborate))"), "{copy}");
+        assert!(copy.contains("[matklad](https://raw.githubusercontent.com/awesome-humans/rust/main/AWESOME-HUMANS.md#matklad-citable-corroborate)"), "{copy}");
+        assert!(
+            copy.contains(
+                "[the config](https://awesome-humans.net/rust/raw/none/templates/cargo/config.toml)"
+            ),
+            "{copy}"
+        );
+        let copy = staged(&fixture, "rust/raw/simon-mckenna/opinions/rust.md.txt");
+        assert!(copy.contains("[the config](https://awesome-humans.net/rust/raw/simon-mckenna/templates/cargo/config.toml)"), "{copy}");
 
         let skill = staged(&fixture, "rust/skills/vet-source.md");
         assert!(skill.starts_with("# Vet a source\n\n[View on GitHub](https://github.com/awesome-humans/rust/blob/main/skills/vet-source/SKILL.md)"), "{skill}");
