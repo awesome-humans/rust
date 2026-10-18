@@ -58,6 +58,7 @@ Rustonomicon
 scannable
 Segoe
 smol
+supertrait
 Swatinem
 timezone
 tomllib

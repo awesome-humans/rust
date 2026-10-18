@@ -1,0 +1,18 @@
+# awesome-humans/rust template | targets: rust-1.99, edition-2024 | last-reviewed: 2026-10-19 | sources: corrode, rust-docs
+# The workspace root. Copy it to the repository root, and inherit its settings in each crate
+# with `edition.workspace = true` and `[lints] workspace = true` (opinions/rust.md).
+[workspace]
+# List each crate's directory, or a glob such as "crates/*" once the directory exists.
+members = []
+# A virtual workspace has no edition to imply resolver 3, which prefers dependency versions
+# that match `rust-version`.
+resolver = "3"
+
+[workspace.package]
+edition = "2024"
+
+[workspace.lints.clippy]
+# Suppress with #[expect(..., reason = "...")], which reports itself once the lint stops firing.
+allow_attributes = "warn"
+allow_attributes_without_reason = "warn"
+manual_let_else = "warn"

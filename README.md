@@ -28,7 +28,9 @@ The writers are listed in [AWESOME-HUMANS.md](AWESOME-HUMANS.md): people and pub
 
 ## Scope
 
-`opinions/` holds one file per topic. None is published yet.
+[`opinions/`](opinions) holds one file per topic:
+
+- **[Rust](opinions/rust.md):** edition 2024, the stable features that replace older idioms, the lints that enforce them, and panics
 
 ## Freshness policy
 
@@ -68,7 +70,13 @@ House opinions are preferences from experience rather than from a vetted source.
 ├── justfile                  ← every local and CI entry point: run just to list them
 ├── rust-toolchain.toml       ← the toolchain the checks build with
 ├── assets/diagrams/          ← generated SVG diagrams: rerun the command, never edit by hand
+├── opinions/                 ← the opinions, one topic per file, code examples as needed
+│   └── rust.md
+├── research/                 ← saved research topics (staging: promote or discard)
 ├── skills/                   ← maintenance skills: see Maintenance via skills
+├── templates/                ← copy-paste-ready files that encode the opinions
+│   ├── Cargo.toml
+│   └── rustfmt.toml
 ├── xtask/src/                ← this repository's own CI checks, one subcommand each
 │   ├── build_site.rs
 │   ├── comment_header.rs     ← shared module: template headers
