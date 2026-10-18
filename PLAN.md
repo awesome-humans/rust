@@ -253,7 +253,8 @@ The site now lives in the .NET repository, and `build-site.cs` hard-codes `Ecosy
    Each step writes its pages and a `nav.json` fragment. The website repository merges the fragments into one `zensical.toml` and builds it with `--strict`. A push to `main` in an ecosystem repository triggers a rebuild through `repository_dispatch`. Send it with a token from a GitHub App installed on the organisation, not a personal access token, so the site doesn't depend on one person's account.
 
 2. **Root `llms.txt`** links one `llms.txt` per ecosystem: `/dotnet/llms.txt` and `/rust/llms.txt`.
-3. **Root page:** Add **[Rust](rust/index.md)** under Ecosystems, and change "Rust and TypeScript are next" to "TypeScript is next".
+3. **Root page:** Add `**[Rust](rust/index.md)**` under Ecosystems, and change "Rust and TypeScript are next" to "TypeScript is next".
+4. **Link check:** Remove the `awesome-humans.net/rust/` entry from `exclude` in `lychee.toml`, which phase 4 added because the section wasn't published yet.
 
 ### Branding
 
