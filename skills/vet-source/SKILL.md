@@ -24,6 +24,7 @@ As [AGENTS.md: Orchestration and model economy](../../AGENTS.md#orchestration-an
 2. **Check every ecosystem's opt-outs first.** An opt-out from one ecosystem covers all of them, so read the `## Opted out` section of every other ecosystem's `AWESOME-HUMANS.md` before you gather any evidence.
    - List the ecosystem repositories with `gh repo list awesome-humans`, and read each roster with `gh api repos/awesome-humans/<repository>/contents/AWESOME-HUMANS.md -H 'Accept: application/vnd.github.raw'`. Today that's `awesome-humans/dotnet`.
    - **A candidate listed there is declined without vetting.** Never re-run the criteria on it: its owner asked not to be cited. Add no roster row and no source notes. Skip to step 6.3, and log the decline with a link to the other roster's entry, in a pull request that holds only the log entry.
+   - **If this roster lists the source too,** don't log a decline. Follow [Opt-outs](#opt-outs) for it here, and link the other roster's entry where step 3 links the `awesome-humans/website` issue.
 3. **Establish the track record** against each criterion:
    - **Longevity:** Find the earliest verifiable publication, from archives, post history, or the Wayback Machine. Admission needs two years of sustained output, and less means the watch list, whatever the quality. Record the exact start year in the roster's `Since` column.
    - **Depth:** Sample three to five representative posts. Do they offer original insight, such as internals, measurements, or worked reasoning, or do they paraphrase release notes?
@@ -63,7 +64,7 @@ An opt-out removes citations, and the roster keeps only enough to turn away a la
 2. **Delete the source's section** under `## Source notes`. `just validate-sources` fails while it's there.
 3. **Log the decision:** the date, the source ID, and the link to the `awesome-humans/website` issue. Never quote the requester or name anyone beyond the source ID.
 4. **Re-source every citation.** `just validate-sources` lists each opinion and template that still cites the ID. Re-source each claim with `research-topic`, or cut it back to what other citable sources support. In the pull request, list each claim and what happened to it.
-5. **Open the pull request** with the [`source.md`](https://github.com/awesome-humans/.github/blob/main/PULL_REQUEST_TEMPLATE/source.md) template and `Closes #<number>`. Comment the pull request on the `awesome-humans/website` issue, which the owner closes once every ecosystem's pull request has merged.
+5. **Open the pull request** with the [`source.md`](https://github.com/awesome-humans/.github/blob/main/PULL_REQUEST_TEMPLATE/source.md) template and `Closes #<number>`. Comment the pull request on the `awesome-humans/website` issue, which the owner closes once every ecosystem's pull request has merged. When step 2 sent the source here and there's no issue, leave out `Closes` and the comment, and link the other roster's entry in the description instead.
 
 Opting back in is a suggestion like any other. The source leaves `## Opted out` only on admission.
 
