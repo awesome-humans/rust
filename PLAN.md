@@ -125,6 +125,17 @@ Port `export-diagrams.cs` as it stands after [awesome-humans/dotnet#149](https:/
 - **Crate choices:** These are provisional. Each one needs a roster source before the `rust` or `project-structure` opinion recommends it. Until then, they're repository plumbing, not opinions.
 - **`justfile`:** It sets `set shell := ["bash", "-euo", "pipefail", "-c"]` and has a default recipe that lists the others. CI installs `just` from a pinned release (1.58.0, released 2026-08-03) through `taiki-e/install-action`, pinned to a commit SHA.
 
+**Progress (2026-10-18):** The `feat/xtask` pull request ports all five scripts and their four helpers, with a `justfile` and a `Rust checks` workflow. `just verify` passes, and the staged `nav.json` and `sources.json` validate against the website's schemas. The SVGs match `dotnet`'s coordinate for coordinate, with only the Rust names changed. It differs from the steps above in six ways:
+
+- **Crates:** `clap`, which AGENTS.md already names, `jiff`, `regex`, `serde_json`, `serde_yaml_ng`, and `walkdir`, with `tempfile` for the tests. `pulldown-cmark` and `serde`'s derive aren't needed: the port keeps the .NET scripts' line and regex parsing, so the two produce the same findings and pages.
+- **Missing directories read as empty.** `rust` has no `opinions/`, `templates/`, `skills/`, or `AWESOME-HUMANS.md` yet, so the checks recognise the root by `AGENTS.md` and `xtask/` instead of by `opinions/`. A directory that exists but is empty is still a finding, and so is a README section missing once its directory exists. `build-site` stages no pages or navigation for a missing part.
+- **Tests come from the failures each check catches,** because `dotnet` has no test inputs to port: 59 cases, among them a relative date, a duplicate roster ID, a wrong Citable count, and out-of-order Scope bullets, tree entries, and skill rows.
+- **CI pins:** `just` 1.58.0 as planned, because 1.59.0 came out on 2026-10-15, and `cargo-nextest` 0.9.146. Both install through `taiki-e/install-action` v2.87.22.
+- **Two extra recipes,** `fmt-check` and `check-diagrams`, so the workflow calls only recipes. `just check` runs `npm run check` and `fmt-check`.
+- **The diagrams aren't in the README yet.** Phase 3 adds source standing under Awesome humans, and phase 4 adds the pipeline and research lifecycle with the Maintenance via skills table, as `dotnet`'s README places them.
+
+**After it merges:** add the `xtask` job as a required status check on the `protect-main` ruleset (ID `25144742`). Auto mode can't edit rulesets, so the owner runs the `gh api -X PUT` command.
+
 ## Phase 3: Initial roster for vetting
 
 Branch `vet/initial-roster`. Every candidate below goes through `vet-source` before any opinion cites it. The standings given here are **provisional**, based on a feed check on 2026-10-14. `vet-source` decides the real standing.

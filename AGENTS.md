@@ -129,7 +129,7 @@ Rules:
 - **A JSON template is exempt from the header,** because JSON has no comment syntax. None exists today. If one is added, what it pins is audited against the latest releases instead. Building the template workspace leaves `templates/target/` behind, which is gitignored. That output isn't a resource, and the check skips it.
 - **`skills/` are deliberately exempt.** The [Agent Skills specification](https://agentskills.io/specification) defines their frontmatter, they're procedures and not reference material, and nothing reads a date from them. Use `git log` to see when a skill last changed.
 
-CI runs `cargo xtask validate-metadata` against both syntaxes, and a missing field, a relative date, or an unsorted `sources` list fails the pull request.
+CI runs `just validate-metadata` against both syntaxes, and a missing field, a relative date, or an unsorted `sources` list fails the pull request.
 
 ## Writing style
 
@@ -250,12 +250,13 @@ Work in a git worktree, with one branch per directory. The local clone is bare, 
 
 ### Scripts
 
-- CI checks live in `xtask/`, one binary crate in the root Cargo workspace, with one `clap` subcommand per check. Run them from the repository root with `cargo xtask <name>`, which `.cargo/config.toml` aliases to `cargo run --package xtask --`. Code that two subcommands share goes in a module that both use, not in a copy.
+- CI checks live in `xtask/`, one binary crate in the root Cargo workspace, with one `clap` subcommand per check. Run them from the repository root with `cargo xtask <name>`, which `.cargo/config.toml` aliases to `cargo run --package xtask --quiet --`. Code that two subcommands share goes in a module that both use, not in a copy.
 - The `justfile` is every local and CI entry point. Each check has a recipe of the same name, such as `just validate-metadata`, and CI calls the recipes, never `cargo` directly. `just` with no arguments lists them.
 - Subcommands use kebab-case names because you type them on a command line. Modules use snake_case, following Rust's naming convention, so `validate-metadata` lives in `validate_metadata.rs`.
 - Add a check as a subcommand, not as an inline script in a workflow, and hold it to the repository's own opinions: `rust-toolchain.toml` pins the stable channel, the crate uses edition 2024 and sets `rust-version` to the targeted release, `[lints]` warns on `clippy::pedantic`, and CI denies warnings.
 - Keep the exit codes: 0 when clean, 1 for findings, and 2 when not run from the repository root. CI and the skills read them.
-- When you add or rename a subcommand, update README.md's Repository scripts table and the layout tree.
+- Test each check with `#[cfg(test)]` cases built from the failures it catches, such as a relative date or a duplicate roster ID, and run them with `just test`.
+- When you add or rename a subcommand, update the table in [README.md: Repository scripts](README.md#repository-scripts) and the layout tree.
 - Renovate bumps the crates in `xtask/Cargo.toml` and the root workspace. `renovate.json` turns the cargo manager off under `templates/`, because those pins are content that `refresh-rust-versions` maintains.
 - **Review by 2027-04-01.** Single-file Cargo scripts (`cargo -Zscript`) are still unstable, tracked in [rust-lang/cargo#12207](https://github.com/rust-lang/cargo/issues/12207), and running checks on nightly would break the repository's own "latest stable" rule. When they stabilise, consider moving each check to a script, as the .NET repository's file-based apps do.
 

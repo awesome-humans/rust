@@ -1,0 +1,3 @@
+# `cargo xtask <name>` runs one of the repository's checks (AGENTS.md: Scripts).
+[alias]
+xtask = "run --package xtask --quiet --"
