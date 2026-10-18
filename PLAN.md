@@ -242,7 +242,7 @@ The site now lives in the .NET repository, and `build-site.cs` hard-codes `Ecosy
    Each step writes its pages and a `nav.json` fragment. The website repository merges the fragments into one `zensical.toml` and builds it with `--strict`. A push to `main` in an ecosystem repository triggers a rebuild through `repository_dispatch`. Send it with a token from a GitHub App installed on the organisation, not a personal access token, so the site doesn't depend on one person's account.
 
 2. **Root `llms.txt`** links one `llms.txt` per ecosystem: `/dotnet/llms.txt` and `/rust/llms.txt`.
-3. **Root page:** Add **[Rust](rust/index.md)** under Ecosystems, and change "Rust and TypeScript are next" to "TypeScript is next".
+3. **Root page:** Add **[Rust](rust/index.md)** under Ecosystems. Name no ecosystem as next: a third is on hold until `dotnet` and `rust` have shaken out the multi-repository approach.
 
 ### Branding
 
@@ -257,7 +257,7 @@ Each section takes its own brand colour, in a light-mode and a dark-mode variant
 | Header and tabs, every page and both modes | `linear-gradient(90deg, #512bd4, #b7410e)` | 5.6:1 or better with white text throughout |
 
 - **Why these oranges:** Rust's official logo is monochrome, and rust-lang.org has no orange in its palette. Rust orange comes from the community Ferris artwork, whose `#f74c00` gets only 3.5:1 with white text, and so fails as a header. `#b7410e` is the same hue, deep enough for white text. `#ff7a3d` is its counterpart for links on the dark background, where `#b7410e` gets only 2.9:1.
-- **Header gradient:** Set it on `.md-header` and `.md-tabs` in `extra.css`, from .NET purple on the left to rust orange on the right. Give the two elements the same `background-attachment: fixed` sizing, so the tabs carry on the header's gradient instead of restarting it. When TypeScript joins, add its colour as a third stop, and check the contrast of every stop.
+- **Header gradient:** Set it on `.md-header` and `.md-tabs` in `extra.css`, from .NET purple on the left to rust orange on the right. Give the two elements the same `background-attachment: fixed` sizing, so the tabs carry on the header's gradient instead of restarting it. When a third ecosystem joins, add its colour as a third stop, and check the contrast of every stop.
 - **Per-section colour:** Zensical can't set a palette per path. A small `ecosystem.js` sets `data-ecosystem` on `<html>` from the first path segment. `extra.css` then scopes `--md-primary-fg-color`, `--md-accent-fg-color`, and `--md-typeset-a-color` to `[data-ecosystem="dotnet"]` and `[data-ecosystem="rust"]`, each with a `[data-md-color-scheme="slate"]` override. The root page keeps the gradient header and neutral links.
 - **Logo:** Use the [official Rust logo](https://github.com/rust-lang/rust-artwork) on the Rust section's index page and the root page's Ecosystems list. It's licensed CC-BY, so credit it in the site footer with a link to the licence, and record any recolouring. Under the [Rust Foundation: Rust trademark policy](https://rustfoundation.org/policy/rust-trademark-policy/), naming the language needs no permission, but the site mustn't look official or endorsed. Add a footer line: "Not affiliated with or endorsed by the Rust Project or the Rust Foundation." Never call the section "official".
 - **Fonts:** Keep the system fonts. rust-lang.org uses Fira Sans and Alfa Slab One from Google Fonts, but `zensical.toml` turned off font loading to avoid a third-party request on every page view.
