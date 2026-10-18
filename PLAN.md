@@ -204,6 +204,17 @@ Follow `AGENTS.md: Orchestration and model economy`. Cheaper worker agents check
 - **Start with an empty `## Opted out` section,** as dotnet#169 added to `dotnet`'s roster, so the site stages it and `sources.json` can export `opted-out` rows.
 - **State the count above the Citable table,** as `dotnet`'s roster does: "The table lists N sources: N people and N publications." `validate-sources` counts the rows by Kind and fails when the sentence disagrees, so port that check in phase 2 with the rest of the script.
 
+**Progress (2026-10-18):** The `vet/initial-roster` pull request adds `AWESOME-HUMANS.md` with 23 citable sources (12 people and 11 publications, four of them Discovery-only and one Corroborate) and 8 on the watch list. Four Sonnet workers gathered the evidence, and the editor decided each standing. `dotnet` lists no opted-out source, so none was declined on that ground. It differs from the tables above in six ways:
+
+- **`perf-book` is now `nnethercote`,** a person, because the book and the blog are one person's work.
+- **`tweede-golf` is citable,** not watch-listed: its blog has Rust posts monthly through 2026-10-14, so the 2024-09-30 check read an out-of-date page.
+- **`burntsushi` is citable under the dormancy exception.** The blog's latest technical post is from 2023-07-05, but the Jiff comparison and design documents had new writing in 2026-01 and 2026-02.
+- **`yoshua-wuyts` isn't marked Corroborate.** The marking is for thin depth, and the proposals are deep, so it gets the same usage limit as `niko-matsakis`: never cite a proposal as current Rust.
+- **`effective-rust`, `api-guidelines`, and `luca-palmieri` are watch-listed** as dormant: no writing since 2024-04, 2024-03, and 2025-02.
+- **`fasterthanlime` and `alice-ryhl` are citable, but close to the dormancy line,** with their latest posts on 2025-12-31 and 2025-11-05. Each note gives the date to re-evaluate.
+
+`README.md` and `AGENTS.md` now link `AWESOME-HUMANS.md`, and the README shows the source standing diagram under Awesome humans. `vet-source` itself is phase 4, so the README names it in backticks until then.
+
 ## Phase 4: Skills
 
 Branch `docs/port-skills`. Port all eight skills, change the ecosystem nouns, and keep the procedures.
