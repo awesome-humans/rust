@@ -19,6 +19,7 @@ matklad
 mckenna
 Miri
 Neue
+newtype
 nextest
 Noto
 quot

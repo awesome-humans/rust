@@ -279,6 +279,13 @@ Templates, each with a first-line header comment:
 
 **Re-evaluate `xtask/src/` once the first opinions and templates land.** Phase 2 wrote and tested every check against fixtures only, because the repository had no content for them to read. With real opinions, templates, a roster, and skills in place, review each module against what the content needs. Drop the allowances for missing directories that no longer apply, check that the port's regex parsing copes with the real files, and decide whether a Rust-native approach, such as `pulldown-cmark`, would now serve better than following the .NET scripts line by line.
 
+The port also reads like the C# it came from, and it's longer than it needs to be. Tighten it into idiomatic Rust in the same pass:
+
+- **Types instead of strings:** an enum or newtype for a repository path, a page, a profile, and a roster bucket, in place of `String` keys and `&'static str` tags.
+- **Iterators and `?` instead of loops and early returns,** where they read better, and a crate error type in place of the hand-built finding strings for I/O failures.
+- **Smaller functions:** split `build_site.rs`'s `stage` and `stage_roster`, and the long diagram functions, which carry `#[expect(clippy::too_many_lines)]` today, until they no longer need it.
+- **Less shared mutable state:** `build_site.rs` threads one `&mut Site` through every step to collect errors. Return values instead, and collect the errors at the top.
+
 ## Open questions
 
 These need the owner's decision before the phase that depends on them:
