@@ -85,19 +85,19 @@ Branch `chore/scaffold`.
    - Turn it off for `templates/**`, because those pins are content that `refresh-rust-versions` maintains.
    - Keep the npm and github-actions groups.
 
-**Progress (2026-10-18):** `main` holds only `LICENSE`, pushed straight to it because the repository was empty. The rest is in the `chore/scaffold` pull request. It differs from the steps above in five ways:
+**Progress (2026-10-18):** `main` holds only `LICENSE`, pushed straight to it because the repository was empty. The rest merged as [rust#1](https://github.com/awesome-humans/rust/pull/1) on 2026-10-18. It differs from the steps above in five ways:
 
-- **No `justfile` yet.** `just` isn't installed locally, so Phase 2 adds the `justfile` with the `xtask` recipes. Until then, `npm run check` is the only check, and `package.json` has no `verify` script. `AGENTS.md` already describes `just` and `xtask`, as step 2 asks.
+- **No `justfile` yet.** `just` wasn't installed locally, so Phase 2 added the `justfile` with the `xtask` recipes, in [rust#4](https://github.com/awesome-humans/rust/pull/4). `AGENTS.md` already described `just` and `xtask`, as step 2 asks.
 - **Links only to files that exist.** `README.md` and `AGENTS.md` name `AWESOME-HUMANS.md`, `skills/`, `templates/`, and README.md's Maintenance via skills and Repository scripts sections in backticks, not as links, so `main` never has a broken link. Turn each one into a link in the pull request that adds its target: phase 3 for the roster, phase 2 for Repository scripts, and phase 4 for the skills.
 - **`MD020` dropped too.** It existed only for headings ending in `C#` and `F#`. `MD041` was already gone.
 - **`flagWords` kept.** cspell's default dictionaries accept `color`, `catalog`, `center`, and `analyze` under `en-GB` even without the .NET dictionaries, so the list still does its job.
 - **No `.github/state/` entries** in `.prettierignore` and `cspell.jsonc`. Phase 4 adds them with `rust-release-watch.yml`.
 
-The `protect-main` ruleset (ID `25144742`) is **active** since 2026-10-18, with `dotnet`'s rules apart from required status checks: it blocks deletion and force pushes, and requires a pull request that merges by squash. `rust` has no CI until phases 2 and 4, and a required check that never reports would block every merge. Add the Rust CI's job names as required checks once those workflows exist.
+The `protect-main` ruleset (ID `25144742`) is **active** since 2026-10-18, with `dotnet`'s rules apart from required status checks: it blocks deletion and force pushes, and requires a pull request that merges by squash. A required check that never reports would block every merge, so it waits for CI. Phase 2 added the `xtask` and `format-and-lint` jobs; see [After it merged](#phase-2-rust-checks-with-xtask-and-just).
 
 `verify-project` is now `review-project`, following [awesome-humans/dotnet#174](https://github.com/awesome-humans/dotnet/pull/174) and [awesome-humans/website#70](https://github.com/awesome-humans/website/pull/70), because "verify" reads as pass or fail while the skill writes a graded report.
 
-**House profiles (done 2026-10-18):** [awesome-humans/website#72](https://github.com/awesome-humans/website/pull/72) and [awesome-humans/dotnet#175](https://github.com/awesome-humans/dotnet/pull/175) merged on 2026-10-18. They replace the bare `house` ID with `house:<profile>`, and keep each house opinion in a block beside the sourced text instead of rewriting it. The `docs/house-profiles` pull request ported `dotnet`'s result here:
+**House profiles (done 2026-10-18):** [awesome-humans/website#72](https://github.com/awesome-humans/website/pull/72) and [awesome-humans/dotnet#175](https://github.com/awesome-humans/dotnet/pull/175) merged on 2026-10-18. They replace the bare `house` ID with `house:<profile>`, and keep each house opinion in a block beside the sourced text instead of rewriting it. [rust#3](https://github.com/awesome-humans/rust/pull/3) ported `dotnet`'s result here:
 
 - **`HOUSE-OPINIONS.md`:** the Profiles table, the Profile column in Woven, and the new rule 4.
 - **`AGENTS.md` and `README.md`:** `house:<profile>` in the metadata rules and the `sources` sorting example, and the house opinion wording.
@@ -125,7 +125,7 @@ Port `export-diagrams.cs` as it stands after [awesome-humans/dotnet#149](https:/
 - **Crate choices:** These are provisional. Each one needs a roster source before the `rust` or `project-structure` opinion recommends it. Until then, they're repository plumbing, not opinions.
 - **`justfile`:** It sets `set shell := ["bash", "-euo", "pipefail", "-c"]` and has a default recipe that lists the others. CI installs `just` from a pinned release (1.58.0, released 2026-08-03) through `taiki-e/install-action`, pinned to a commit SHA.
 
-**Progress (2026-10-18):** The `feat/xtask` pull request ports all five scripts and their four helpers, with a `justfile` and a `Rust checks` workflow. `just verify` passes, and the staged `nav.json` and `sources.json` validate against the website's schemas. The SVGs match `dotnet`'s coordinate for coordinate, with only the Rust names changed. It differs from the steps above in seven ways:
+**Done (2026-10-18):** [rust#4](https://github.com/awesome-humans/rust/pull/4) merged. It ports all five scripts and their four helpers, with a `justfile` and a `Rust checks` workflow. `just verify` passes, and the staged `nav.json` and `sources.json` validate against the website's schemas. The SVGs match `dotnet`'s coordinate for coordinate, with only the Rust names changed. It differs from the steps above in seven ways:
 
 - **Crates:** `clap`, which AGENTS.md already names, `jiff`, `regex`, `serde_json`, `serde_yaml_ng`, and `walkdir`, with `tempfile` for the tests. `pulldown-cmark` and `serde`'s derive aren't needed: the port keeps the .NET scripts' line and regex parsing, so the two produce the same findings and pages.
 - **Missing directories read as empty.** `rust` has no `opinions/`, `templates/`, `skills/`, or `AWESOME-HUMANS.md` yet, so the checks recognise the root by `AGENTS.md` and `xtask/` instead of by `opinions/`. A directory that exists but is empty is still a finding, and so is a README section missing once its directory exists. `build-site` stages no pages or navigation for a missing part.
@@ -135,7 +135,7 @@ Port `export-diagrams.cs` as it stands after [awesome-humans/dotnet#149](https:/
 - **`markdown.yml` arrived early,** with only its `format-and-lint` job, so the prose checks gate pull requests from now on. Phase 4 adds the `links` job and its schedule.
 - **The diagrams aren't in the README yet.** Phase 3 adds source standing under Awesome humans, and phase 4 adds the pipeline and research lifecycle with the Maintenance via skills table, as `dotnet`'s README places them.
 
-**After it merges:** add the `xtask` and `format-and-lint` jobs as required status checks on the `protect-main` ruleset (ID `25144742`). Auto mode can't edit rulesets, so the owner runs the `gh api -X PUT` command.
+**After it merged:** add the `xtask` and `format-and-lint` jobs as required status checks on the `protect-main` ruleset (ID `25144742`). On 2026-10-18 the ruleset still had no required checks. Auto mode can't edit rulesets, so the owner runs the `gh api -X PUT` command.
 
 ## Phase 3: Initial roster for vetting
 
