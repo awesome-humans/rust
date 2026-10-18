@@ -1,6 +1,6 @@
 //! `validate-metadata`: every resource carries the metadata fields AGENTS.md requires
-//! (`targets`, `last-reviewed`, `sources`, plus `last-used` outside `research/`), the dates
-//! are ISO 8601, and each sources list is in ordinal order.
+//! (`targets`, `last-reviewed`, and `sources`), the dates are ISO 8601, and each sources
+//! list is in ordinal order.
 //!
 //! Three resource kinds carry them two ways. `opinions/` and `research/` use YAML
 //! frontmatter, and `templates/` use a first-line comment header. One required set spans
@@ -15,18 +15,16 @@ use serde_yaml_ng::{Mapping, Value};
 use crate::repo::{self, Repo};
 use crate::{Report, comment_header, frontmatter};
 
-const REQUIRED: &[&str] = &["targets", "last-reviewed", "last-used", "sources"];
+const REQUIRED: &[&str] = &["targets", "last-reviewed", "sources"];
 
-// A research topic carries no last-used: the only way to consult one is to build on it,
-// which re-verifies it, so its two dates would always move together (research-topic).
-const RESEARCH_REQUIRED: &[&str] = &["targets", "last-reviewed", "sources"];
-
-// ...and two fields it must not carry. A last-used or status key on a research topic is the
-// retired frontmatter shape coming back. A topic on disk is unresolved by definition, and
-// deletion is the only promotion signal (AGENTS.md), so these are rejected, not ignored.
+// last-used is retired everywhere: whether a resource is still referenced is read from the
+// repository by audit-freshness, not stored. A research topic also must not carry a status:
+// a topic on disk is unresolved by definition, and deletion is the only promotion signal
+// (AGENTS.md). Both are rejected, not ignored, so the retired shapes can't come back.
+const FORBIDDEN: &[&str] = &["last-used"];
 const RESEARCH_FORBIDDEN: &[&str] = &["last-used", "status"];
 
-const DATE_FIELDS: &[&str] = &["last-reviewed", "last-used"];
+const DATE_FIELDS: &[&str] = &["last-reviewed"];
 
 static ISO_DATE: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\A\d{4}-\d{2}-\d{2}\z").expect("valid pattern"));
@@ -34,7 +32,6 @@ static ISO_DATE: LazyLock<Regex> =
 struct Resource {
     path: String,
     fields: Result<Mapping, String>,
-    required: &'static [&'static str],
     forbidden: &'static [&'static str],
 }
 
@@ -51,8 +48,7 @@ pub fn run(repo: &Repo) -> Report {
         resources.push(Resource {
             fields: read(repo, path, frontmatter::parse),
             path: path.clone(),
-            required: REQUIRED,
-            forbidden: &[],
+            forbidden: FORBIDDEN,
         });
     }
 
@@ -64,7 +60,6 @@ pub fn run(repo: &Repo) -> Report {
         resources.push(Resource {
             fields: read(repo, path, frontmatter::parse),
             path: path.clone(),
-            required: RESEARCH_REQUIRED,
             forbidden: RESEARCH_FORBIDDEN,
         });
     }
@@ -81,8 +76,7 @@ pub fn run(repo: &Repo) -> Report {
         resources.push(Resource {
             fields: read(repo, path, comment_header::parse),
             path: path.clone(),
-            required: REQUIRED,
-            forbidden: &[],
+            forbidden: FORBIDDEN,
         });
     }
 
@@ -123,7 +117,7 @@ fn check(resource: &Resource, errors: &mut Vec<String>) {
         }
     };
 
-    for field in resource.required {
+    for field in REQUIRED {
         if fields.get(field).is_none_or(is_empty) {
             errors.push(format!("{path}: missing or empty metadata field '{field}'"));
         }
@@ -131,9 +125,7 @@ fn check(resource: &Resource, errors: &mut Vec<String>) {
 
     for field in resource.forbidden {
         if fields.contains_key(field) {
-            errors.push(format!(
-                "{path}: field '{field}' is not allowed on a research topic"
-            ));
+            errors.push(format!("{path}: field '{field}' is not allowed here"));
         }
     }
 
@@ -191,8 +183,8 @@ mod tests {
     use super::*;
     use crate::tests::Fixture;
 
-    const OPINION: &str = "---\ntargets: [rust-1.99, edition-2024]\nlast-reviewed: 2026-10-14\nlast-used: 2026-10-14\nsources: [matklad, rust-docs]\n---\n# Rust\n";
-    const TEMPLATE: &str = "# awesome-humans/rust template | targets: rust-1.99 | last-reviewed: 2026-10-14 | last-used: 2026-10-14 | sources: rust-docs\n[workspace]\n";
+    const OPINION: &str = "---\ntargets: [rust-1.99, edition-2024]\nlast-reviewed: 2026-10-14\nsources: [matklad, rust-docs]\n---\n# Rust\n";
+    const TEMPLATE: &str = "# awesome-humans/rust template | targets: rust-1.99 | last-reviewed: 2026-10-14 | sources: rust-docs\n[workspace]\n";
 
     #[test]
     fn a_repository_without_resources_is_clean() {
@@ -232,11 +224,11 @@ mod tests {
     fn a_relative_date_is_a_finding() {
         let fixture = Fixture::new().file(
             "opinions/rust.md",
-            &OPINION.replace("last-used: 2026-10-14", "last-used: yesterday"),
+            &OPINION.replace("last-reviewed: 2026-10-14", "last-reviewed: yesterday"),
         );
         assert_eq!(
             run(&fixture.repo()).errors,
-            ["opinions/rust.md: 'last-used' is 'yesterday', not an ISO 8601 date (YYYY-MM-DD)"]
+            ["opinions/rust.md: 'last-reviewed' is 'yesterday', not an ISO 8601 date (YYYY-MM-DD)"]
         );
     }
 
@@ -296,16 +288,39 @@ mod tests {
     }
 
     #[test]
+    fn last_used_is_a_finding() {
+        let fixture = Fixture::new()
+            .file(
+                "opinions/rust.md",
+                &OPINION.replace("---\n# Rust", "last-used: 2026-10-14\n---\n# Rust"),
+            )
+            .file(
+                "templates/Cargo.toml",
+                &TEMPLATE.replace(" | sources", " | last-used: 2026-10-14 | sources"),
+            );
+        assert_eq!(
+            run(&fixture.repo()).errors,
+            [
+                "opinions/rust.md: field 'last-used' is not allowed here",
+                "templates/Cargo.toml: field 'last-used' is not allowed here",
+            ]
+        );
+    }
+
+    #[test]
     fn a_research_topic_rejects_the_retired_fields() {
         let fixture = Fixture::new().file(
             "research/async.md",
-            &OPINION.replace("---\n# Rust", "status: open\n---\n# Rust"),
+            &OPINION.replace(
+                "---\n# Rust",
+                "last-used: 2026-10-14\nstatus: open\n---\n# Rust",
+            ),
         );
         assert_eq!(
             run(&fixture.repo()).errors,
             [
-                "research/async.md: field 'last-used' is not allowed on a research topic",
-                "research/async.md: field 'status' is not allowed on a research topic",
+                "research/async.md: field 'last-used' is not allowed here",
+                "research/async.md: field 'status' is not allowed here",
             ]
         );
     }
