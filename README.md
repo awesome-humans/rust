@@ -24,7 +24,7 @@ The writers will be listed in `AWESOME-HUMANS.md`: people and publications with 
 
 - **Start a project from the templates.** Copy the files in `templates/` into a new project, trimming what you don't need.
 
-- **Read the opinions.** Browse them at [awesome-humans.net](https://awesome-humans.net/rust/) or on GitHub. Each page gives its recommendation, with the rationale and sources behind it.
+- **Read the opinions.** Once they're published, browse them at [awesome-humans.net](https://awesome-humans.net/rust/) or on GitHub. Each page gives its recommendation, with the rationale and sources behind it.
 
 ## Scope
 
@@ -34,7 +34,7 @@ The writers will be listed in `AWESOME-HUMANS.md`: people and publications with 
 
 Opinions target the latest stable Rust release and the latest edition, never an older toolchain. Nightly-only features appear only in "Coming next" notes. The maintenance skills move the repository to each new release.
 
-Every resource records when it was last reviewed against its sources, and opinions and templates also record when an agent last used them. [AGENTS.md: Metadata](AGENTS.md#metadata) defines the fields, and CI enforces them.
+Every resource records when it was last reviewed against its sources, and opinions and templates also record when an agent last used them. [AGENTS.md: Metadata](AGENTS.md#metadata) defines the fields. The `xtask` checks will enforce them.
 
 ## Awesome humans
 
@@ -57,6 +57,6 @@ The repository owner outranks the roster. The owner's preferences come in throug
 
 Agents build and maintain this project, but it wouldn't exist without the people whose writing it draws on. Every opinion cites their work. Thank you to all of these awesome humans, and to everyone who supports them.
 
-## License
+## Licence
 
 See [LICENSE](LICENSE).
