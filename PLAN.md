@@ -291,6 +291,14 @@ Run `research-topic`, then `resolve-research`, for each topic. Write an opinion 
 | `runtime-performance.md` | Profiling, allocation, and release profile settings                                                             | `perf-book`                               |
 | `security.md`            | Supply chain (`cargo-deny`, `cargo-vet`, RustSec), and secure coding                                            | `anssi-rust`, `rust-docs`                 |
 
+**Progress (2026-10-19):** [rust#16](https://github.com/awesome-humans/rust/pull/16) merged `research/rust.md`, the topic for `rust.md`. Four Sonnet workers read the release announcements for 1.85 to 1.99.1, the official documentation and Clippy, the roster authors, and the status of unstable features. It proposes promotion, with every recommendation carried by a citable source. Three findings change the steps here:
+
+- **`rust.md` needs more sources than the table expects.** `rust-blog` and `rust-docs` carry the edition and the features, but the idioms rest on `burntsushi`, `corrode`, and `matklad`. `niko-matsakis` and `yoshua-wuyts` support only a "Coming next" note on closure captures, because their posts are proposals.
+- **Two templates gain settings from it:** `templates/Cargo.toml` takes `edition = "2024"`, `resolver = "3"`, and `allow_attributes` with `allow_attributes_without_reason` in `[workspace.lints.clippy]`, and `templates/rustfmt.toml` takes `style_edition = "2024"`.
+- **Rust 1.100, due 2026-11-12, stabilises the never type.** `refresh-rust-versions` picks it up, and the opinion's "Coming next" table loses that row.
+
+CodeRabbit raised one finding, that the dates should read 2026-10-18, which was declined: the checks ran on 2026-10-19 in local time. Next is `resolve-research` for the topic, on branch `resolve/rust`.
+
 Templates, each with a first-line header comment:
 
 - `Cargo.toml`, a workspace root with `[workspace.lints]` and `[profile.release]`
