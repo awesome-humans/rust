@@ -14,7 +14,7 @@ The writers will be listed in `AWESOME-HUMANS.md`: people and publications with 
 
   The opinions cover conventions, project layout, language usage, and crate choices.
 
-- **Check an existing project.** Ask your coding agent to run `review-project`:
+- **Check an existing project.** Once the Rust skill is published, ask your coding agent to run `review-project`:
 
   ```text
   Use the review project skill at awesome-humans.net on <repo>
