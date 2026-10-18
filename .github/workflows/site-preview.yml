@@ -19,14 +19,14 @@ concurrency:
 
 jobs:
   build:
-    uses: awesome-humans/website/.github/workflows/build.yml@c30dd2126bb52f5caaf0f9ef30d859b035728ab5 # feat/preview-soon-ecosystems
+    uses: awesome-humans/website/.github/workflows/build.yml@5a2ea30f50f4136c26c58e76cedc8efcdcd2a425 # main
     with:
       ecosystem: rust
       ref: ${{ github.event.pull_request.head.sha }}
 
   deploy:
     needs: build
-    uses: awesome-humans/website/.github/workflows/deploy.yml@c30dd2126bb52f5caaf0f9ef30d859b035728ab5 # feat/preview-soon-ecosystems
+    uses: awesome-humans/website/.github/workflows/deploy.yml@5a2ea30f50f4136c26c58e76cedc8efcdcd2a425 # main
     with:
       preview-alias: pr-rust-${{ github.event.pull_request.number }}
     secrets: inherit
