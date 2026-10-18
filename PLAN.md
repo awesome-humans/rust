@@ -285,6 +285,7 @@ The port also reads like the C# it came from, and it's longer than it needs to b
 - **Iterators and `?` instead of loops and early returns,** where they read better, and a crate error type in place of the hand-built finding strings for I/O failures.
 - **Smaller functions:** split `build_site.rs`'s `stage` and `stage_roster`, and the long diagram functions, which carry `#[expect(clippy::too_many_lines)]` today, until they no longer need it.
 - **Less shared mutable state:** `build_site.rs` threads one `&mut Site` through every step to collect errors. Return values instead, and collect the errors at the top.
+- **Stage atomically:** `build-site` writes straight into `<out>/rust/`, so a failed run leaves partial output. Stage into a temporary directory and move it into place only when there are no errors, as CodeRabbit proposed on rust#4.
 
 ## Open questions
 

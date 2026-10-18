@@ -166,7 +166,9 @@ impl Site<'_> {
         let diagrams = self.diagrams();
 
         // validate-sources holds each house opinion to its sources list, so a malformed one is
-        // an error here too, rather than a page that shows the wrong thing.
+        // an error here too, rather than a page that shows the wrong thing. A profile ID names
+        // a raw/<profile>/ directory, so an invalid one, such as ../.., never reaches a path:
+        // spans() reports it, and it's dropped here.
         for path in opinions.iter().chain(&templates) {
             let Some(text) = self.read(path) else {
                 continue;
@@ -174,6 +176,7 @@ impl Site<'_> {
             let mut found: Vec<String> = house::spans(path, &text, &mut self.errors)
                 .into_iter()
                 .map(|span| span.profile)
+                .filter(|profile| house::is_valid_profile(profile))
                 .collect();
             found.sort();
             found.dedup();
@@ -1576,6 +1579,29 @@ mod tests {
                 {"id": "rust-docs", "name": "The Rust Programming Language", "kind": "publication", "url": "https://doc.rust-lang.org/", "standing": "citable", "focus": "Language", "since": "~2015"}
             ])
         );
+    }
+
+    #[test]
+    fn an_invalid_profile_never_names_a_path() {
+        let readme = "# Rust\n\n## Scope\n\n- **[Rust](opinions/rust.md):** the language\n\n## Repository layout\n";
+        let opinion = OPINION
+            .replace(
+                "house:simon-mckenna, matklad, rust-docs",
+                "house:../../escaped",
+            )
+            .replace("/// house | simon-mckenna", "/// house | ../../escaped");
+        let fixture = Fixture::new()
+            .file("README.md", readme)
+            .file("HOUSE-OPINIONS.md", "# House opinions\n")
+            .file("opinions/rust.md", &opinion);
+        let errors = run(&fixture.repo(), &fixture.path().join("out"));
+        assert!(
+            errors.contains(&"opinions/rust.md:12: '../../escaped' isn't a profile id: use lowercase words joined by hyphens, other than none".to_string()),
+            "{errors:?}"
+        );
+        assert!(!fixture.path().join("out/rust/raw").exists());
+        assert!(!fixture.path().join("escaped").exists());
+        assert!(!fixture.path().join("out/escaped").exists());
     }
 
     #[test]
