@@ -1,0 +1,4 @@
+# awesome-humans/rust template | targets: rust-1.99, edition-2024 | last-reviewed: 2026-10-19 | sources: rust-docs
+# An editor that runs bare rustfmt doesn't read the edition from Cargo.toml, and defaults to
+# the 2015 style (opinions/rust.md).
+style_edition = "2024"
