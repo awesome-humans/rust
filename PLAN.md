@@ -189,6 +189,7 @@ Follow `AGENTS.md: Orchestration and model economy`. Cheaper worker agents check
 
 - **Check every ecosystem's opt-outs first.** Before admitting anyone, read the `## Opted out` section of every other ecosystem's `AWESOME-HUMANS.md`, which is `dotnet`'s today. [website#69](https://github.com/awesome-humans/website/pull/69) settled that an opt-out from one ecosystem covers all of them, so a candidate listed there is declined here without vetting, and the decision log links the other roster's entry.
 - **Start with an empty `## Opted out` section,** as dotnet#169 added to `dotnet`'s roster, so the site stages it and `sources.json` can export `opted-out` rows.
+- **State the count above the Citable table,** as `dotnet`'s roster does: "The table lists N sources: N people and N publications." `validate-sources` counts the rows by Kind and fails when the sentence disagrees, so port that check in phase 2 with the rest of the script.
 
 ## Phase 4: Skills
 
@@ -267,6 +268,6 @@ Templates, each with a first-line header comment:
 
 These need the owner's decision before the phase that depends on them:
 
-1. ~~**Shared text drift:**~~ Settled 2026-10-18 by the owner: move the shared text, which is `AGENTS.md`'s writing style, the admission criteria, and the house-opinion mechanism, into `awesome-humans/website`, and link to it from each ecosystem repository instead of keeping copies. A fork of an ecosystem repository then either adopts the linked text or writes its own, which is fine. A check that compares copies lost, because it would still leave copies to keep in step.
+1. ~~**Shared text drift:**~~ Settled 2026-10-18 by the owner: move the shared text, which is `AGENTS.md`'s writing style, the admission criteria, and the house-opinion mechanism, into `awesome-humans/website`, and link to it from each ecosystem repository instead of keeping copies. A fork of an ecosystem repository then either adopts the linked text or writes its own, which is fine. A check that compares copies lost, because it would still leave copies to keep in step. The website plan's Phase 9 has the steps.
 2. **Ecosystem repositories without the site:** After phase 5, `awesome-humans/dotnet` no longer builds the site. Its `README.md`, `AGENTS.md`, and CI need changing in their own pull request there.
 3. **Phase 5 order:** Moving the site out of the .NET repository changes that repository's `README.md`, `AGENTS.md`, and CI, and needs its own pull request there. It can happen before or after the Rust content exists, but the `/rust/` section has nothing to show until phase 6 starts.
