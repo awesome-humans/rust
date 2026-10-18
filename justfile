@@ -7,14 +7,29 @@ set shell := ["bash", "-euo", "pipefail", "-c"]
 default:
     @just --list
 
+# Install the prose tools at the versions package-lock.json pins
+install:
+    npm ci
+
 # Format Markdown, JSON, YAML, and Rust
 format:
     npm run format
     cargo fmt --all
 
-# Check prose formatting, lint, and spelling, and Rust formatting
-check: fmt-check
-    npm run check
+# Check formatting, Markdown lint, and spelling, for prose and Rust together
+check: format-check lint spell fmt-check
+
+# Check that Prettier leaves Markdown, JSON, JSONC, and YAML unchanged
+format-check:
+    npm run format:check
+
+# Lint Markdown with markdownlint
+lint:
+    npm run lint
+
+# Check spelling with cspell
+spell:
+    npm run spell
 
 # Check Rust formatting
 fmt-check:
