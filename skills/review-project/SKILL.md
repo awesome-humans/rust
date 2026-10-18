@@ -27,7 +27,7 @@ By default, it checks sourced community practice only. If the user names a house
 2. **Inventory the target:** `Cargo.toml` and whether it's a workspace, `Cargo.lock`, `rust-toolchain.toml`, `.cargo/config.toml`, `rustfmt.toml`, `clippy.toml`, `deny.toml`, `.editorconfig`, the build entry points such as a `justfile` or an `xtask` crate, the CI workflows, and the mix of library and binary crates.
 3. **If a Rust toolchain is present, run the tools,** and read the files alone otherwise:
    - `cargo metadata --format-version 1 --no-deps` lists the workspace members, their `edition` and `rust-version`, and their features.
-   - `cargo clippy --workspace --all-targets --locked -- -D warnings`, with the lint configuration the target sets.
+   - `cargo clippy --workspace --all-targets --locked -- -D warnings`, with the lint configuration the target sets. If the target commits no `Cargo.lock`, `--locked` fails, and dropping it makes Cargo write one into the target. Run Clippy in a scratch copy without `--locked` instead, and say the versions were resolved on the day.
    - `cargo deny check`, if the target has a `deny.toml`. A missing one is a gap for step 4.
    - Set `CARGO_TARGET_DIR` to a scratch directory, so the build output stays out of the target.
    - **Clippy runs the target's build scripts and procedural macros,** which can run any code. Run it only on a local target the user owns, or a URL target in a sandbox. Otherwise skip it, and say so in the report.
@@ -58,6 +58,7 @@ By default, it checks sourced community practice only. If the user names a house
 
 9. **Only if the user asks for fixes:** Apply them in the _target_ on a working branch, never its default branch, named by the host's convention. Do gaps and drift first, because they're mechanical. Make opinionated rewrites only with explicit approval.
    - Clone a URL target now, and branch from **the SHA recorded in step 1**.
+   - A local path outside git has no branch. Hand back a patch, or ask the user to put the target under git first.
    - A depth-1 clone has no earlier commit to branch from. Clone without `--depth 1`, or run `git fetch origin <full SHA>`. An abbreviated SHA is rejected.
    - If you must branch from a default branch that has moved, recheck the files behind each finding, and say which changed. A fix written against moved code produces a confidently wrong diff.
    - Run `cargo clippy` and `cargo test` on the fix before you hand it back, under the same sandbox rule as step 3.
