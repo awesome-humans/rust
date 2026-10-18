@@ -6,6 +6,7 @@ frontmatter
 katex
 lycheeverse
 matklad
+mckenna
 Miri
 rumdl
 scannable
