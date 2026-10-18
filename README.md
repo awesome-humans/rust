@@ -14,10 +14,10 @@ The writers will be listed in `AWESOME-HUMANS.md`: people and publications with 
 
   The opinions cover conventions, project layout, language usage, and crate choices.
 
-- **Check an existing project.** Ask your coding agent to run `verify-project`:
+- **Check an existing project.** Ask your coding agent to run `review-project`:
 
   ```text
-  Use the verify project skill at awesome-humans.net on <repo>
+  Use the review project skill at awesome-humans.net on <repo>
   ```
 
   To narrow the review, say so in the request, such as "focus on testing".

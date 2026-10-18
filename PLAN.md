@@ -79,7 +79,7 @@ Branch `chore/scaffold`.
    - Template headers use `#` for TOML and `//` for `.rs`. `rust-toolchain.toml` can carry a header. A JSON template, if one is ever added, is exempt.
    - The Scripts section describes `xtask` and `just`, not file-based apps.
    - Branch prefix `refresh/dotnet-<version>` becomes `refresh/rust-<version>`.
-3. Port `README.md` with an empty Scope list and the heading "Awesome Humans of Rust", which the site also uses as the title of `/rust/`. Open it with "An agentic take on [awesome-rust](https://github.com/rust-unofficial/awesome-rust): distilled, opinionated guidance, thanks to awesome humans." Match `dotnet`'s Usage section: the two prompts in `text` blocks inside their list items, `Follow the conventions at awesome-humans.net when writing Rust code` and `Use the verify project skill at awesome-humans.net on <repo>`, then the templates and reading bullets. Add `HOUSE-OPINIONS.md` with an empty Inbox and Woven table.
+3. Port `README.md` with an empty Scope list and the heading "Awesome Humans of Rust", which the site also uses as the title of `/rust/`. Open it with "An agentic take on [awesome-rust](https://github.com/rust-unofficial/awesome-rust): distilled, opinionated guidance, thanks to awesome humans." Match `dotnet`'s Usage section: the two prompts in `text` blocks inside their list items, `Follow the conventions at awesome-humans.net when writing Rust code` and `Use the review project skill at awesome-humans.net on <repo>`, then the templates and reading bullets. Add `HOUSE-OPINIONS.md` with an empty Inbox and Woven table.
 4. Port `renovate.json`:
    - Turn on the `cargo` manager for `xtask/` and the root workspace.
    - Turn it off for `templates/**`, because those pins are content that `refresh-rust-versions` maintains.
@@ -94,6 +94,14 @@ Branch `chore/scaffold`.
 - **No `.github/state/` entries** in `.prettierignore` and `cspell.jsonc`. Phase 4 adds them with `rust-release-watch.yml`.
 
 The `protect-main` ruleset (ID `25144742`) is **active** since 2026-10-18, with `dotnet`'s rules apart from required status checks: it blocks deletion and force pushes, and requires a pull request that merges by squash. `rust` has no CI until phases 2 and 4, and a required check that never reports would block every merge. Add the Rust CI's job names as required checks once those workflows exist.
+
+`verify-project` is now `review-project`, following [awesome-humans/dotnet#174](https://github.com/awesome-humans/dotnet/pull/174) and [awesome-humans/website#70](https://github.com/awesome-humans/website/pull/70), because "verify" reads as pass or fail while the skill writes a graded report.
+
+**After house profiles merge:** [awesome-humans/website#72](https://github.com/awesome-humans/website/pull/72) and [awesome-humans/dotnet#175](https://github.com/awesome-humans/dotnet/pull/175) are open. They replace the bare `house` ID with `house:<profile>`, and keep each house opinion in a block beside the sourced text instead of rewriting it. Once both merge, port `dotnet`'s result in one `docs/house-profiles` pull request here, before Rust weaves its first house opinion:
+
+- **`HOUSE-OPINIONS.md`:** the Profiles table, the Profile column in Woven, and the new rule 4.
+- **`AGENTS.md` and `README.md`:** `house:<profile>` in the metadata rules and the `sources` sorting example, and the house opinion wording.
+- **Later phases** port the rest from `dotnet` instead of from this plan: phase 2's `validate-sources` and `build-site` parse the blocks and regions as `House.cs` does, phase 3's roster documents `house:<profile>`, and phase 4's skills take `dotnet`'s house-profile changes, `review-project`'s optional profile among them.
 
 ## Phase 2: Rust checks with `xtask` and `just`
 
@@ -190,7 +198,7 @@ Branch `docs/port-skills`. Port all eight skills, change the ecosystem nouns, an
 | ------------------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `refresh-dotnet-versions` | `refresh-rust-versions` | Reads `channel-rust-stable.toml`, the edition, the `rust-version` in templates, and crate pins in `templates/Cargo.toml` against crates.io            |
 | `audit-freshness`         | `audit-freshness`       | Version-lag tolerance: two stable releases (12 weeks). Rust ships every six weeks, so bumping `targets:` in every file each release would be noise    |
-| `verify-project`          | `verify-project`        | Runs `cargo metadata`, `cargo clippy`, and `cargo deny check` when a toolchain is present, and reads `Cargo.toml` and `rust-toolchain.toml` otherwise |
+| `review-project`          | `review-project`        | Runs `cargo metadata`, `cargo clippy`, and `cargo deny check` when a toolchain is present, and reads `Cargo.toml` and `rust-toolchain.toml` otherwise |
 | `vet-source`              | `vet-source`            | Before admitting anyone, reads the `## Opted out` section of every other ecosystem's roster, and declines a source listed there without vetting       |
 | The other four            | Same names              | Nouns only                                                                                                                                            |
 
