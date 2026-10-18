@@ -1,0 +1,118 @@
+# Watches the official stable channel manifest for a new Rust release (the compiler, Cargo,
+# Clippy, and rustfmt ship together) and opens a pull request when the known state changes.
+#
+# The PR is a TRIGGER, not the update: it refreshes only .github/state/rust-releases.json.
+# Folding the release into opinions/ and templates/ is done by running the
+# skills/refresh-rust-versions skill against the PR's branch (manually or, later, by a
+# follow-on automation).
+#
+# Note: for the create-pull-request step to work, the repository setting
+# "Allow GitHub Actions to create and approve pull requests" must be enabled
+# (Settings → Actions → General → Workflow permissions).
+name: Rust release watch
+
+on:
+  schedule:
+    - cron: "0 6 * * *" # daily; stable releases land every six weeks, point releases any time
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        # The shell steps only read downloaded data, and create-pull-request authenticates
+        # with its own token input, so the job token stays out of .git/config.
+        with:
+          persist-credentials: false
+
+      # pipefail is set explicitly: the default shell for an unqualified `run` is `bash -e`,
+      # which reports only the LAST command in a pipeline. The fetch writes to a file rather
+      # than a pipe for the same reason: a failed download must fail the run, not hand the
+      # parser an empty manifest.
+      #
+      # The manifest is TOML, so the runner's Python 3 reads it with tomllib from the standard
+      # library, and nothing is installed. The script prints nothing unless the manifest has
+      # the shape it expects, and the guard below fails the run on an empty snapshot.
+      - name: Snapshot the stable release
+        run: |
+          set -euo pipefail
+          manifest="$(mktemp)"
+          snapshot="$(mktemp)"
+          curl -fsSL --retry 3 -o "$manifest" \
+            https://static.rust-lang.org/dist/channel-rust-stable.toml
+
+          python3 -I - "$manifest" > "$snapshot" <<'PY'
+          import json, re, sys, tomllib
+
+          with open(sys.argv[1], "rb") as f:
+              manifest = tomllib.load(f)
+          rust = manifest["pkg"]["rust"]
+          # "1.99.1 (58cf8f9c3 2026-10-13)": the release, then the short hash and commit date.
+          match = re.fullmatch(r"(\d+\.\d+\.\d+) \(\w+ (\d{4}-\d{2}-\d{2})\)", rust["version"])
+          if match is None:
+              sys.exit(f"unexpected pkg.rust.version: {rust['version']!r}")
+          json.dump(
+              {
+                  "channel": "stable",
+                  "version": match[1],
+                  "date": manifest["date"],
+                  "commit-hash": rust["git_commit_hash"],
+                  "commit-date": match[2],
+              },
+              sys.stdout,
+              indent=2,
+          )
+          print()
+          PY
+
+          # Guard against a fetch that succeeds but returns something unexpected: replace the
+          # checked-in file only once the new one parses and carries a version. An empty or
+          # unparseable snapshot fails the run loudly instead of opening a PR.
+          version="$(jq -r '.version // empty' "$snapshot" 2>/dev/null || true)"
+          if [ -z "$version" ]; then
+            echo "Stable manifest produced no usable version — leaving the snapshot untouched." >&2
+            exit 1
+          fi
+
+          mv "$snapshot" .github/state/rust-releases.json
+
+      - name: Summarize changes
+        id: diff
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- .github/state/rust-releases.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            # Random delimiter, because the summary is remote content: a diff line reading
+            # exactly the delimiter would close the block early and let the rest be parsed
+            # as further step outputs.
+            delimiter="EOF_$(openssl rand -hex 16)"
+            {
+              echo "summary<<$delimiter"
+              git diff -- .github/state/rust-releases.json | grep -E '^[+-] ' || true
+              echo "$delimiter"
+            } >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open trigger PR
+        if: steps.diff.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
+        with:
+          branch: automation/rust-release-watch
+          title: "chore: new stable Rust release detected"
+          commit-message: "chore: update the stable Rust release snapshot"
+          labels: rust-release
+          body: |
+            The [stable channel manifest](https://static.rust-lang.org/dist/channel-rust-stable.toml) has changed since the last snapshot.
+
+            ```diff
+            ${{ steps.diff.outputs.summary }}
+            ```
+
+            **This PR is a trigger, not the update.** It only refreshes `.github/state/rust-releases.json`. To fold the release into the opinions and templates, run the [`refresh-rust-versions`](../blob/main/skills/refresh-rust-versions/SKILL.md) skill against this branch, then merge both together.

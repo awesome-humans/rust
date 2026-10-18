@@ -231,6 +231,17 @@ Add `.github/workflows/rust-release-watch.yml`, which compares [channel-rust-sta
 
 Sort README.md's Maintenance via skills table by skill name, as [awesome-humans/dotnet#176](https://github.com/awesome-humans/dotnet/pull/176) does. Phase 2's `validate-readme-index` ports that PR's order check for the table, along with an out-of-order skill row as a test case.
 
+**Progress (2026-10-18):** the branch ports all eight skills from `dotnet` at `d7d7a39`, adds README.md's Maintenance via skills section with the two diagrams phase 2 already draws, and adds the four workflows. It differs from the steps above in six ways:
+
+1. **`validate-skills.yml` runs only `just validate-skills`.** The metadata, sources, README, and diagram checks in `dotnet`'s workflow of the same name already run in the `Rust checks` workflow, so a copy would run them twice.
+2. **The `links` job runs `just links`,** not `lycheeverse/lychee-action`, so the `justfile` stays every entry point. `taiki-e/install-action` installs lychee 0.24.2 through its cargo-binstall fallback, because lychee isn't in the action's own manifests.
+3. **The release watch reads TOML** with the runner's Python and `tomllib`, so nothing is installed. The snapshot records the release, the manifest date, and the commit.
+4. **`refresh-rust-versions` pins the root toolchain to the minor release,** `1.99`, as `rust-toolchain.toml` does today. How the templates pin it waits for their opinion in phase 6, so the skill defers to that opinion instead of choosing.
+5. **`review-project` runs Clippy only on a trusted or sandboxed target,** because building runs the target's build scripts and procedural macros. It also reads a library's `rust-version` as an MSRV promise, and reports one below `targets:` only when the library documents no MSRV policy.
+6. **`vet-source` checks opt-outs as a step of its own,** step 2, before any evidence is gathered. The later steps move down by one.
+
+The table order check needed nothing new: phase 2 ported it. Once this merges, add the `validate` and `links` jobs to the `protect-main` ruleset's required checks.
+
 ## Phase 5: Site integration
 
 The site now lives in the .NET repository, and `build-site.cs` hard-codes `Ecosystem = "dotnet"`. The `site/zensical.toml` comment already plans a move to a shared repository.
@@ -242,7 +253,8 @@ The site now lives in the .NET repository, and `build-site.cs` hard-codes `Ecosy
    Each step writes its pages and a `nav.json` fragment. The website repository merges the fragments into one `zensical.toml` and builds it with `--strict`. A push to `main` in an ecosystem repository triggers a rebuild through `repository_dispatch`. Send it with a token from a GitHub App installed on the organisation, not a personal access token, so the site doesn't depend on one person's account.
 
 2. **Root `llms.txt`** links one `llms.txt` per ecosystem: `/dotnet/llms.txt` and `/rust/llms.txt`.
-3. **Root page:** Add **[Rust](rust/index.md)** under Ecosystems. Name no ecosystem as next: a third is on hold until `dotnet` and `rust` have shaken out the multi-repository approach.
+3. **Root page:** Add `**[Rust](rust/index.md)**` under Ecosystems. Name no ecosystem as next: a third is on hold until `dotnet` and `rust` have shaken out the multi-repository approach.
+4. **Link check:** Remove the `awesome-humans.net/rust/` entry from `exclude` in `lychee.toml`, which phase 4 added because the section wasn't published yet.
 
 ### Branding
 

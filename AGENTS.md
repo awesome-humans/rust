@@ -230,7 +230,7 @@ Work in a git worktree, with one branch per directory. The local clone is bare, 
   - This convention outranks the host environment's own. Replace a generated name such as `agent/youthful-wozniak-gm4k7m` before the first push. If a host only pushes under its own prefix, put the convention after it: `agent/harvest/2026-09-14`.
   - Settle the name before you open the pull request. Renaming the head branch of an open pull request on GitHub closes it, and you can't reopen it under the new name.
 - **Directory names:** Name the directory after the branch, with slashes replaced by dashes, so `resolve/async` becomes `resolve-async/`. Every worktree then sits one level beside the bare `.bare/` directory and tab-completes in one step. This also keeps a nested `research/` directory from appearing next to the repository's own `research/`.
-- **Setup:** A fresh worktree has no gitignored local state. Run `just install` in it before `just check`. If your harness needs the skills symlink, re-create it there. For details, see [Skills](#skills).
+- **Setup:** A fresh worktree has no gitignored local state. Run `just install` in it before `just check` or `just verify`. `just verify` also needs skills-ref: install it once with `pip install -r .github/requirements.txt`. If your harness needs the skills symlink, re-create it there. For details, see [Skills](#skills).
 - **Finishing:** When a worktree's pull request merges, **offer to delete the worktree** with `git worktree remove <dir>` and then `git branch -d <branch>`. Ask first: the branch might still hold work that never reached the pull request.
 
 ### Formatting and linting
@@ -263,4 +263,4 @@ Work in a git worktree, with one branch per directory. The local clone is bare, 
 
 ### Links
 
-The `Markdown` workflow checks links with `lychee.toml`, and a broken link **blocks the pull request**, because a dead citation is a content defect. If a third-party host is down, re-run the job after it recovers. Never merge past a failed link check.
+The `Markdown` workflow's `links` job runs `just links`, which checks links with `lychee.toml`, on every pull request and weekly. A broken link **blocks the pull request**, because a dead citation is a content defect. If a third-party host is down, re-run the job after it recovers. Never merge past a failed link check.
