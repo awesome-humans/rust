@@ -265,6 +265,6 @@ Templates, each with a first-line header comment:
 
 These need the owner's decision before the phase that depends on them:
 
-1. **Shared text drift:** `AGENTS.md` writing style, the admission criteria, and the house-opinion mechanism will exist as copies in every ecosystem repository, because the organisation's `.github` repository shares only community health files. Move them into `awesome-humans/website`, and link to them from each repository. Or keep the copies, and add a check that compares them.
+1. ~~**Shared text drift:**~~ Settled 2026-10-18 by the owner: move the shared text, which is `AGENTS.md`'s writing style, the admission criteria, and the house-opinion mechanism, into `awesome-humans/website`, and link to it from each ecosystem repository instead of keeping copies. A fork of an ecosystem repository then either adopts the linked text or writes its own, which is fine. A check that compares copies lost, because it would still leave copies to keep in step.
 2. **Ecosystem repositories without the site:** After phase 5, `awesome-humans/dotnet` no longer builds the site. Its `README.md`, `AGENTS.md`, and CI need changing in their own pull request there.
 3. **Phase 5 order:** Moving the site out of the .NET repository changes that repository's `README.md`, `AGENTS.md`, and CI, and needs its own pull request there. It can happen before or after the Rust content exists, but the `/rust/` section has nothing to show until phase 6 starts.
