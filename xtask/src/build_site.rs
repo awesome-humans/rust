@@ -312,10 +312,13 @@ impl Site<'_> {
             for profile in
                 std::iter::once(None).chain(found.iter().map(|found| Some(found.as_str())))
             {
-                self.write(
-                    &raw_page(&path, profile),
-                    &house::for_profile(&path, &text, profile),
-                );
+                let copy = house::for_profile(&path, &text, profile);
+                let copy = if repo::has_extension(&path, "md") {
+                    self.absolute_links(&path, &copy)
+                } else {
+                    copy
+                };
+                self.write(&raw_page(&path, profile), &copy);
             }
         }
 
@@ -1119,6 +1122,48 @@ impl Site<'_> {
         target.to_string()
     }
 
+    // A raw copy is served from rust/raw/<profile>/, where a relative link to another file in
+    // the repository leads nowhere, so each one points at that file on GitHub instead: its raw
+    // copy for a file, and its tree for a directory. Fenced code blocks are left alone.
+    fn absolute_links(&self, source: &str, text: &str) -> String {
+        let mut fenced = false;
+        let lines: Vec<String> = text
+            .split('\n')
+            .map(|line| {
+                if line.trim_start().starts_with("```") {
+                    fenced = !fenced;
+                }
+                if fenced {
+                    return line.to_string();
+                }
+
+                MARKDOWN_LINK
+                    .replace_all(line, |link: &Captures| {
+                        let target = &link["target"];
+                        if target.contains("://")
+                            || target.starts_with("mailto:")
+                            || target.starts_with('#')
+                        {
+                            return link[0].to_string();
+                        }
+
+                        let (path, anchor) = target
+                            .find('#')
+                            .map_or((target, ""), |hash| (&target[..hash], &target[hash..]));
+                        let resolved = combine(parent(source), path);
+                        let url = if self.repo.is_dir(&resolved) {
+                            github(&resolved, true)
+                        } else {
+                            raw(&resolved)
+                        };
+                        format!("]({url}{anchor})")
+                    })
+                    .into_owned()
+            })
+            .collect();
+        lines.join("\n")
+    }
+
     // The raw file an agent reads for a profile, or for the default with None. A file without
     // house opinions is the same for everyone, so it's GitHub's raw copy. A file with them is
     // this profile's copy, or the default copy when none of its house opinions are this
@@ -1479,7 +1524,9 @@ mod tests {
             ),
             "# awesome-humans/rust template | sources: house:simon-mckenna, rust-docs\n[build]\n# **House:** Deny warnings.\nrustflags = [\"-Dwarnings\"]\n"
         );
-        assert!(!staged(&fixture, "rust/raw/none/opinions/rust.md.txt").contains("House"));
+        let copy = staged(&fixture, "rust/raw/none/opinions/rust.md.txt");
+        assert!(!copy.contains("House"), "{copy}");
+        assert!(copy.contains("([matklad](https://raw.githubusercontent.com/awesome-humans/rust/main/AWESOME-HUMANS.md#matklad-citable-corroborate))"), "{copy}");
 
         let skill = staged(&fixture, "rust/skills/vet-source.md");
         assert!(skill.starts_with("# Vet a source\n\n[View on GitHub](https://github.com/awesome-humans/rust/blob/main/skills/vet-source/SKILL.md)"), "{skill}");
