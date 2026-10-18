@@ -22,10 +22,11 @@ When you generate or review Rust code for another project:
 2. Start from the `templates/` files for `Cargo.toml`, `rust-toolchain.toml`, `rustfmt.toml`, `clippy.toml`, `deny.toml`, `.cargo/config.toml`, `justfile`, `.editorconfig`, and the example crates. Copy them verbatim and trim, instead of writing your own.
 3. Target the versions in the `targets:` frontmatter of the opinion files. Never silently downgrade to an older toolchain, edition, or `rust-version`.
 4. When you use an `opinions/` or `templates/` file as a reference, update its `last-used` date. For details, see [Metadata](#metadata). `research/` topics don't carry this date.
+5. Follow a house opinion only for the house profile the user chose. It's a block that opens with `/// house | <profile>` in an opinion, or a region between `house:<profile> begin` and `house:<profile> end` comments in a template. Without a chosen profile, skip every block, and copy a template without its regions. For details, see [HOUSE-OPINIONS.md](HOUSE-OPINIONS.md).
 
 ## Maintaining this repository
 
-- **Trace every substantive change to a source in `AWESOME-HUMANS.md`.** The one exception is a **house opinion**: the repository owner's own preference, recorded through [HOUSE-OPINIONS.md](HOUSE-OPINIONS.md) and the `weave-house-opinion` skill. It cites the reserved `house` source ID, and [HOUSE-OPINIONS.md: How this works](HOUSE-OPINIONS.md#how-this-works) is the canonical definition of its marking, its precedence over the roster, and contributor adoption. Work from that section, not a paraphrase.
+- **Trace every substantive change to a source in `AWESOME-HUMANS.md`.** The one exception is a **house opinion**: a house profile's preference from experience, such as the repository owner's, recorded through [HOUSE-OPINIONS.md](HOUSE-OPINIONS.md) and the `weave-house-opinion` skill. It sits in a house block beside the sourced text and cites `house:<profile>`, and [HOUSE-OPINIONS.md: How this works](HOUSE-OPINIONS.md#how-this-works) is the canonical definition of its format, its marking, how it relates to the sourced text, and contributor adoption. Work from that section, not a paraphrase.
 - **Don't fold in guidance from unvetted sources.** Propose the source for admission with the `vet-source` skill instead. Linking a named crate's own documentation as a **reference** doesn't count: a reference corroborates a claim from a roster source and never carries one. For the definition, see `AWESOME-HUMANS.md: Admission criteria`.
 - **Target the latest stable Rust release and the latest edition.** You can mention a nightly-only feature in a clearly marked "Coming next" note, but never make it the opinion.
 - **Use a skill instead of an ad hoc edit when one covers the work,** such as a version bump (`refresh-rust-versions`), a content sweep (`harvest-sources`), or a staleness check (`audit-freshness`). README.md's Maintenance via skills table lists them all.
@@ -118,12 +119,12 @@ Rules:
 
 - **Update `last-used` whenever you use an opinion or a template:** an opinion you read to decide something, or a template you diffed a project against. The date orders staleness triage: of ten drifted `last-reviewed` dates, review the most-read files first. It also marks candidates for pruning. Only reads _in this repository_ update it, so a person who copies a template or reads an opinion on the web leaves no trace, and the field undercounts. `audit-freshness` treats it as information, never as a finding.
 - **Update `last-reviewed` only after you verify the content against its sources.**
-- **Use `sources` IDs that exist in `AWESOME-HUMANS.md`,** either in the roster tables or as the reserved `house` ID.
+- **Use `sources` IDs that exist in `AWESOME-HUMANS.md`,** either in the roster tables or as a house profile's reserved `house:<profile>` ID.
   - CI reads the `**Discovery-only.**` and `**Corroborate.**` markings from a source's section under `## Source notes`, not from its table row.
   - In `opinions/` and `templates/`, the source must also be citable. A watch-list source or a `**Discovery-only.**` source is rejected.
   - A file whose citable sources are all marked `**Corroborate.**` is rejected too, because an unmarked source has to stand beside them.
   - `research/` is exempt: a topic can cite unvetted material if the text flags it. For details, see the `research-topic` skill.
-- **Sort `sources` by ID in ordinal order, with `house` sorted like any other ID.** Write `[burntsushi, house, matklad, rust-docs]`. The rule applies in all three directories and to both syntaxes.
+- **Sort `sources` by ID in ordinal order, with `house:<profile>` sorted like any other ID.** Write `[burntsushi, house:simon-mckenna, matklad, rust-docs]`. The rule applies in all three directories and to both syntaxes.
 - **Write dates in ISO 8601 (`YYYY-MM-DD`).** Always use absolute dates, never relative ones.
 - **A JSON template is exempt from the header,** because JSON has no comment syntax. None exists today. If one is added, what it pins is audited against the latest releases instead. Building the template workspace leaves `templates/target/` behind, which is gitignored. That output isn't a resource, and the check skips it.
 - **`skills/` are deliberately exempt.** The [Agent Skills specification](https://agentskills.io/specification) defines their frontmatter, they're procedures and not reference material, and nothing reads a date from them. Use `git log` to see when a skill last changed.
@@ -262,6 +263,7 @@ Work in a git worktree, with one branch per directory. The local clone is bare, 
 
 - The awesome-humans.net site is generated. `cargo xtask build-site` builds its `/rust/` pages from `README.md` (up to Repository layout), `opinions/`, `templates/`, `skills/`, `AWESOME-HUMANS.md`, and `HOUSE-OPINIONS.md`. Edit those files, never a staged page.
 - With `--out <dir>`, `build-site` stages only `<dir>/rust/`, as the [awesome-humans/website staging contract](https://github.com/awesome-humans/website#staging-contract) defines, with `nav.json`, `sources.json` exported from the roster, and this ecosystem's own `llms.txt`. The website repository adds the pages that every ecosystem shares, and builds and deploys the site.
+- House opinions stay in the staged pages as house blocks, and the site shows a profile's only to a reader who chooses it in the header. For agents, `build-site` writes copies of each opinion and template that holds house opinions under `raw/`: one with none, linked from `llms.txt`, and one per profile, linked from that profile's `llms-<profile>.txt`.
 - The opinion navigation follows [README.md: Scope](README.md#scope), and the skill navigation follows README.md's Maintenance via skills table, so a new opinion or skill needs no separate site entry.
 - Two workflows hand the site to `awesome-humans/website`. `Site preview` calls its reusable `build.yml` and `deploy.yml` with the pull request's head commit, for a full-site preview at `pr-rust-<number>`. Its build fails a pull request on any link or anchor the site can't resolve. `Site dispatch` tells `website` to rebuild and deploy awesome-humans.net when `main` changes.
 

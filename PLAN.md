@@ -97,10 +97,11 @@ The `protect-main` ruleset (ID `25144742`) is **active** since 2026-10-18, with 
 
 `verify-project` is now `review-project`, following [awesome-humans/dotnet#174](https://github.com/awesome-humans/dotnet/pull/174) and [awesome-humans/website#70](https://github.com/awesome-humans/website/pull/70), because "verify" reads as pass or fail while the skill writes a graded report.
 
-**After house profiles merge:** [awesome-humans/website#72](https://github.com/awesome-humans/website/pull/72) and [awesome-humans/dotnet#175](https://github.com/awesome-humans/dotnet/pull/175) are open. They replace the bare `house` ID with `house:<profile>`, and keep each house opinion in a block beside the sourced text instead of rewriting it. Once both merge, port `dotnet`'s result in one `docs/house-profiles` pull request here, before Rust weaves its first house opinion:
+**House profiles (done 2026-10-18):** [awesome-humans/website#72](https://github.com/awesome-humans/website/pull/72) and [awesome-humans/dotnet#175](https://github.com/awesome-humans/dotnet/pull/175) merged on 2026-10-18. They replace the bare `house` ID with `house:<profile>`, and keep each house opinion in a block beside the sourced text instead of rewriting it. The `docs/house-profiles` pull request ported `dotnet`'s result here:
 
 - **`HOUSE-OPINIONS.md`:** the Profiles table, the Profile column in Woven, and the new rule 4.
 - **`AGENTS.md` and `README.md`:** `house:<profile>` in the metadata rules and the `sources` sorting example, and the house opinion wording.
+- **Still to do:** `houses.toml` in `awesome-humans/website` registers `simon-mckenna` for `dotnet` only. Add `rust` to its `ecosystems` in the pull request that weaves the first Rust house opinion, as HOUSE-OPINIONS.md says.
 - **Later phases** port the rest from `dotnet` instead of from this plan: phase 2's `validate-sources` and `build-site` parse the blocks and regions as `House.cs` does, phase 3's roster documents `house:<profile>`, and phase 4's skills take `dotnet`'s house-profile changes, `review-project`'s optional profile among them.
 
 ## Phase 2: Rust checks with `xtask` and `just`

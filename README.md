@@ -42,14 +42,14 @@ Every opinion cites a vetted source: a person or a publication. A source is admi
 
 ## House opinions
 
-The repository owner outranks the roster. The owner's preferences come in through [HOUSE-OPINIONS.md](HOUSE-OPINIONS.md) and the `weave-house-opinion` skill, and they're marked wherever they appear, so you can tell community best practice from local convention. HOUSE-OPINIONS.md defines the marking and which side wins a conflict. Other contributors can propose sourced or experience-based opinions through the organisation's [opinion pull request template](https://github.com/awesome-humans/.github/blob/main/PULL_REQUEST_TEMPLATE/opinion.md).
+House opinions are preferences from experience rather than from a vetted source. Each belongs to a house profile, named for the person or organisation that owns it, such as the owner's, `simon-mckenna`. On awesome-humans.net, every page shows sourced community practice only, until you choose a profile in the header. Agents read `llms-<profile>.txt` instead of `llms.txt`. In this repository, each house opinion is a marked block beside the sourced text it changes, and [HOUSE-OPINIONS.md](HOUSE-OPINIONS.md) defines the format and records each one. Other contributors can propose sourced or experience-based opinions through the organisation's [opinion pull request template](https://github.com/awesome-humans/.github/blob/main/PULL_REQUEST_TEMPLATE/opinion.md).
 
 ## Repository layout
 
 ```text
 ├── README.md                 ← you are here
 ├── AGENTS.md                 ← instructions for AI agents working in this repo
-├── HOUSE-OPINIONS.md         ← the owner's own opinions: intake and audit trail
+├── HOUSE-OPINIONS.md         ← house profiles' opinions: intake and audit trail
 └── PLAN.md                   ← the plan for setting up this repository, deleted when it's done
 ```
 
