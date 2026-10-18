@@ -204,6 +204,8 @@ Branch `docs/port-skills`. Port all eight skills, change the ecosystem nouns, an
 
 Add `.github/workflows/rust-release-watch.yml`, which compares [channel-rust-stable.toml](https://static.rust-lang.org/dist/channel-rust-stable.toml) with `.github/state/rust-releases.json` daily and opens a trigger pull request. Port `validate-skills.yml`, `harvest-reminder.yml`, and `markdown.yml` as they are, with `just` recipes as the entry points.
 
+Sort README.md's Maintenance via skills table by skill name, as [awesome-humans/dotnet#176](https://github.com/awesome-humans/dotnet/pull/176) does. Phase 2's `validate-readme-index` ports that PR's order check for the table, along with an out-of-order skill row as a test case.
+
 ## Phase 5: Site integration
 
 The site now lives in the .NET repository, and `build-site.cs` hard-codes `Ecosystem = "dotnet"`. The `site/zensical.toml` comment already plans a move to a shared repository.
