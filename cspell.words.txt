@@ -66,6 +66,7 @@ unparseable
 unpushed
 unvetted
 upcasting
+vars
 Vello
 walkdir
 WCAG

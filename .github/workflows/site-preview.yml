@@ -1,0 +1,32 @@
+name: Site preview
+
+# Builds the whole awesome-humans.net site with this pull request's head commit as the
+# /rust/ section and every other ecosystem at main, and deploys it as a preview at its
+# own URL. awesome-humans/website owns the build and the deploy; this repository only
+# stages its pages, as AGENTS.md: Site describes. A pull request from a fork builds
+# without deploying, because it gets no secrets.
+# The preview builds /rust/ even while rust is soon in website's ecosystems.toml.
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+# A newer push to the pull request replaces a queued preview.
+concurrency:
+  group: site-preview-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    uses: awesome-humans/website/.github/workflows/build.yml@5a2ea30f50f4136c26c58e76cedc8efcdcd2a425 # main
+    with:
+      ecosystem: rust
+      ref: ${{ github.event.pull_request.head.sha }}
+
+  deploy:
+    needs: build
+    uses: awesome-humans/website/.github/workflows/deploy.yml@5a2ea30f50f4136c26c58e76cedc8efcdcd2a425 # main
+    with:
+      preview-alias: pr-rust-${{ github.event.pull_request.number }}
+    secrets: inherit
