@@ -407,7 +407,7 @@ Citable on async and effects design, from 177 posts since 2016.
 <!-- prettier-ignore -->
 | Date | Decision | Detail |
 | --- | --- | --- |
-| 2026-10-18 | Initial roster | First vetting pass over the 33 candidates in PLAN.md phase 3. No other ecosystem lists an opted-out source, so none was declined on that ground |
+| 2026-10-18 | Initial roster | First vetting pass over the 31 candidates in PLAN.md phase 3. No other ecosystem lists an opted-out source, so none was declined on that ground |
 | 2026-10-18 | Admitted `alice-ryhl` | Rust writing since 2020, latest 2025-11-05 |
 | 2026-10-18 | Admitted `anssi-rust` | Maintained since 2018-12, with content changes in 2026 |
 | 2026-10-18 | Admitted `awesome-rust` (discovery-only) | Curated since 2014-07 |

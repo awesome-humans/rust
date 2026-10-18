@@ -40,7 +40,7 @@ Every resource records when it was last reviewed against its sources, and opinio
 
 Every opinion cites a vetted source: a person, such as Ralf Jung or Alex Kladov, or a publication, such as the Rust Blog or the Rust documentation. A source is admitted on its track record: at least two years of sustained writing, with depth, accuracy, and an independent view. Videos, talks, and podcasts are out of scope for now, because an opinion cites text a reader can check. [AWESOME-HUMANS.md](AWESOME-HUMANS.md) has the roster and the criteria.
 
-This diagram shows how a source is admitted and what its standing allows. The admission criteria in AWESOME-HUMANS.md and the `vet-source` skill are canonical.
+This diagram shows how a source is admitted and what its standing allows. The admission criteria in AWESOME-HUMANS.md are canonical, and so is the `vet-source` skill once phase 4 of PLAN.md adds it.
 
 ![Source standing: vet-source sorts a candidate into citable, watch list or declined, and a citable source is unmarked, Corroborate or Discovery-only](assets/diagrams/source-standing.svg)
 
