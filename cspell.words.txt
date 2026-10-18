@@ -1,8 +1,10 @@
 # Words cspell.jsonc accepts on top of its en-GB and Rust dictionaries: names,
 # identifiers, and terms the dictionaries lack. One per line, sorted case-insensitively.
 # Never add an American spelling. For a quoted title, see AGENTS.md: Spelling.
+agentskills
 axum
 backpressure
+binstall
 burntsushi
 Cascadia
 Consolas
@@ -13,6 +15,7 @@ endler
 feff
 Fira
 frontmatter
+fullmatch
 Gruevski
 hyperbezier
 katex
@@ -24,6 +27,7 @@ llms
 llmstxt
 lpalmieri
 Luca
+lycheecache
 lycheeverse
 Mainmatter
 matklad
@@ -39,6 +43,7 @@ Predrag
 quot
 Raph
 rect
+roundup
 roundups
 rsplit
 rumdl
@@ -49,6 +54,8 @@ Segoe
 smol
 Swatinem
 timezone
+tomllib
+unparseable
 unpushed
 unvetted
 Vello

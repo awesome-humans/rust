@@ -1,12 +1,12 @@
 # Link checking for this repository.
 #
-# lychee is a Rust binary, not an npm package — `npx lychee` installs an
-# unrelated 2013 database ORM of the same name. Run it locally with Docker:
+# `just links` runs it, in CI and locally. lychee is a Rust binary, not an npm
+# package — `npx lychee` installs an unrelated 2013 database ORM of the same
+# name. Install it with `cargo binstall lychee` or `cargo install lychee`, or
+# run it with Docker:
 #
 #   docker run --rm -v "$PWD":/input:ro -w /input lycheeverse/lychee:latest \
 #     --config lychee.toml --no-progress .
-#
-# or install it natively with `cargo install lychee`.
 #
 # The citations in opinions/ and the roster in AWESOME-HUMANS.md are the
 # substance of this repository, so a dead link is a content defect, not a

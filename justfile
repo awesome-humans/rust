@@ -43,6 +43,28 @@ clippy:
 test:
     cargo nextest run --package xtask --locked
 
+# Validate every skill against the Agent Skills specification (needs skills-ref from .github/requirements.txt)
+validate-skills:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if ! command -v agentskills > /dev/null; then
+        echo "agentskills isn't installed: run pip install -r .github/requirements.txt" >&2
+        exit 1
+    fi
+    status=0
+    found=0
+    for dir in skills/*/; do
+        found=1
+        if ! agentskills validate "$dir"; then
+            status=1
+        fi
+    done
+    if [ "$found" -eq 0 ]; then
+        echo "No skill directories found under skills/" >&2
+        status=1
+    fi
+    exit "$status"
+
 # Check the metadata on every opinion, research topic, and template
 validate-metadata:
     cargo xtask validate-metadata
@@ -69,9 +91,13 @@ check-diagrams: export-diagrams
         exit 1
     fi
 
+# Check every link in the repository with lychee, reusing results under a day old (needs lychee)
+links:
+    lychee --config lychee.toml --no-progress --cache --max-cache-age 1d .
+
 # Stage the /rust/ pages of awesome-humans.net in <out>/rust/
 build-site out="target/site":
     cargo xtask build-site --out {{ out }}
 
 # Run everything CI checks, and redraw the diagrams in place, so commit any SVG it changes
-verify: check clippy test validate-metadata validate-sources validate-readme-index export-diagrams build-site
+verify: check clippy test validate-skills validate-metadata validate-sources validate-readme-index export-diagrams build-site
