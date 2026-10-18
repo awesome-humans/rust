@@ -65,7 +65,7 @@ pub fn parse(text: &str) -> Result<Mapping, String> {
 mod tests {
     use super::*;
 
-    const HEADER: &str = "awesome-humans/rust template | targets: rust-1.99, edition-2024 | last-reviewed: 2026-10-14 | last-used: 2026-10-14 | sources: rust-docs";
+    const HEADER: &str = "awesome-humans/rust template | targets: rust-1.99, edition-2024 | last-reviewed: 2026-10-14 | sources: rust-docs";
 
     #[test]
     fn parse_reads_a_toml_header() {

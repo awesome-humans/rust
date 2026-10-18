@@ -506,7 +506,7 @@ mod tests {
 
     fn opinion(sources: &str, body: &str) -> String {
         format!(
-            "---\ntargets: [rust-1.99]\nlast-reviewed: 2026-10-14\nlast-used: 2026-10-14\nsources: [{sources}]\n---\n# Rust\n\n{body}"
+            "---\ntargets: [rust-1.99]\nlast-reviewed: 2026-10-14\nsources: [{sources}]\n---\n# Rust\n\n{body}"
         )
     }
 
@@ -626,14 +626,14 @@ mod tests {
             [
                 "opinions/b.md: sources name house:simon-mckenna, but no house block here belongs to it",
                 "opinions/c.md: a house block belongs to simon-mckenna, but sources don't name house:simon-mckenna",
-                "opinions/d.md:9: '**House:**' outside a house block, so the default copy would carry it",
+                "opinions/d.md:8: '**House:**' outside a house block, so the default copy would carry it",
             ]
         );
     }
 
     #[test]
     fn a_house_region_needs_the_marking() {
-        let template = "# awesome-humans/rust template | targets: rust-1.99 | last-reviewed: 2026-10-14 | last-used: 2026-10-14 | sources: house:simon-mckenna, rust-docs\n# house:simon-mckenna begin\nwarnings = \"deny\"\n# house:simon-mckenna end\n";
+        let template = "# awesome-humans/rust template | targets: rust-1.99 | last-reviewed: 2026-10-14 | sources: house:simon-mckenna, rust-docs\n# house:simon-mckenna begin\nwarnings = \"deny\"\n# house:simon-mckenna end\n";
         let fixture = Fixture::new()
             .file(ROSTER, &roster())
             .file("templates/Cargo.toml", template);

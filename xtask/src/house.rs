@@ -391,14 +391,14 @@ mod tests {
 
     #[test]
     fn for_profile_keeps_a_template_regions_content_without_its_markers() {
-        let text = "# awesome-humans/rust template | sources: house:alice, rust-docs | last-used: 2026-10-14\n[lints]\n# house:alice begin\n# **House:** deny warnings\nwarnings = \"deny\"\n# house:alice end\n";
+        let text = "# awesome-humans/rust template | sources: house:alice, rust-docs\n[lints]\n# house:alice begin\n# **House:** deny warnings\nwarnings = \"deny\"\n# house:alice end\n";
         assert_eq!(
             for_profile("templates/Cargo.toml", text, Some("alice")),
-            "# awesome-humans/rust template | sources: house:alice, rust-docs | last-used: 2026-10-14\n[lints]\n# **House:** deny warnings\nwarnings = \"deny\"\n"
+            "# awesome-humans/rust template | sources: house:alice, rust-docs\n[lints]\n# **House:** deny warnings\nwarnings = \"deny\"\n"
         );
         assert_eq!(
             for_profile("templates/Cargo.toml", text, None),
-            "# awesome-humans/rust template | sources: rust-docs | last-used: 2026-10-14\n[lints]\n"
+            "# awesome-humans/rust template | sources: rust-docs\n[lints]\n"
         );
     }
 

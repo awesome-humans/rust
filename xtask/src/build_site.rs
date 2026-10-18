@@ -1406,7 +1406,7 @@ mod tests {
 
     const ROSTER_TEXT: &str = "# Awesome humans\n\n## Admission criteria\n\nTwo years.\n\n## Citable: quotable in opinions and templates\n\nThe table lists 2 sources: 1 people and 1 publications.\n\n| ID | Kind | Source | Focus | Since |\n| --- | --- | --- | --- | --- |\n| `matklad` | person | [Alex Kladov: Blog](https://matklad.github.io/) | Tooling | 2017 |\n| `rust-docs` | publication | [The Rust Programming Language](https://doc.rust-lang.org/) | Language | ~2015 (book) |\n\n## Watch list\n\n| ID | Kind | Source | Focus | Since |\n| --- | --- | --- | --- | --- |\n\n## Opted out\n\n| ID | Kind | Source | Focus | Since |\n| --- | --- | --- | --- | --- |\n\n## Source notes\n\nEach source's notes.\n\n### `matklad`: Citable, **Corroborate.**\n\nWrites about tooling.\n\n## Decision log\n\n- 2026-10-18: admitted both.\n";
 
-    const OPINION: &str = "---\ntargets: [rust-1.99, edition-2024]\nlast-reviewed: 2026-10-14\nlast-used: 2026-10-14\nsources: [house:simon-mckenna, matklad, rust-docs]\n---\n\n# Rust\n\nUse edition 2024 ([matklad](../AWESOME-HUMANS.md#matklad-citable-corroborate)), and start from [the config](../templates/.cargo/config.toml).\n\n/// house | simon-mckenna\n\n**House:** Deny warnings.\n\n///\n\nMore.\n";
+    const OPINION: &str = "---\ntargets: [rust-1.99, edition-2024]\nlast-reviewed: 2026-10-14\nsources: [house:simon-mckenna, matklad, rust-docs]\n---\n\n# Rust\n\nUse edition 2024 ([matklad](../AWESOME-HUMANS.md#matklad-citable-corroborate)), and start from [the config](../templates/.cargo/config.toml).\n\n/// house | simon-mckenna\n\n**House:** Deny warnings.\n\n///\n\nMore.\n";
 
     fn staged(fixture: &Fixture, page: &str) -> String {
         fs::read_to_string(fixture.path().join("out").join(page)).expect(page)
@@ -1605,7 +1605,7 @@ mod tests {
             .file("opinions/rust.md", &opinion);
         let errors = run(&fixture.repo(), &fixture.path().join("out"));
         assert!(
-            errors.contains(&"opinions/rust.md:12: '../../escaped' isn't a profile id: use lowercase words joined by hyphens, other than none".to_string()),
+            errors.contains(&"opinions/rust.md:11: '../../escaped' isn't a profile id: use lowercase words joined by hyphens, other than none".to_string()),
             "{errors:?}"
         );
         assert!(!fixture.path().join("out/rust/raw").exists());
