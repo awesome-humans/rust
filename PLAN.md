@@ -93,7 +93,7 @@ Branch `chore/scaffold`.
 - **`flagWords` kept.** cspell's default dictionaries accept `color`, `catalog`, `center`, and `analyze` under `en-GB` even without the .NET dictionaries, so the list still does its job.
 - **No `.github/state/` entries** in `.prettierignore` and `cspell.jsonc`. Phase 4 adds them with `rust-release-watch.yml`.
 
-The `protect-main` ruleset (ID `25144742`) is **active** since 2026-10-18, with `dotnet`'s rules apart from required status checks: it blocks deletion and force pushes, and requires a pull request that merges by squash. A required check that never reports would block every merge, so it waits for CI. Phase 2 added the `xtask` and `format-and-lint` jobs; see [After it merged](#phase-2-rust-checks-with-xtask-and-just).
+The `protect-main` ruleset (ID `25144742`) is **active** since 2026-10-18, with `dotnet`'s rules apart from required status checks: it blocks deletion and force pushes, and requires a pull request that merges by squash. A required check that never reports would block every merge, so they waited for CI. Since Phase 2 merged, the ruleset requires the `xtask` and `format-and-lint` jobs.
 
 `verify-project` is now `review-project`, following [awesome-humans/dotnet#174](https://github.com/awesome-humans/dotnet/pull/174) and [awesome-humans/website#70](https://github.com/awesome-humans/website/pull/70), because "verify" reads as pass or fail while the skill writes a graded report.
 
@@ -135,7 +135,7 @@ Port `export-diagrams.cs` as it stands after [awesome-humans/dotnet#149](https:/
 - **`markdown.yml` arrived early,** with only its `format-and-lint` job, so the prose checks gate pull requests from now on. Phase 4 adds the `links` job and its schedule.
 - **The diagrams aren't in the README yet.** Phase 3 adds source standing under Awesome humans, and phase 4 adds the pipeline and research lifecycle with the Maintenance via skills table, as `dotnet`'s README places them.
 
-**After it merged:** add the `xtask` and `format-and-lint` jobs as required status checks on the `protect-main` ruleset (ID `25144742`). On 2026-10-18 the ruleset still had no required checks. Auto mode can't edit rulesets, so the owner runs the `gh api -X PUT` command.
+**After it merged:** the owner added the `xtask` and `format-and-lint` jobs as required status checks on the `protect-main` ruleset (ID `25144742`) on 2026-10-18. Add Phase 4's `links` job too if it runs on pull requests.
 
 ## Phase 3: Initial roster for vetting
 
