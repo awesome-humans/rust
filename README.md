@@ -22,7 +22,7 @@ The writers will be listed in `AWESOME-HUMANS.md`: people and publications with 
 
   To narrow the review, say so in the request, such as "focus on testing".
 
-- **Start a project from the templates.** Copy the files in `templates/` into a new project, trimming what you don't need.
+- **Start a project from the templates.** Once they're published, copy the files in `templates/` into a new project, trimming what you don't need.
 
 - **Read the opinions.** Once they're published, browse them at [awesome-humans.net](https://awesome-humans.net/rust/) or on GitHub. Each page gives its recommendation, with the rationale and sources behind it.
 
