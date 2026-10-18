@@ -93,7 +93,7 @@ Branch `chore/scaffold`.
 - **`flagWords` kept.** cspell's default dictionaries accept `color`, `catalog`, `center`, and `analyze` under `en-GB` even without the .NET dictionaries, so the list still does its job.
 - **No `.github/state/` entries** in `.prettierignore` and `cspell.jsonc`. Phase 4 adds them with `rust-release-watch.yml`.
 
-The `protect-main` ruleset (ID `25144742`) stays **disabled**: it still requires `dotnet`'s job names, and `rust` has no CI until phases 2 and 4. Change its required checks to the Rust CI's job names and enable it once those workflows exist.
+The `protect-main` ruleset (ID `25144742`) is **active** since 2026-10-18, with `dotnet`'s rules apart from required status checks: it blocks deletion and force pushes, and requires a pull request that merges by squash. `rust` has no CI until phases 2 and 4, and a required check that never reports would block every merge. Add the Rust CI's job names as required checks once those workflows exist.
 
 ## Phase 2: Rust checks with `xtask` and `just`
 
