@@ -1,0 +1,18 @@
+{
+  // Markdown linting for this repository. Run via `npm run check`, which uses the
+  // versions pinned in package.json — never `npx markdownlint-cli2` (see AGENTS.md).
+  // Formatting is prettier's job (--prose-wrap preserve); this file only turns
+  // off the rule that conflicts with that.
+  "config": {
+    "default": true,
+
+    // Prose is one sentence per line, unwrapped — prettier preserves it and the
+    // diffs stay readable. A hard column limit would conflict with that on every edit.
+    "MD013": false,
+  },
+  "globs": ["**/*.md"],
+  // .claude/skills is a local symlink to skills/ (see AGENTS.md: Skills), and
+  // markdownlint follows symlinks, so linting it reports every finding twice.
+  // target/ is Cargo's build output.
+  "ignores": ["node_modules", ".claude", "target"],
+}

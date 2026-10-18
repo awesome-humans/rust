@@ -1,0 +1,40 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":semanticCommitTypeAll(chore)",
+    "helpers:pinGitHubActionDigests"
+  ],
+  "timezone": "Australia/Adelaide",
+  "schedule": ["before 9am on monday"],
+  "prConcurrentLimit": 3,
+  "labels": ["dependencies"],
+  "packageRules": [
+    {
+      "description": "Markdown tooling moves together — prettier, markdownlint, and cspell gate the same checks, so review them in one PR.",
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["devDependencies"],
+      "groupName": "markdown tooling"
+    },
+    {
+      "description": "Action digest bumps are mechanical and the workflows re-run on the PR, so they need no staged rollout.",
+      "matchManagers": ["github-actions"],
+      "groupName": "github actions"
+    },
+    {
+      "description": "The root workspace and xtask/ are this repository's own dependencies: the checks compile against them, so a bot bump is exactly the mechanical change Renovate should make, and CI re-runs every check on its PR.",
+      "matchManagers": ["cargo"],
+      "matchFileNames": ["Cargo.toml", "xtask/**"],
+      "enabled": true
+    },
+    {
+      "description": "Everything under templates/ is CONTENT, not this repository's dependencies: the crate pins in templates/Cargo.toml, the toolchain in templates/rust-toolchain.toml, and the rust-version fields. They are maintained by the refresh-rust-versions skill, which resolves each pin against crates.io, checks the MSRV, reads release notes on a major bump, and updates the template's header comment. A bot bumping the version string alone would satisfy none of that while leaving the header wrong, and audit-freshness would stop being able to tell a reviewed pin from an unreviewed one.",
+      "matchFileNames": ["templates/**"],
+      "enabled": false
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "schedule": ["at any time"]
+  }
+}

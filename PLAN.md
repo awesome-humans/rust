@@ -1,0 +1,273 @@
+# Plan: awesome-humans/rust
+
+This plan sets up `awesome-humans/rust`: opinionated best practices for building with Rust, made the same way as [dotnet-awesome-humans](https://github.com/si618/dotnet-awesome-humans), which moves to `awesome-humans/dotnet`. It's published as the `/rust/` section of [awesome-humans.net](https://awesome-humans.net/) beside `/dotnet/`.
+
+Written 2026-10-14. Delete this file in the pull request that completes phase 6.
+
+## Decisions
+
+These are settled. Each gives one line on the option that lost.
+
+| Decision             | Choice                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Organisation         | A GitHub organisation, `awesome-humans`, holds one repository per ecosystem and one for the site: `website`, `dotnet`, and `rust`. The `<ecosystem>-awesome-humans` names lost because the organisation already says it. The site repository is `website`, not `site`, for clarity: `site` reads as a folder or a workflow. See [Phase 0](#phase-0-organisation)                                                                  |
+| Local layout         | `~/Projects/github/awesome-humans/<repository>/`, each a bare clone in `.bare/` with one worktree per branch beside it, as in the .NET repository                                                                                                                                                                                                                                                                                 |
+| House opinions       | `HOUSE-OPINIONS.md` starts with an empty Inbox and an empty Woven table. No .NET house opinion is carried over. Each one has to come back through the Inbox if it applies to Rust                                                                                                                                                                                                                                                 |
+| Targets              | Latest stable Rust (1.99.1, released 2026-10-15) and the latest edition (2024). Nightly-only features appear only in "Coming next" notes                                                                                                                                                                                                                                                                                          |
+| Repository checks    | A Rust `xtask` crate in the workspace, run through a `justfile`. This replaces the .NET repository's `dotnet run scripts/*.cs`                                                                                                                                                                                                                                                                                                    |
+| Why not cargo script | `cargo -Zscript` single-file packages are still unstable ([Cargo Book: Unstable features](https://doc.rust-lang.org/cargo/reference/unstable.html#script), tracking issue [rust-lang/cargo#12207](https://github.com/rust-lang/cargo/issues/12207)). Running checks on nightly would break the repository's own "latest stable" rule. A `**Review by 2027-04-01.**` note in `AGENTS.md` records the switch for when it stabilises |
+| Prose tooling        | Keep Prettier, markdownlint-cli2, and cspell (`en-GB`) through `npm`, behind `just` recipes. Both repositories then share one prose configuration. A Rust-only stack (dprint, rumdl, typos) lost because typos has no British-spelling dictionary                                                                                                                                                                                 |
+| Link checking        | lychee, as now. It's already written in Rust                                                                                                                                                                                                                                                                                                                                                                                      |
+| Site                 | `awesome-humans/website` builds every ecosystem's pages into awesome-humans.net. Each ecosystem repository stages its own pages. See [Phase 5](#phase-5-site-integration)                                                                                                                                                                                                                                                         |
+
+## Repository layout (target)
+
+```text
+├── README.md                 ← overview, scope index, and maintenance table
+├── AGENTS.md                 ← agent instructions, ported from the .NET repository
+├── AWESOME-HUMANS.md         ← Rust roster and admission criteria
+├── HOUSE-OPINIONS.md         ← empty inbox
+├── PLAN.md                   ← this file, deleted when phase 6 lands
+├── Cargo.toml                ← workspace: members = ["xtask"]
+├── rust-toolchain.toml       ← channel = "stable", components = rustfmt, clippy
+├── .cargo/config.toml        ← alias xtask = "run --package xtask --"
+├── justfile                  ← every local and CI entry point
+├── assets/diagrams/          ← generated SVGs
+├── opinions/                 ← one topic per file
+├── research/                 ← staging for research topics
+├── skills/                   ← maintenance skills (Agent Skills specification)
+├── templates/                ← copy-paste-ready Rust project files
+└── xtask/                    ← the repository's own checks, in Rust
+    └── src/
+        ├── main.rs           ← clap subcommands
+        ├── frontmatter.rs    ← YAML frontmatter parsing
+        ├── comment_header.rs ← first-line template header parsing
+        ├── opinions.rs       ← opinion file listing
+        ├── validate_metadata.rs
+        ├── validate_sources.rs
+        ├── validate_readme_index.rs
+        ├── export_diagrams.rs
+        └── build_site.rs
+```
+
+## Phase 0: Organisation
+
+The owner does these steps in the GitHub web UI, because a personal account can't create an organisation through the API. The name `awesome-humans` was free on 2026-10-14.
+
+1. **Create the organisation** `awesome-humans`, and require two-factor authentication for members.
+2. **Create `awesome-humans/.github`.** GitHub uses its community health files as the default for every repository that has none of its own. Move `.github/PULL_REQUEST_TEMPLATE.md` there, and keep the ecosystem-specific checklist lines in each repository's `AGENTS.md`. `AGENTS.md` itself, the admission criteria, and the house-opinion mechanism can't be shared this way.
+3. **Transfer `si618/dotnet-awesome-humans`** to the organisation, and rename it `dotnet`. GitHub keeps its issues, pull requests, and stars, and redirects the old URLs. Then:
+   - Install the Renovate app on the organisation, and give it the transferred repository.
+   - Re-enable "Allow GitHub Actions to create and approve pull requests" in the organisation's and the repository's settings, which `dotnet-release-watch.yml` needs.
+   - Re-create the Cloudflare secrets that the `Site` workflow reads. They move to `awesome-humans/website` in phase 5.
+   - Replace every `si618/dotnet-awesome-humans` in the repository, such as `repo_url` and `repo_name` in `site/zensical.toml`, the `Repository` constant in `scripts/build-site.cs`, and the links in `README.md`. Do this in one `chore/move-to-organisation` pull request.
+4. **Create `awesome-humans/rust`** empty, and push this repository's `main` to it once phase 1 has a first commit.
+5. **Create `awesome-humans/website`** empty, for phase 5.
+6. **Re-clone locally** as `~/Projects/github/awesome-humans/dotnet/`, with `.bare/` and a `main` worktree, and delete the old `~/Projects/github/dotnet-awesome-humans/` once no worktree there holds unpushed work.
+
+## Phase 1: Scaffold
+
+Branch `chore/scaffold`.
+
+1. Copy `LICENSE`, `.editorconfig`, `.gitignore`, `.prettierignore`, `.markdownlint-cli2.jsonc`, `cspell.jsonc`, `lychee.toml`, and `package.json` from the .NET repository. Don't copy its pull request template: the organisation's, in `awesome-humans/.github`, applies to every repository without its own. Then make the copies Rust-specific:
+   - Replace the .NET cspell dictionaries with the `rust` dictionary, and start `cspell.words.txt` empty.
+   - Add `target/` to `.gitignore`, and drop `bin/`, `obj/`, `.vs/`, and `.dotnet/`.
+   - Drop the `MD041` exception from `.markdownlint-cli2.jsonc` if it's still there. It existed only for the .NET repository's own template.
+   - Put the Rust code-example check in `AGENTS.md`, not a template: examples pass `cargo check` and `cargo clippy -- -D warnings` on the declared toolchain.
+2. Port `AGENTS.md` almost word for word. Writing style, metadata, worktrees, Conventional Commits, agent attribution, and orchestration don't change. Rust-specific edits:
+   - Metadata `targets:` becomes `[rust-1.99, edition-2024]`.
+   - Template headers use `#` for TOML and `//` for `.rs`. `rust-toolchain.toml` can carry a header. A JSON template, if one is ever added, is exempt.
+   - The Scripts section describes `xtask` and `just`, not file-based apps.
+   - Branch prefix `refresh/dotnet-<version>` becomes `refresh/rust-<version>`.
+3. Port `README.md` with an empty Scope list and the heading "Awesome Humans of Rust", which the site also uses as the title of `/rust/`. Open it with "An agentic take on [awesome-rust](https://github.com/rust-unofficial/awesome-rust): distilled, opinionated guidance, thanks to awesome humans." Match `dotnet`'s Usage section: the two prompts in `text` blocks inside their list items, `Follow the conventions at awesome-humans.net when writing Rust code` and `Use the review project skill at awesome-humans.net on <repo>`, then the templates and reading bullets. Add `HOUSE-OPINIONS.md` with an empty Inbox and Woven table.
+4. Port `renovate.json`:
+   - Turn on the `cargo` manager for `xtask/` and the root workspace.
+   - Turn it off for `templates/**`, because those pins are content that `refresh-rust-versions` maintains.
+   - Keep the npm and github-actions groups.
+
+**Progress (2026-10-18):** `main` holds only `LICENSE`, pushed straight to it because the repository was empty. The rest is in the `chore/scaffold` pull request. It differs from the steps above in five ways:
+
+- **No `justfile` yet.** `just` isn't installed locally, so Phase 2 adds the `justfile` with the `xtask` recipes. Until then, `npm run check` is the only check, and `package.json` has no `verify` script. `AGENTS.md` already describes `just` and `xtask`, as step 2 asks.
+- **Links only to files that exist.** `README.md` and `AGENTS.md` name `AWESOME-HUMANS.md`, `skills/`, `templates/`, and README.md's Maintenance via skills and Repository scripts sections in backticks, not as links, so `main` never has a broken link. Turn each one into a link in the pull request that adds its target: phase 3 for the roster, phase 2 for Repository scripts, and phase 4 for the skills.
+- **`MD020` dropped too.** It existed only for headings ending in `C#` and `F#`. `MD041` was already gone.
+- **`flagWords` kept.** cspell's default dictionaries accept `color`, `catalog`, `center`, and `analyze` under `en-GB` even without the .NET dictionaries, so the list still does its job.
+- **No `.github/state/` entries** in `.prettierignore` and `cspell.jsonc`. Phase 4 adds them with `rust-release-watch.yml`.
+
+The `protect-main` ruleset (ID `25144742`) is **active** since 2026-10-18, with `dotnet`'s rules apart from required status checks: it blocks deletion and force pushes, and requires a pull request that merges by squash. `rust` has no CI until phases 2 and 4, and a required check that never reports would block every merge. Add the Rust CI's job names as required checks once those workflows exist.
+
+`verify-project` is now `review-project`, following [awesome-humans/dotnet#174](https://github.com/awesome-humans/dotnet/pull/174) and [awesome-humans/website#70](https://github.com/awesome-humans/website/pull/70), because "verify" reads as pass or fail while the skill writes a graded report.
+
+**After house profiles merge:** [awesome-humans/website#72](https://github.com/awesome-humans/website/pull/72) and [awesome-humans/dotnet#175](https://github.com/awesome-humans/dotnet/pull/175) are open. They replace the bare `house` ID with `house:<profile>`, and keep each house opinion in a block beside the sourced text instead of rewriting it. Once both merge, port `dotnet`'s result in one `docs/house-profiles` pull request here, before Rust weaves its first house opinion:
+
+- **`HOUSE-OPINIONS.md`:** the Profiles table, the Profile column in Woven, and the new rule 4.
+- **`AGENTS.md` and `README.md`:** `house:<profile>` in the metadata rules and the `sources` sorting example, and the house opinion wording.
+- **Later phases** port the rest from `dotnet` instead of from this plan: phase 2's `validate-sources` and `build-site` parse the blocks and regions as `House.cs` does, phase 3's roster documents `house:<profile>`, and phase 4's skills take `dotnet`'s house-profile changes, `review-project`'s optional profile among them.
+
+## Phase 2: Rust checks with `xtask` and `just`
+
+Branch `feat/xtask`. Port the five .NET scripts into one binary crate, holding it to the repository's own opinions: `[lints]` with `clippy::pedantic` warned, `-D warnings` in CI, edition 2024, and `rust-version` set to the targeted release.
+
+| .NET script                | `just` recipe                | `xtask` subcommand      | Crates                               |
+| -------------------------- | ---------------------------- | ----------------------- | ------------------------------------ |
+| `validate-metadata.cs`     | `just validate-metadata`     | `validate-metadata`     | `serde`, `serde_yaml_ng`, `jiff`     |
+| `validate-sources.cs`      | `just validate-sources`      | `validate-sources`      | `pulldown-cmark`, `regex`            |
+| `validate-readme-index.cs` | `just validate-readme-index` | `validate-readme-index` | `pulldown-cmark`                     |
+| `export-diagrams.cs`       | `just export-diagrams`       | `export-diagrams`       | none: SVG is written as text         |
+| `build-site.cs`            | `just build-site`            | `build-site`            | `walkdir`, `pulldown-cmark`, `serde` |
+| `npm run check`            | `just check`                 | n/a                     | n/a                                  |
+| `npm run verify`           | `just verify`                | n/a                     | n/a                                  |
+
+Port `export-diagrams.cs` as it stands after [awesome-humans/dotnet#149](https://github.com/awesome-humans/dotnet/pull/149): the design system's tokens, IBM Plex first in the font stacks, no ecosystem accent, and no "hands off" column. Keep the Rust names in the labels, since the diagrams belong to the README.
+
+- **Exit codes:** Keep the .NET scripts' contract: 0 clean, 1 findings, 2 not run from the repository root. CI and the skills read these codes.
+- **Tests:** Each validator gets `#[cfg(test)]` cases built from the .NET repository's known failure inputs, such as a relative date, a duplicate roster ID, and an out-of-order Scope bullet. Port them, and `cargo nextest run -p xtask` runs them in `just verify`.
+- **Crate choices:** These are provisional. Each one needs a roster source before the `rust` or `project-structure` opinion recommends it. Until then, they're repository plumbing, not opinions.
+- **`justfile`:** It sets `set shell := ["bash", "-euo", "pipefail", "-c"]` and has a default recipe that lists the others. CI installs `just` from a pinned release (1.58.0, released 2026-08-03) through `taiki-e/install-action`, pinned to a commit SHA.
+
+## Phase 3: Initial roster for vetting
+
+Branch `vet/initial-roster`. Every candidate below goes through `vet-source` before any opinion cites it. The standings given here are **provisional**, based on a feed check on 2026-10-14. `vet-source` decides the real standing.
+
+### Official documentation and project publications
+
+| Proposed ID          | Source                                                                                                                                                                                                                                                                                                                                                                     | Last checked post  | Provisional standing                                                                                         |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------ |
+| `rust-blog`          | [Rust Blog](https://blog.rust-lang.org/) and [Inside Rust](https://blog.rust-lang.org/inside-rust/)                                                                                                                                                                                                                                                                        | 2026-10-13         | Citable: release announcements, the canonical "what shipped"                                                 |
+| `rust-docs`          | [The Rust Programming Language](https://doc.rust-lang.org/book/), [Reference](https://doc.rust-lang.org/reference/), [Rustonomicon](https://doc.rust-lang.org/nomicon/), [Edition Guide](https://doc.rust-lang.org/edition-guide/), [Cargo Book](https://doc.rust-lang.org/cargo/), [Clippy](https://doc.rust-lang.org/clippy/), and [std](https://doc.rust-lang.org/std/) | Ships each release | Citable: the counterpart to `ms-learn`                                                                       |
+| `api-guidelines`     | [Rust API Guidelines](https://rust-lang.github.io/api-guidelines/)                                                                                                                                                                                                                                                                                                         | Unchecked          | Citable if maintained. Check for staleness, since much of it predates the 2021 edition                       |
+| `rust-patterns`      | [Rust Design Patterns](https://rust-unofficial.github.io/patterns/)                                                                                                                                                                                                                                                                                                        | Unchecked          | Citable, **Corroborate.** It's community-written and shallow in places                                       |
+| `perf-book`          | [Nicholas Nethercote: The Rust Performance Book](https://nnethercote.github.io/perf-book/) and [blog](https://nnethercote.github.io/)                                                                                                                                                                                                                                      | 2026-09-30         | Citable: compiler performance work with measurements                                                         |
+| `effective-rust`     | [David Drysdale: Effective Rust](https://www.lurklurk.org/effective-rust/)                                                                                                                                                                                                                                                                                                 | Book, 2024         | Citable as a book. Check whether it has been updated for the 2024 edition                                    |
+| `ms-rust-guidelines` | [Microsoft: Pragmatic Rust Guidelines](https://microsoft.github.io/rust-guidelines/)                                                                                                                                                                                                                                                                                       | 2026-09-25         | Watch list: first published in 2025, so it falls short of two years. Promote in 2027                         |
+| `anssi-rust`         | [ANSSI: Secure Rust Guidelines](https://github.com/ANSSI-FR/rust-guide)                                                                                                                                                                                                                                                                                                    | Unchecked          | Citable for `security.md`. It's a government publication with a checklist                                    |
+| `tokio-blog`         | [Tokio blog](https://tokio.rs/blog) and [tutorial](https://tokio.rs/tokio/tutorial)                                                                                                                                                                                                                                                                                        | 2026-10-06         | Citable, with an independence note: a project's view of itself carries how it works, not whether to adopt it |
+
+### People
+
+| Proposed ID      | Source                                                                                               | Last checked post | Provisional standing                                                                                                        |
+| ---------------- | ---------------------------------------------------------------------------------------------------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `alice-ryhl`     | [Alice Ryhl](https://ryhl.io/)                                                                       | Unchecked         | Check for dormancy. Her writing may continue in the Tokio docs                                                              |
+| `burntsushi`     | [Andrew Gallant](https://blog.burntsushi.net/)                                                       | 2026-06-03        | Citable: error handling, `regex`, `jiff`, and datetime                                                                      |
+| `corrode`        | [Matthias Endler: corrode.dev](https://corrode.dev/) and [endler.dev](https://endler.dev/)           | 2026-10-02        | Citable, with a consultancy independence note                                                                               |
+| `fasterthanlime` | [Amos Wenger: fasterthanli.me](https://fasterthanli.me/)                                             | 2025-12-31        | Citable, close to the dormancy line. Text only, because videos are out of scope                                             |
+| `jon-gjengset`   | [Jon Gjengset: Rust for Rustaceans](https://rust-for-rustaceans.com/)                                | Book, 2021        | Watch list: most of the writing is the book, and the rest is video                                                          |
+| `luca-palmieri`  | [Luca Palmieri](https://lpalmieri.com/) and [Mainmatter blog](https://mainmatter.com/blog/tag/rust/) | 2026-05-28        | Citable: web services, testing, and _Zero To Production_                                                                    |
+| `mara-bos`       | [Mara Bos](https://blog.m-ou.se/) and [Rust Atomics and Locks](https://marabos.nl/atomics/)          | 2023-12-05        | Watch list: the blog is dormant. Admit through the book only if `vet-source` applies the "writing continues elsewhere" rule |
+| `matklad`        | [Alex Kladov](https://matklad.github.io/)                                                            | 2026-10-07        | Citable: project structure, `xtask`, and testing                                                                            |
+| `niko-matsakis`  | [Niko Matsakis: Baby Steps](https://smallcultfollowing.com/babysteps/)                               | 2026-10-10        | Citable: language design and direction                                                                                      |
+| `predrag`        | [Predrag Gruevski](https://predr.ag/blog/)                                                           | 2025-10-31        | Citable for SemVer. He writes `cargo-semver-checks`, so add a note                                                          |
+| `ralf-jung`      | [Ralf Jung](https://www.ralfj.de/blog/)                                                              | 2026-03-13        | Citable: `unsafe`, soundness, and Miri                                                                                      |
+| `raph-levien`    | [Raph Levien](https://raphlinus.github.io/)                                                          | 2025-10-07        | Watch list if past one year when vetted                                                                                     |
+| `sabrina-jewson` | [Sabrina Jewson](https://sabrinajewson.org/blog)                                                     | 2024-09-22        | Watch list: dormant                                                                                                         |
+| `sunshowers`     | [Rain: sunshowers.io](https://sunshowers.io/)                                                        | 2026-06-16        | Citable: testing (`cargo-nextest`) and the build graph                                                                      |
+| `without-boats`  | [without.boats](https://without.boats/)                                                              | 2024-10-25        | Watch list: dormant. Its async design writing is still a valuable reference                                                 |
+| `yoshua-wuyts`   | [Yoshua Wuyts](https://blog.yoshuawuyts.com/)                                                        | 2026-08-15        | Citable, **Corroborate.** It's mostly language-design proposals                                                             |
+
+### Vendors (independence notes required)
+
+| Proposed ID       | Source                                                    | Last checked post | Provisional standing                    |
+| ----------------- | --------------------------------------------------------- | ----------------- | --------------------------------------- |
+| `ferrous-systems` | [Ferrous Systems blog](https://ferrous-systems.com/blog/) | 2026-07-28        | Citable, with a vendor note             |
+| `tweede-golf`     | [Tweede golf blog](https://tweedegolf.nl/en/blog)         | 2024-09-30        | Watch list: dormant on the checked page |
+
+### Discovery-only
+
+| Proposed ID         | Source                                                          | Role                                     |
+| ------------------- | --------------------------------------------------------------- | ---------------------------------------- |
+| `awesome-rust`      | [awesome-rust](https://github.com/rust-unofficial/awesome-rust) | Curated crate and tool list              |
+| `blessed-rs`        | [blessed.rs](https://blessed.rs/crates)                         | Curated "default crate" list             |
+| `lib-rs`            | [lib.rs](https://lib.rs/)                                       | Crate index with ranking                 |
+| `this-week-in-rust` | [This Week in Rust](https://this-week-in-rust.org/)             | Weekly newsletter, last issue 2026-10-07 |
+
+### References, not sources
+
+A reference corroborates a claim and never carries one, under the existing rules. These include docs.rs pages, crates.io pages, RustSec advisories, and the RFC book.
+
+### How to run the vetting
+
+Follow `AGENTS.md: Orchestration and model economy`. Cheaper worker agents check each candidate in parallel for longevity, latest post, and a few sample posts for depth and accuracy. The strongest model is the editor: it decides each standing and writes `AWESOME-HUMANS.md` with its decision log. Use one pull request for the whole first pass.
+
+- **Check every ecosystem's opt-outs first.** Before admitting anyone, read the `## Opted out` section of every other ecosystem's `AWESOME-HUMANS.md`, which is `dotnet`'s today. [website#69](https://github.com/awesome-humans/website/pull/69) settled that an opt-out from one ecosystem covers all of them, so a candidate listed there is declined here without vetting, and the decision log links the other roster's entry.
+- **Start with an empty `## Opted out` section,** as dotnet#169 added to `dotnet`'s roster, so the site stages it and `sources.json` can export `opted-out` rows.
+- **State the count above the Citable table,** as `dotnet`'s roster does: "The table lists N sources: N people and N publications." `validate-sources` counts the rows by Kind and fails when the sentence disagrees, so port that check in phase 2 with the rest of the script.
+
+## Phase 4: Skills
+
+Branch `docs/port-skills`. Port all eight skills, change the ecosystem nouns, and keep the procedures.
+
+| .NET skill                | Rust skill              | Changes beyond nouns                                                                                                                                  |
+| ------------------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `refresh-dotnet-versions` | `refresh-rust-versions` | Reads `channel-rust-stable.toml`, the edition, the `rust-version` in templates, and crate pins in `templates/Cargo.toml` against crates.io            |
+| `audit-freshness`         | `audit-freshness`       | Version-lag tolerance: two stable releases (12 weeks). Rust ships every six weeks, so bumping `targets:` in every file each release would be noise    |
+| `review-project`          | `review-project`        | Runs `cargo metadata`, `cargo clippy`, and `cargo deny check` when a toolchain is present, and reads `Cargo.toml` and `rust-toolchain.toml` otherwise |
+| `vet-source`              | `vet-source`            | Before admitting anyone, reads the `## Opted out` section of every other ecosystem's roster, and declines a source listed there without vetting       |
+| The other four            | Same names              | Nouns only                                                                                                                                            |
+
+Add `.github/workflows/rust-release-watch.yml`, which compares [channel-rust-stable.toml](https://static.rust-lang.org/dist/channel-rust-stable.toml) with `.github/state/rust-releases.json` daily and opens a trigger pull request. Port `validate-skills.yml`, `harvest-reminder.yml`, and `markdown.yml` as they are, with `just` recipes as the entry points.
+
+Sort README.md's Maintenance via skills table by skill name, as [awesome-humans/dotnet#176](https://github.com/awesome-humans/dotnet/pull/176) does. Phase 2's `validate-readme-index` ports that PR's order check for the table, along with an out-of-order skill row as a test case.
+
+## Phase 5: Site integration
+
+The site now lives in the .NET repository, and `build-site.cs` hard-codes `Ecosystem = "dotnet"`. The `site/zensical.toml` comment already plans a move to a shared repository.
+
+1. **Fill `awesome-humans/website`.** Move `site/pages/`, `site/zensical.toml`, `site/wrangler.jsonc`, `site/requirements.txt`, and the `Site` workflow there from the .NET repository. The workflow checks out each ecosystem repository at `main` and runs its staging step:
+   - `dotnet run scripts/build-site.cs --out <dir>/dotnet`
+   - `cargo xtask build-site --out <dir>/rust`
+
+   Each step writes its pages and a `nav.json` fragment. The website repository merges the fragments into one `zensical.toml` and builds it with `--strict`. A push to `main` in an ecosystem repository triggers a rebuild through `repository_dispatch`. Send it with a token from a GitHub App installed on the organisation, not a personal access token, so the site doesn't depend on one person's account.
+
+2. **Root `llms.txt`** links one `llms.txt` per ecosystem: `/dotnet/llms.txt` and `/rust/llms.txt`.
+3. **Root page:** Add **[Rust](rust/index.md)** under Ecosystems, and change "Rust and TypeScript are next" to "TypeScript is next".
+
+### Branding
+
+Each section takes its own brand colour, in a light-mode and a dark-mode variant, and the header carries both. The header and tabs stay the same colour in both themes, with white text on them. Contrast was measured on 2026-10-14 against white (`#ffffff`) and against Zensical's slate background (about `#1e2129`). WCAG AA needs 4.5:1.
+
+| Use                                        | Colour                                     | Contrast                                   |
+| ------------------------------------------ | ------------------------------------------ | ------------------------------------------ |
+| .NET primary, and light-mode links         | `#512bd4` (existing)                       | 7.9:1 with white text                      |
+| .NET dark-mode links and accent            | `#a08cf0` (existing)                       | 5.8:1 on slate                             |
+| Rust primary, and light-mode links         | `#b7410e` (rust orange)                    | 5.6:1 with white text                      |
+| Rust dark-mode links and accent            | `#ff7a3d` (light rust orange)              | 6.2:1 on slate                             |
+| Header and tabs, every page and both modes | `linear-gradient(90deg, #512bd4, #b7410e)` | 5.6:1 or better with white text throughout |
+
+- **Why these oranges:** Rust's official logo is monochrome, and rust-lang.org has no orange in its palette. Rust orange comes from the community Ferris artwork, whose `#f74c00` gets only 3.5:1 with white text, and so fails as a header. `#b7410e` is the same hue, deep enough for white text. `#ff7a3d` is its counterpart for links on the dark background, where `#b7410e` gets only 2.9:1.
+- **Header gradient:** Set it on `.md-header` and `.md-tabs` in `extra.css`, from .NET purple on the left to rust orange on the right. Give the two elements the same `background-attachment: fixed` sizing, so the tabs carry on the header's gradient instead of restarting it. When TypeScript joins, add its colour as a third stop, and check the contrast of every stop.
+- **Per-section colour:** Zensical can't set a palette per path. A small `ecosystem.js` sets `data-ecosystem` on `<html>` from the first path segment. `extra.css` then scopes `--md-primary-fg-color`, `--md-accent-fg-color`, and `--md-typeset-a-color` to `[data-ecosystem="dotnet"]` and `[data-ecosystem="rust"]`, each with a `[data-md-color-scheme="slate"]` override. The root page keeps the gradient header and neutral links.
+- **Logo:** Use the [official Rust logo](https://github.com/rust-lang/rust-artwork) on the Rust section's index page and the root page's Ecosystems list. It's licensed CC-BY, so credit it in the site footer with a link to the licence, and record any recolouring. Under the [Rust Foundation: Rust trademark policy](https://rustfoundation.org/policy/rust-trademark-policy/), naming the language needs no permission, but the site mustn't look official or endorsed. Add a footer line: "Not affiliated with or endorsed by the Rust Project or the Rust Foundation." Never call the section "official".
+- **Fonts:** Keep the system fonts. rust-lang.org uses Fira Sans and Alfa Slab One from Google Fonts, but `zensical.toml` turned off font loading to avoid a third-party request on every page view.
+
+## Phase 6: First opinions and templates
+
+Run `research-topic`, then `resolve-research`, for each topic. Write an opinion only from citable sources admitted in phase 3. In proposed order, with the sources expected to carry each:
+
+| Opinion file             | Covers                                                                                                          | Expected sources                          |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
+| `rust.md`                | Edition 2024, the latest stable language features, and idioms                                                   | `rust-docs`, `rust-blog`, `niko-matsakis` |
+| `project-structure.md`   | Workspaces, `[workspace.lints]`, `[workspace.dependencies]`, `rust-toolchain.toml`, `rust-version`, and `xtask` | `rust-docs`, `matklad`                    |
+| `error-handling.md`      | Library and application errors, `thiserror` versus `anyhow`, and panics                                         | `burntsushi`, `rust-docs`                 |
+| `ci.md`                  | `clippy -D warnings`, `cargo-deny`, MSRV checks, caching, and SHA-pinned actions                                | `rust-docs`, `corrode`, `sunshowers`      |
+| `testing.md`             | `cargo-nextest`, snapshot and property tests, and doc tests                                                     | `sunshowers`, `matklad`, `luca-palmieri`  |
+| `async.md`               | Tokio, cancellation, blocking, and structured concurrency                                                       | `tokio-blog`, `alice-ryhl`                |
+| `unsafe.md`              | Soundness, `unsafe_op_in_unsafe_fn`, and Miri                                                                   | `ralf-jung`, `rust-docs`                  |
+| `api-design.md`          | SemVer, `cargo-semver-checks`, and public API shape                                                             | `api-guidelines`, `predrag`               |
+| `runtime-performance.md` | Profiling, allocation, and release profile settings                                                             | `perf-book`                               |
+| `security.md`            | Supply chain (`cargo-deny`, `cargo-vet`, RustSec), and secure coding                                            | `anssi-rust`, `rust-docs`                 |
+
+Templates, each with a first-line header comment:
+
+- `Cargo.toml`, a workspace root with `[workspace.lints]` and `[profile.release]`
+- `rust-toolchain.toml`, `rustfmt.toml`, `clippy.toml`, `deny.toml`, and `.cargo/config.toml`
+- `justfile` and `.editorconfig`
+- `projects/`, holding an example library crate, a binary crate, and an integration test
+
+`just verify` builds the template workspace with `cargo check` and `cargo clippy`, so every template compiles against the declared targets. This is the Rust equivalent of the .NET repository's smoke test of the example projects.
+
+## Open questions
+
+These need the owner's decision before the phase that depends on them:
+
+1. ~~**Shared text drift:**~~ Settled 2026-10-18 by the owner: move the shared text, which is `AGENTS.md`'s writing style, the admission criteria, and the house-opinion mechanism, into `awesome-humans/website`, and link to it from each ecosystem repository instead of keeping copies. A fork of an ecosystem repository then either adopts the linked text or writes its own, which is fine. A check that compares copies lost, because it would still leave copies to keep in step. The website plan's Phase 9 has the steps.
+2. **Ecosystem repositories without the site:** After phase 5, `awesome-humans/dotnet` no longer builds the site. Its `README.md`, `AGENTS.md`, and CI need changing in their own pull request there.
+3. **Phase 5 order:** Moving the site out of the .NET repository changes that repository's `README.md`, `AGENTS.md`, and CI, and needs its own pull request there. It can happen before or after the Rust content exists, but the `/rust/` section has nothing to show until phase 6 starts.

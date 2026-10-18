@@ -1,0 +1,18 @@
+# Words cspell.jsonc accepts on top of its en-GB and Rust dictionaries: names,
+# identifiers, and terms the dictionaries lack. One per line, sorted case-insensitively.
+# Never add an American spelling. For a quoted title, see AGENTS.md: Spelling.
+Fira
+frontmatter
+katex
+lycheeverse
+matklad
+Miri
+rumdl
+scannable
+smol
+timezone
+unpushed
+unvetted
+WCAG
+worktrees
+xtask

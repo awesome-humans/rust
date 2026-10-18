@@ -1,0 +1,16 @@
+# Cargo build output, from the xtask crate and from building the templates
+target/
+
+# IDE and OS noise
+.idea/
+.DS_Store
+
+# Markdown tooling (package.json) — devDependencies only, not shipped
+node_modules/
+
+# Local harness skill discovery: a symlink to skills/ for a harness that only
+# looks under its own directory. See AGENTS.md: Skills.
+.claude/
+
+# lychee link-check result cache
+.lycheecache
