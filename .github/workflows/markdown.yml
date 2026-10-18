@@ -1,0 +1,45 @@
+name: Markdown
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  format-and-lint:
+    # Formatting, structure, and spelling are deterministic and offline, so they gate pull
+    # requests. Phase 4 of PLAN.md adds the scheduled link check beside this job.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        # Nothing here pushes, so the job token stays out of .git/config, where a dependency's
+        # install script could read it.
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: "24"
+          cache: npm
+
+      # Pinned to a release at least two weeks old when chosen. The justfile is every entry
+      # point, so the steps below call its recipes, never npm.
+      - uses: taiki-e/install-action@83ac0ad63c0167e6f06796fab0fce28db1bf3db0 # v2.87.22
+        with:
+          tool: just@1.58.0
+
+      # npm ci, not npm install: it honours package-lock.json exactly and fails if the lock
+      # and manifest disagree, so CI can't float a version.
+      - name: Install the prose tools
+        run: just install
+
+      - name: Check formatting
+        run: just format-check
+
+      - name: Lint markdown
+        run: just lint
+
+      - name: Check spelling
+        run: just spell

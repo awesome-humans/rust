@@ -129,7 +129,7 @@ Rules:
 - **A JSON template is exempt from the header,** because JSON has no comment syntax. None exists today. If one is added, what it pins is audited against the latest releases instead. Building the template workspace leaves `templates/target/` behind, which is gitignored. That output isn't a resource, and the check skips it.
 - **`skills/` are deliberately exempt.** The [Agent Skills specification](https://agentskills.io/specification) defines their frontmatter, they're procedures and not reference material, and nothing reads a date from them. Use `git log` to see when a skill last changed.
 
-CI runs `cargo xtask validate-metadata` against both syntaxes, and a missing field, a relative date, or an unsorted `sources` list fails the pull request.
+CI runs `just validate-metadata` against both syntaxes, and a missing field, a relative date, or an unsorted `sources` list fails the pull request.
 
 ## Writing style
 
@@ -207,11 +207,11 @@ A literal use isn't an idiom. _Silently_ for a failure that raises no error stay
 - **Use British spelling, except where Rust names the word.** Write _defence_, _modelling_, _catalogue_, _behaviour_, and _colour_. This overrides Google's American spelling and its dictionary, Merriam-Webster.
 - **Use the language's or the crate's spelling for its own concept,** so prose and identifiers match and a search for one finds the other. serde's `Serialize` gives _serialize_ and _serialization_, and `MaybeUninit` gives _uninitialized_ memory.
 - **Don't extend the exception to words that only share a stem with an API.** "Colour in terminal output" keeps its British spelling, even though `anstyle` has a `Color` type. Never anglicise an API name.
-- **`npm run spell` checks spelling.** For details, see [Formatting and linting](#formatting-and-linting). When it flags a correctly spelled name or term, add the word to `cspell.words.txt` in the same commit. Never add an American spelling there. In Markdown, it skips link text, inline code, and double-quoted text, so a cited title or a quotation keeps its spelling. For a title outside those, such as an italic book title, put `<!-- cspell:ignore <word> -->` above the paragraph.
+- **`just spell` checks spelling.** For details, see [Formatting and linting](#formatting-and-linting). When it flags a correctly spelled name or term, add the word to `cspell.words.txt` in the same commit. Never add an American spelling there. In Markdown, it skips link text, inline code, and double-quoted text, so a cited title or a quotation keeps its spelling. For a title outside those, such as an italic book title, put `<!-- cspell:ignore <word> -->` above the paragraph.
 
 ### Scope of these rules
 
-- **They're review guidance, not a build check.** Whether a contrast is justified can't be decided by counting. Read for these patterns in review, and don't add a check that fails a build over them. Spelling is the exception: a misspelled word is wrong whatever its context, so `npm run spell` fails the build over it.
+- **They're review guidance, not a build check.** Whether a contrast is justified can't be decided by counting. Read for these patterns in review, and don't add a check that fails a build over them. Spelling is the exception: a misspelled word is wrong whatever its context, so `just spell` fails the build over it.
 - **They apply only to prose written here.** A third-party title and its URL keep the author's wording and spelling, American or British. Correcting a source misquotes it, and correcting a URL breaks it.
 - **They don't apply to other people's code.** `review-project` reviews a codebase against `opinions/`. Spelling and wording in someone else's identifiers, comments, or documentation is never a finding.
 
@@ -237,25 +237,26 @@ Work in a git worktree, with one branch per directory. The local clone is bare, 
   - This convention outranks the host environment's own. Replace a generated name such as `agent/youthful-wozniak-gm4k7m` before the first push. If a host only pushes under its own prefix, put the convention after it: `agent/harvest/2026-09-14`.
   - Settle the name before you open the pull request. Renaming the head branch of an open pull request on GitHub closes it, and you can't reopen it under the new name.
 - **Directory names:** Name the directory after the branch, with slashes replaced by dashes, so `resolve/async` becomes `resolve-async/`. Every worktree then sits one level beside the bare `.bare/` directory and tab-completes in one step. This also keeps a nested `research/` directory from appearing next to the repository's own `research/`.
-- **Setup:** A fresh worktree has no gitignored local state. Run `npm ci` in it before `npm run check`. If your harness needs the skills symlink, re-create it there. For details, see [Skills](#skills).
+- **Setup:** A fresh worktree has no gitignored local state. Run `just install` in it before `just check`. If your harness needs the skills symlink, re-create it there. For details, see [Skills](#skills).
 - **Finishing:** When a worktree's pull request merges, **offer to delete the worktree** with `git worktree remove <dir>` and then `git branch -d <branch>`. Ask first: the branch might still hold work that never reached the pull request.
 
 ### Formatting and linting
 
 - Markdown follows GFM and markdownlint, configured in `.markdownlint-cli2.jsonc`. The configuration uses the defaults minus one rule that conflicts with the prose style, and records why.
 - Spelling follows cspell, configured in `cspell.jsonc` with the `en-GB` dictionary, the `rust` dictionary, and the repository's own word list in `cspell.words.txt`. The dictionaries cspell enables by default accept American spellings because API and crate names use them, such as `Color`, so the configuration flags them in Markdown prose. Editors with a cspell extension read the same configuration.
-- Run `npm run format` to format, and `npm run check` to check formatting, lint, and spelling together. All three use the versions pinned in `package.json`. Don't run `npx prettier`, `npx markdownlint-cli2`, or `npx cspell` directly, because they resolve the latest version. The `justfile` wraps both as `just format` and `just check`.
+- Run `just format` to format, and `just check` to check formatting, lint, and spelling together, for prose and Rust. Each check also has its own recipe: `just format-check`, `just lint`, `just spell`, and `just fmt-check`. The prose recipes run the scripts in `package.json`, which use the versions pinned there. Don't run `npx prettier`, `npx markdownlint-cli2`, or `npx cspell` directly, because they resolve the latest version.
 - Run `just verify` before you open a pull request. It runs `just check` and every `xtask` check that CI runs, and redraws the diagrams.
 - Prettier formats Markdown and the JSON, JSONC, and YAML configuration, and reads `.editorconfig`, so the formatter and your editor agree. `rustfmt` formats Rust. `.prettierignore` records one exception: `package-lock.json` is machine-written, and gating it on formatting would fail a build that nobody can fix by editing. TOML isn't formatted, because Prettier has no built-in TOML parser.
 
 ### Scripts
 
-- CI checks live in `xtask/`, one binary crate in the root Cargo workspace, with one `clap` subcommand per check. Run them from the repository root with `cargo xtask <name>`, which `.cargo/config.toml` aliases to `cargo run --package xtask --`. Code that two subcommands share goes in a module that both use, not in a copy.
+- CI checks live in `xtask/`, one binary crate in the root Cargo workspace, with one `clap` subcommand per check. Run them from the repository root with `cargo xtask <name>`, which `.cargo/config.toml` aliases to `cargo run --package xtask --quiet --`. Code that two subcommands share goes in a module that both use, not in a copy.
 - The `justfile` is every local and CI entry point. Each check has a recipe of the same name, such as `just validate-metadata`, and CI calls the recipes, never `cargo` directly. `just` with no arguments lists them.
 - Subcommands use kebab-case names because you type them on a command line. Modules use snake_case, following Rust's naming convention, so `validate-metadata` lives in `validate_metadata.rs`.
 - Add a check as a subcommand, not as an inline script in a workflow, and hold it to the repository's own opinions: `rust-toolchain.toml` pins the stable channel, the crate uses edition 2024 and sets `rust-version` to the targeted release, `[lints]` warns on `clippy::pedantic`, and CI denies warnings.
 - Keep the exit codes: 0 when clean, 1 for findings, and 2 when not run from the repository root. CI and the skills read them.
-- When you add or rename a subcommand, update README.md's Repository scripts table and the layout tree.
+- Test each check with `#[cfg(test)]` cases built from the failures it catches, such as a relative date or a duplicate roster ID, and run them with `just test`.
+- When you add or rename a subcommand, update the table in [README.md: Repository scripts](README.md#repository-scripts) and the layout tree.
 - Renovate bumps the crates in `xtask/Cargo.toml` and the root workspace. `renovate.json` turns the cargo manager off under `templates/`, because those pins are content that `refresh-rust-versions` maintains.
 - **Review by 2027-04-01.** Single-file Cargo scripts (`cargo -Zscript`) are still unstable, tracked in [rust-lang/cargo#12207](https://github.com/rust-lang/cargo/issues/12207), and running checks on nightly would break the repository's own "latest stable" rule. When they stabilise, consider moving each check to a script, as the .NET repository's file-based apps do.
 

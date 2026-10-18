@@ -125,6 +125,18 @@ Port `export-diagrams.cs` as it stands after [awesome-humans/dotnet#149](https:/
 - **Crate choices:** These are provisional. Each one needs a roster source before the `rust` or `project-structure` opinion recommends it. Until then, they're repository plumbing, not opinions.
 - **`justfile`:** It sets `set shell := ["bash", "-euo", "pipefail", "-c"]` and has a default recipe that lists the others. CI installs `just` from a pinned release (1.58.0, released 2026-08-03) through `taiki-e/install-action`, pinned to a commit SHA.
 
+**Progress (2026-10-18):** The `feat/xtask` pull request ports all five scripts and their four helpers, with a `justfile` and a `Rust checks` workflow. `just verify` passes, and the staged `nav.json` and `sources.json` validate against the website's schemas. The SVGs match `dotnet`'s coordinate for coordinate, with only the Rust names changed. It differs from the steps above in seven ways:
+
+- **Crates:** `clap`, which AGENTS.md already names, `jiff`, `regex`, `serde_json`, `serde_yaml_ng`, and `walkdir`, with `tempfile` for the tests. `pulldown-cmark` and `serde`'s derive aren't needed: the port keeps the .NET scripts' line and regex parsing, so the two produce the same findings and pages.
+- **Missing directories read as empty.** `rust` has no `opinions/`, `templates/`, `skills/`, or `AWESOME-HUMANS.md` yet, so the checks recognise the root by `AGENTS.md` and `xtask/` instead of by `opinions/`. A directory that exists but is empty is still a finding, and so is a README section missing once its directory exists. `build-site` stages no pages or navigation for a missing part.
+- **Tests come from the failures each check catches,** because `dotnet` has no test inputs to port: 59 cases, among them a relative date, a duplicate roster ID, a wrong Citable count, and out-of-order Scope bullets, tree entries, and skill rows.
+- **CI pins:** `just` 1.58.0 as planned, because 1.59.0 came out on 2026-10-15, and `cargo-nextest` 0.9.146. Both install through `taiki-e/install-action` v2.87.22.
+- **Everything runs through `just`, prose checks included.** Besides the planned recipes, `install`, `format-check`, `lint`, `spell`, `fmt-check`, and `check-diagrams` exist so every workflow calls only recipes. `just check` runs the four checks, and the npm scripts in `package.json` stay underneath, pinning the tool versions. AGENTS.md now names the recipes, not `npm run`.
+- **`markdown.yml` arrived early,** with only its `format-and-lint` job, so the prose checks gate pull requests from now on. Phase 4 adds the `links` job and its schedule.
+- **The diagrams aren't in the README yet.** Phase 3 adds source standing under Awesome humans, and phase 4 adds the pipeline and research lifecycle with the Maintenance via skills table, as `dotnet`'s README places them.
+
+**After it merges:** add the `xtask` and `format-and-lint` jobs as required status checks on the `protect-main` ruleset (ID `25144742`). Auto mode can't edit rulesets, so the owner runs the `gh api -X PUT` command.
+
 ## Phase 3: Initial roster for vetting
 
 Branch `vet/initial-roster`. Every candidate below goes through `vet-source` before any opinion cites it. The standings given here are **provisional**, based on a feed check on 2026-10-14. `vet-source` decides the real standing.
@@ -204,7 +216,7 @@ Branch `docs/port-skills`. Port all eight skills, change the ecosystem nouns, an
 | `vet-source`              | `vet-source`            | Before admitting anyone, reads the `## Opted out` section of every other ecosystem's roster, and declines a source listed there without vetting       |
 | The other four            | Same names              | Nouns only                                                                                                                                            |
 
-Add `.github/workflows/rust-release-watch.yml`, which compares [channel-rust-stable.toml](https://static.rust-lang.org/dist/channel-rust-stable.toml) with `.github/state/rust-releases.json` daily and opens a trigger pull request. Port `validate-skills.yml`, `harvest-reminder.yml`, and `markdown.yml` as they are, with `just` recipes as the entry points.
+Add `.github/workflows/rust-release-watch.yml`, which compares [channel-rust-stable.toml](https://static.rust-lang.org/dist/channel-rust-stable.toml) with `.github/state/rust-releases.json` daily and opens a trigger pull request. Port `validate-skills.yml` and `harvest-reminder.yml` as they are, and add `markdown.yml`'s `links` job and its weekly schedule beside the `format-and-lint` job that phase 2 added, with `just` recipes as the entry points.
 
 Sort README.md's Maintenance via skills table by skill name, as [awesome-humans/dotnet#176](https://github.com/awesome-humans/dotnet/pull/176) does. Phase 2's `validate-readme-index` ports that PR's order check for the table, along with an out-of-order skill row as a test case.
 
@@ -264,6 +276,16 @@ Templates, each with a first-line header comment:
 - `projects/`, holding an example library crate, a binary crate, and an integration test
 
 `just verify` builds the template workspace with `cargo check` and `cargo clippy`, so every template compiles against the declared targets. This is the Rust equivalent of the .NET repository's smoke test of the example projects.
+
+**Re-evaluate `xtask/src/` once the first opinions and templates land.** Phase 2 wrote and tested every check against fixtures only, because the repository had no content for them to read. With real opinions, templates, a roster, and skills in place, review each module against what the content needs. Drop the allowances for missing directories that no longer apply, check that the port's regex parsing copes with the real files, and decide whether a Rust-native approach, such as `pulldown-cmark`, would now serve better than following the .NET scripts line by line.
+
+The port also reads like the C# it came from, and it's longer than it needs to be. Tighten it into idiomatic Rust in the same pass:
+
+- **Types instead of strings:** an enum or newtype for a repository path, a page, a profile, and a roster bucket, in place of `String` keys and `&'static str` tags.
+- **Iterators and `?` instead of loops and early returns,** where they read better, and a crate error type in place of the hand-built finding strings for I/O failures.
+- **Smaller functions:** split `build_site.rs`'s `stage` and `stage_roster`, and the long diagram functions, which carry `#[expect(clippy::too_many_lines)]` today, until they no longer need it.
+- **Less shared mutable state:** `build_site.rs` threads one `&mut Site` through every step to collect errors. Return values instead, and collect the errors at the top.
+- **Stage atomically:** `build-site` writes straight into `<out>/rust/`, so a failed run leaves partial output. Stage into a temporary directory and move it into place only when there are no errors, as CodeRabbit proposed on rust#4.
 
 ## Open questions
 

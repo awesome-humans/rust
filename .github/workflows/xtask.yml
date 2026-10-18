@@ -1,0 +1,60 @@
+name: Rust checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  xtask:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        # Nothing here pushes, so the job token stays out of .git/config, where a dependency's
+        # install script could read it.
+        with:
+          persist-credentials: false
+
+      # rust-toolchain.toml decides the toolchain, per AGENTS.md: Scripts. CI must not
+      # float a version the repository didn't choose, so rustup installs that one.
+      - name: Install the pinned toolchain
+        run: rustup toolchain install
+
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+
+      # Pinned releases, each at least two weeks old when chosen. The justfile is every
+      # entry point, so the steps below call its recipes, never cargo.
+      - uses: taiki-e/install-action@83ac0ad63c0167e6f06796fab0fce28db1bf3db0 # v2.87.22
+        with:
+          tool: just@1.58.0,cargo-nextest@0.9.146
+
+      - name: Check Rust formatting
+        run: just fmt-check
+
+      - name: Lint the xtask crate
+        run: just clippy
+
+      - name: Test the xtask crate
+        run: just test
+
+      - name: Verify resource metadata
+        run: just validate-metadata
+
+      - name: Verify the roster and the sources cited against it
+        run: just validate-sources
+
+      - name: Verify README indexes every opinion and skill
+        run: just validate-readme-index
+
+      # The SVGs are committed so the README can show them, which leaves them free to drift
+      # from the code that draws them. Redraw and fail on any difference, including a
+      # diagram that was never committed.
+      - name: Verify the diagrams match the code that draws them
+        run: just check-diagrams
+
+      - name: Stage the site
+        run: just build-site

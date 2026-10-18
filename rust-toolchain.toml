@@ -1,0 +1,6 @@
+# The toolchain the xtask checks build with: the targeted stable release, so CI and every
+# contributor compile with the same rustc, clippy, and rustfmt.
+[toolchain]
+channel = "1.99"
+components = ["clippy", "rustfmt"]
+profile = "minimal"

@@ -6,7 +6,7 @@
     "format": "prettier --prose-wrap preserve --write \"**/*.{md,json,jsonc,yml,yaml}\"",
     "format:check": "prettier --prose-wrap preserve --check \"**/*.{md,json,jsonc,yml,yaml}\"",
     "lint": "markdownlint-cli2",
-    "spell": "cspell lint --no-progress --dot \"**/*.{md,rs,yml,yaml,json,jsonc,toml}\" \"templates/**\" .editorconfig",
+    "spell": "cspell lint --no-progress --dot \"**/*.{md,rs,yml,yaml,json,jsonc,toml}\" \"templates/**\" .editorconfig justfile",
     "check": "npm run format:check && npm run lint && npm run spell"
   },
   "devDependencies": {
