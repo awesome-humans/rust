@@ -1,0 +1,43 @@
+# This repository's own editor config.
+#
+# It is NOT a template: templates/.editorconfig, when it exists, is the file shipped
+# to consumers. This one governs the prose, configuration, and xtask code that this
+# repository actually contains. Keep the two separate: editing this file changes how
+# we work, editing the template changes our advice.
+#
+# Values here match what `npm run format` (prettier) produces for the files it owns
+# (Markdown, JSON, JSONC and YAML), so the editor and the formatter don't undo
+# each other on save. rustfmt owns the Rust layout below; no formatter covers TOML,
+# so this file is the only thing that enforces it.
+
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = true
+
+# Markdown: two trailing spaces are a hard line break, so trimming them silently
+# changes rendered output. prettier preserves them; the editor must too.
+# indent_size is unset because markdown nesting is content, not indentation:
+# an ordered-list continuation lines up under "1. " at three columns, and any
+# fixed multiple would flag prettier's own correct output.
+[*.md]
+trim_trailing_whitespace = false
+indent_size = unset
+
+[*.{json,jsonc,yml,yaml,toml}]
+indent_size = 2
+
+# Rust: rustfmt's default indentation, so the editor and `cargo fmt` agree.
+[*.rs]
+indent_size = 4
+
+# Verbatim third-party text: the Apache 2.0 licence is reproduced exactly as
+# published, indentation included. Never reformat it.
+[LICENSE]
+indent_size = unset
+indent_style = unset
