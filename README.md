@@ -24,7 +24,7 @@ The writers are listed in [AWESOME-HUMANS.md](AWESOME-HUMANS.md): people and pub
 
 - **Start a project from the templates.** Once they're published, copy the files in `templates/` into a new project, trimming what you don't need.
 
-- **Read the opinions.** Browse them at [awesome-humans.net](https://awesome-humans.net/rust/) or on GitHub. Each page gives its recommendation, with the rationale and sources behind it.
+- **Read the opinions.** Once they're published, browse them at [awesome-humans.net](https://awesome-humans.net/rust/) or on GitHub. Each page gives its recommendation, with the rationale and sources behind it.
 
 ## Scope
 

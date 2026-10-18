@@ -21,10 +21,10 @@ Write every crate on edition 2024 with Rust 1.99, and use the features that rele
 
 ### Edition 2024
 
-**Set `edition = "2024"` in `[workspace.package]`, and inherit it in every crate with `edition.workspace = true`.** A manifest without an `edition` key still means 2015 ([The Cargo Book: The manifest format](https://doc.rust-lang.org/cargo/reference/manifest.html#the-edition-field)). Edition 2024 shipped with Rust 1.85.0 on 2025-02-20 ([Rust Blog: Announcing Rust 1.85.0 and Rust 2024](https://blog.rust-lang.org/2025/02/20/Rust-1.85.0/)), and no later edition is planned.
+**Set `edition = "2024"` in `[workspace.package]`, and inherit it in every crate with `edition.workspace = true`.** A manifest without an `edition` key still means 2015 ([The Cargo Book: The manifest format](https://doc.rust-lang.org/cargo/reference/manifest.html#the-edition-field)). Edition 2024 shipped with Rust 1.85.0 on 2025-02-20 ([Rust Blog: Announcing Rust 1.85.0 and Rust 2024](https://blog.rust-lang.org/2025/02/20/Rust-1.85.0/)).
 
 - **Set `resolver = "3"` in a virtual workspace's `[workspace]`.** Edition 2024 implies it in a package, but a virtual manifest has no edition to imply it from. Resolver 3 prefers dependency versions whose `rust-version` your toolchain meets ([The Cargo Book: Resolver versions](https://doc.rust-lang.org/cargo/reference/resolver.html#resolver-versions)).
-- **Set `style_edition = "2024"` in `rustfmt.toml`.** `cargo fmt` reads the edition from the manifest, but an editor that runs bare `rustfmt` defaults to the 2015 style.
+- **Set `edition = "2024"` and `style_edition = "2024"` in `rustfmt.toml`.** `cargo fmt` reads the edition from the manifest, but an editor that runs bare `rustfmt` defaults to 2015 for both. Without `edition`, it can't parse a let chain.
 
 To migrate a crate, follow the Edition Guide's steps ([Rust Edition Guide: Transitioning an existing project to a new edition](https://doc.rust-lang.org/edition-guide/editions/transitioning-an-existing-project-to-a-new-edition.html)):
 
