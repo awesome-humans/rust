@@ -297,7 +297,7 @@ fn pipeline() -> String {
             "opinions",
             "store",
             &["opinions/", "templates/"][..],
-            "what good looks like",
+            "distilled guidance",
         ),
         ("report", "ext", &["a report"][..], "never saved here"),
     ] {
