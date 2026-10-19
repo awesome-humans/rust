@@ -4,6 +4,7 @@
 agentskills
 Aleksandrov
 anssi
+ANSSI
 axum
 backpressure
 binstall
@@ -81,6 +82,7 @@ Swatinem
 thiserror
 timezone
 tomllib
+tweede
 unparseable
 unpushed
 unvetted
