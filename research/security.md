@@ -1,6 +1,6 @@
 ---
 targets: [rust-1.99, edition-2024]
-last-reviewed: 2026-10-19
+last-reviewed: 2026-10-20
 sources: [anssi-rust, corrode, rust-blog, rust-docs, tweede-golf]
 ---
 
@@ -11,12 +11,12 @@ Commit `Cargo.lock`, build with `--locked`, and gate every pull request on `carg
 - **Pin the graph:** commit `Cargo.lock` in every repository, binaries and libraries alike, and pass `--locked` in CI and to `cargo install`.
 - **Check it on every pull request:** `cargo deny check` with `yanked = "deny"`, `wildcards = "deny"`, and `unknown-registry` and `unknown-git` set to `"deny"`. It reads the same RustSec database as `cargo-audit`, and adds bans, sources, and licences.
 - **Keep the graph small:** treat each new dependency, and each new build script or proc macro, as code you run on every developer machine and CI runner.
-- **Publish with trusted publishing:** a library released from GitHub Actions uses crates.io's OIDC tokens, not a stored API token.
-- **Forbid `unsafe` by default:** set `unsafe_code = "forbid"` in `[workspace.lints.rust]`, and override it only in a crate that justifies `unsafe`.
+- **Publish with trusted publishing:** a library released from GitHub Actions or GitLab.com CI uses crates.io's OIDC tokens, not a stored API token, and its owners turn on the setting that requires it.
+- **Forbid `unsafe` by default:** set `unsafe_code = "forbid"` in `[workspace.lints.rust]`, inherit it with `[lints] workspace = true` in each member, and leave it out only in a crate that justifies `unsafe`.
 - **Make failure explicit on untrusted input:** `checked_*` arithmetic, `get` over indexing, and no `unwrap` outside tests and invariants, with the restriction lints that enforce them turned on in security-critical crates.
 - **Keep secrets out of output:** a hand-written `Debug`, no secret in a panic message, and no reliance on `Drop` alone to erase one.
 
-Every tool and setting here works on stable Rust 1.99.1. `cargo-vet` is the one recommendation that depends on the project: it suits software that must record a review of each dependency, as ANSSI's rules require, and costs a small project more than it returns.
+Every tool and setting here works on stable Rust 1.99.1, and the editor probed the Cargo and Clippy settings on it on 2026-10-20. `cargo-vet` is the one recommendation that depends on the project: it suits software that must record a review of each dependency, as ANSSI's rules require, and costs a small project more than it returns.
 
 **No opinion file covers this.** `opinions/rust.md` covers the safe-Rust pitfalls that overlap (checked arithmetic, `as` casts, indexing, `Debug` on secrets), and nothing covers the supply chain. This is the `security.md` topic in [PLAN.md: Phase 6](../PLAN.md#phase-6-first-opinions-and-templates).
 
@@ -28,11 +28,11 @@ On 2026-08-20, a compromised maintainer account published `arrayref` 0.3.10, `in
 
 Look-alike crates are routine. The Rust Blog reported `faster_log` and `async_println` (2025-09-24), `evm-units` and `uniswap-utils` (2025-12-03), and `finch-rust` and `sha-rust` (2025-12-05). On 2026-02-13 the crates.io team stopped posting each one: "We will always publish a RustSec advisory when a crate is removed for containing malware", and a blog post only when a crate saw real use ([Rust Blog: An update to the malicious crate notification policy](https://blog.rust-lang.org/2026/02/13/crates.io-malicious-crate-update)). So the RustSec database, which `cargo-deny` reads, is now the one channel that reports every malicious crate.
 
-Cargo itself had three advisories in 2026: CVE-2026-33056 (fixed in 1.94.1), CVE-2026-5222, and CVE-2026-5223 (fixed in 1.96.0). crates.io blocked uploads exploiting the first and found none published, and forbids the symlinks the second needs ([Rust Blog: Security advisory for Cargo](https://blog.rust-lang.org/2026/03/21/cve-2026-33056), 2026-03-21, and [Security Advisory for Cargo (CVE-2026-5223)](https://blog.rust-lang.org/2026/05/25/cve-2026-5223/), 2026-05-25). Both are a reason to stay on the latest stable toolchain, as `rust.md` already says.
+Cargo itself had three advisories in 2026: CVE-2026-33056 (fixed in 1.94.1), and CVE-2026-5222 and CVE-2026-5223 (both fixed in 1.96.0). crates.io blocked uploads exploiting the first and found none published. The second affects only third-party sparse registries that host several registries under one domain, and crates.io forbids the symlinks the third needs ([Rust Blog: Security advisory for Cargo](https://blog.rust-lang.org/2026/03/21/cve-2026-33056), 2026-03-21, [Security Advisory for Cargo (CVE-2026-5222)](https://blog.rust-lang.org/2026/05/25/cve-2026-5222/), 2026-05-25, and [Security Advisory for Cargo (CVE-2026-5223)](https://blog.rust-lang.org/2026/05/25/cve-2026-5223/), 2026-05-25). All three are a reason to stay on the latest stable toolchain, as `rust.md` already says.
 
 ### The lockfile and `--locked`
 
-Commit `Cargo.lock` in every repository. ANSSI makes it a rule: "`Cargo.lock` files MUST be tracked by a version control system", because the lockfile records each dependency's checksum and the build fails if one changes ([ANSSI: DENV-CARGO-LOCK](https://anssi-fr.github.io/rust-guide/devenv.html#DENV-CARGO-LOCK)). The Cargo Book is neutral, "dependent on the needs of your package", but `cargo new` tracks it by default, and the Book warns that the lockfile doesn't reach consumers: "`cargo install` will select the latest dependencies unless `--locked` is passed in" ([The Cargo Book: FAQ](https://doc.rust-lang.org/cargo/faq.html#why-have-cargolock-in-version-control)). The `arrayref` numbers show what a committed lockfile buys.
+Commit `Cargo.lock` in every repository. ANSSI makes it a rule: "`Cargo.lock` files MUST be tracked by a version control system", because the lockfile records a checksum for each registry dependency and the build fails if one changes ([ANSSI: DENV-CARGO-LOCK](https://anssi-fr.github.io/rust-guide/devenv.html#DENV-CARGO-LOCK)). A git dependency is pinned to a commit instead, and a path dependency isn't pinned at all. The Cargo Book is neutral, "dependent on the needs of your package", but `cargo new` tracks it by default, and the Book warns that the lockfile doesn't reach consumers: "`cargo install` will select the latest dependencies unless `--locked` is passed in" ([The Cargo Book: FAQ](https://doc.rust-lang.org/cargo/faq.html#why-have-cargolock-in-version-control)). The `arrayref` numbers show what a committed lockfile buys.
 
 - **Build with `--locked` in CI,** so a pull request can't change the graph without changing `Cargo.lock` in the diff. `corrode` says the same for container builds ([Matthias Endler: Hardening Rust Code For Production](https://corrode.dev/blog/hardening-rust/), 2026-07-23).
 - **Install tools with `cargo install --locked`.**
@@ -42,7 +42,7 @@ Commit `Cargo.lock` in every repository. ANSSI makes it a rule: "`Cargo.lock` fi
 
 Run `cargo deny check` in CI. `corrode` recommends `cargo-audit` and `cargo-deny`, "as part of CI" (2026-07-23, above). `tweede-golf` recommended `cargo audit` and `cargo vet`, then added that `cargo deny` "should really have been in the list of recommendations" ([Tweede golf: Dealing with Dependencies in Rust](https://tweedegolf.nl/en/blog/104/dealing-with-dependencies-in-rust/), 2023-10-30, with a later update).
 
-ANSSI disagrees on the tool, not the intent: "The `cargo-audit` tool MUST be used to check for known vulnerabilities in dependencies" ([ANSSI: LIBS-AUDIT](https://anssi-fr.github.io/rust-guide/libraries.html#LIBS-AUDIT)), and it never mentions `cargo-deny`. Both tools read the RustSec Advisory Database. `cargo-deny`'s `advisories` check does the same job, and adds `bans`, `sources`, and `licenses` under one `deny.toml`. The weight is with `cargo-deny`: two roster sources name it for CI, and ANSSI's rule is satisfied in substance. ANSSI's own notes say to check a rule against current practice, because the guide names no Rust version.
+ANSSI disagrees on the tool, not the intent: "The `cargo-audit` tool MUST be used to check for known vulnerabilities in dependencies" ([ANSSI: LIBS-AUDIT](https://anssi-fr.github.io/rust-guide/libraries.html#LIBS-AUDIT)), and it never mentions `cargo-deny`. Both tools read the RustSec Advisory Database. `cargo-deny`'s `advisories` check does the same job, and adds `bans`, `sources`, and `licenses` under one `deny.toml`. The weight is with `cargo-deny`: two roster sources name it for CI. That makes it the practical choice, not an equivalent ANSSI accepts: a project that must comply with ANSSI's rules to the letter runs `cargo audit` as well. `anssi-rust`'s roster notes say to check a rule against current practice, because the guide names no Rust version.
 
 Tool state, read from crates.io and GitHub on 2026-10-19 (references):
 
@@ -72,7 +72,7 @@ The defaults are lenient on the checks that matter for the supply chain. From th
 
 An ignored advisory goes in `[advisories] ignore` with its ID and a reason, the same discipline as `#[expect(…, reason = "…")]` in `rust.md`.
 
-`[bans.build]` can deny crates that ship native executables (on by default) or list which crates may have build scripts. Its documentation is blunt about the limit: "the compile time crate linting supplied by cargo-deny does **NOT** protect you from actively malicious code." The `arrayref` payload came through a build script, so no `deny.toml` setting would have stopped it. Only the lockfile did.
+`[bans.build]` can deny crates that ship native executables (on by default), and `allow-build-scripts` can list the only crates allowed a build script. If that key is omitted, every crate may have one. An allow-list would have failed the check on the `arrayref` update, because `proc-macro1` wasn't on it, but only where `cargo deny check` runs before the build, as in CI. It doesn't protect a developer who runs `cargo build` first, and it doesn't sandbox a build script it allows. The documentation is blunt about the limit: "the compile time crate linting supplied by cargo-deny does **NOT** protect you from actively malicious code." The allow-list's cost is a review each time a dependency adds a build script, so `resolve-research` should decide whether the template sets it. The lockfile protected most users with no setting at all.
 
 ### Fewer dependencies, especially build-time ones
 
@@ -86,7 +86,7 @@ No roster source makes it a default for every project, and the review work is re
 
 ### Publishing
 
-crates.io's trusted publishing, shipped 2025-07-11, "eliminates the need for GitHub Actions secrets when publishing crates": a workflow with `id-token: write` exchanges an OIDC token for a short-lived publish token through `rust-lang/crates-io-auth-action@v1`. It supports only GitHub Actions, and the first release still needs a manual publish ([Rust Blog: crates.io development update](https://blog.rust-lang.org/2025/07/11/crates-io-development-update-2025-07), 2025-07-11). The post doesn't say to revoke API tokens afterwards. The `arrayref` attack used an author's credentials or machine, and the post on it doesn't say which, so it can't show what trusted publishing would have prevented.
+crates.io's trusted publishing, shipped 2025-07-11, "eliminates the need for GitHub Actions secrets when publishing crates": a workflow with `id-token: write` exchanges an OIDC token for a short-lived publish token through `rust-lang/crates-io-auth-action@v1`. It launched for GitHub Actions only, and the first release still needs a manual publish ([Rust Blog: crates.io development update](https://blog.rust-lang.org/2025/07/11/crates-io-development-update-2025-07), 2025-07-11). On 2026-01-21 it added GitLab CI/CD, "currently only" on GitLab.com, and a crate setting that requires it: "Crate owners can now enforce Trusted Publishing for their crates", which disables "traditional API token-based publishing" ([Rust Blog: crates.io development update](https://blog.rust-lang.org/2026/01/21/crates-io-development-update/), 2026-01-21). Turn that setting on once the workflow publishes, so a stolen API token can't publish the crate. The `arrayref` attack used an author's credentials or machine, and the post on it doesn't say which, so it can't show what trusted publishing would have prevented.
 
 ## Secure coding
 
@@ -94,14 +94,21 @@ The roster sweep here is narrower than for the supply chain. A worker covering t
 
 ### `unsafe`
 
-ANSSI: "`unsafe` blocks SHOULD be avoided, or MUST be justified" by FFI, memory-mapped hardware, or a measured performance wall, and otherwise "`#![forbid(unsafe_code)]` must appear in the crate root" ([ANSSI: LANG-UNSAFE](https://anssi-fr.github.io/rust-guide/unsafe/generalities.html#LANG-UNSAFE)). Since Rust 1.74, `[lints]` in `Cargo.toml` does the same for a whole workspace, which ANSSI doesn't mention:
+ANSSI: "`unsafe` blocks SHOULD be avoided, or MUST be justified" by FFI, memory-mapped hardware, or a measured performance wall, and otherwise "`#![forbid(unsafe_code)]` must appear in the crate root" ([ANSSI: LANG-UNSAFE](https://anssi-fr.github.io/rust-guide/unsafe/generalities.html#LANG-UNSAFE)). Since Rust 1.74, `[lints]` in `Cargo.toml` does the same for a whole workspace, which ANSSI doesn't mention. Set it in the workspace root:
 
 ```toml
 [workspace.lints.rust]
 unsafe_code = "forbid"
 ```
 
-A crate that needs `unsafe` sets its own `[lints.rust]` instead of inheriting, so the exception shows in its manifest. Soundness, Miri, `unsafe_op_in_unsafe_fn`, and ANSSI's FFI rules belong to `unsafe.md`.
+Cargo doesn't apply it to a member until the member opts in, in its own `Cargo.toml`:
+
+```toml
+[lints]
+workspace = true
+```
+
+A crate that needs `unsafe` can't inherit and override at once. Cargo 1.99 rejects the manifest with "cannot override `workspace.lints` in `lints`" (editor's probe, 2026-10-20). So that crate drops `workspace = true` and lists its lints in its own `[lints.rust]` and `[lints.clippy]`, which makes the exception visible in its manifest. Soundness, Miri, `unsafe_op_in_unsafe_fn`, and ANSSI's FFI rules belong to `unsafe.md`.
 
 ### Overflow, indexing, and panics
 
@@ -120,7 +127,7 @@ The lints that turn these rules into checks, from [Clippy Lints](https://rust-la
 | `cast_possible_truncation`   | pedantic    | <1.29 | `TryFrom` over a narrowing `as`          | `rust.md`                             |
 | `mem_forget`                 | restriction | <1.29 | No `mem::forget`                         | ANSSI `MEM-FORGET`, `MEM-FORGET-LINT` |
 
-Turning all of these on in every crate would fight `rust.md`, which allows `unwrap` where a panic means a bug. Proposed: the opinion names them as the set for a crate that parses untrusted input or runs privileged, enabled in that crate's `[lints.clippy]`, with tests exempted through `clippy.toml`'s `allow-unwrap-in-tests` and `allow-expect-in-tests`. The editor hasn't probed those two keys on 1.99, so check them before the opinion relies on them.
+Turning all of these on in every crate would fight `rust.md`, which allows `unwrap` where a panic means a bug. Proposed: the opinion names them as the set for a crate that parses untrusted input or runs privileged, enabled in that crate's `[lints.clippy]`, with tests exempted through `clippy.toml`'s `allow-unwrap-in-tests` and `allow-expect-in-tests`. The editor's probe on Clippy 1.99.1 (2026-10-20) confirmed both keys: with `unwrap_used` and `expect_used` set to warn, `cargo clippy --all-targets` reported the `unwrap` in library code and nothing inside `#[cfg(test)]`.
 
 Bound everything that input controls. `corrode`: "Set explicit limits on everything", and bound recursion depth or rewrite it iteratively (2026-07-23, above).
 
@@ -156,7 +163,7 @@ Kept apart from the roster findings above. None of it carried a claim.
 
 - **No opinion covers the topic.** Run `resolve-research` to create `opinions/security.md`, with a supply-chain section (lockfile, `cargo-deny`, dependency weight, `cargo-vet` split, trusted publishing) and a secure-coding section (`unsafe_code = "forbid"`, the restriction-lint set for untrusted-input crates, secrets). List it under README.md's Scope and in the layout tree.
 - **`templates/deny.toml` is the main template work.** PLAN.md lists it among the phase 6 templates. It takes the settings in the `deny.toml` table, with the first-line header citing `anssi-rust` and `corrode`, or `rust-docs` if `resolve-research` treats the cargo-deny book as a reference only. The licence allow list needs a choice this topic doesn't make.
-- **`templates/Cargo.toml` gains `[workspace.lints.rust] unsafe_code = "forbid"`,** if `resolve-research` agrees, and `unsafe.md` should say how a crate opts out.
+- **`templates/Cargo.toml` gains `[workspace.lints.rust] unsafe_code = "forbid"`,** if `resolve-research` agrees. Its header comment already tells each crate to inherit with `[lints] workspace = true`, and `unsafe.md` should say how a crate that needs `unsafe` lists its own lints instead.
 - **Hand off to later topics:** running `cargo deny check` in CI, SHA-pinning `cargo-deny-action`, and `--locked` go to `ci.md`. Miri, `cargo-geiger`, and ANSSI's FFI rules go to `unsafe.md`. `panic = "abort"` goes to `error-handling.md`.
 - **The secure-coding sweep needs a second pass** before the opinion's secure-coding section is final: fuzzing (`cargo-fuzz`), TLS and cryptography crate choice, and deserialization limits weren't swept across the roster. Run `research-topic` again on those, or have `resolve-research` sweep them.
 - **No `vet-source` candidate.** ANSSI, `corrode`, `tweede-golf`, `rust-blog`, and `rust-docs` carried every claim. `rust-docs` doesn't cover the cargo-deny book, which is a crate's own documentation and so a reference.
