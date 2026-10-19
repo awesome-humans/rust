@@ -19,7 +19,7 @@ sources:
 Use async for I/O-bound concurrency only, run it on Tokio, and hold every task to these rules:
 
 - **Keep domain logic synchronous,** and confine async to I/O and the services you call.
-- **Never block a runtime thread.** Reach an `.await` at least every 10 to 100 µs. Send blocking I/O to `spawn_blocking`, CPU-bound work to rayon, and a loop that runs forever to its own thread.
+- **Never block a runtime thread.** Yield to the runtime at least every 10 to 100 µs, remembering that an `.await` yields only when its future is pending. Send blocking I/O to `spawn_blocking`, CPU-bound work to rayon, and a loop that runs forever to its own thread.
 - **Give every spawned task an owner.** Use a `JoinSet` for tasks whose results you collect, and a `TaskTracker` with a `CancellationToken` for tasks that must finish before shutdown. Never drop a `JoinHandle` to detach a task without one.
 - **Treat every `.await` as a cancellation point.** In a `select!` loop, use only cancel-safe futures, or pin the future outside the loop. Spawn a cancel-unsafe operation as a task so it runs to completion.
 - **Hold no lock across an `.await`.** Guard short critical sections with `std::sync::Mutex`, and give a shared I/O resource to one task behind a bounded channel instead of a `tokio::sync::Mutex`.
@@ -44,7 +44,7 @@ Every API recommended here is stable on Rust 1.99.1 with `tokio` 1.53.3 (an LTS 
 
 ## Blocking
 
-`alice-ryhl`, a Tokio maintainer, gives the rule: "Async code should never spend a long time without reaching an `.await`", and "a good rule of thumb is no more than 10 to 100 microseconds between each `.await`. That said, this depends on the kind of application you are writing" ([Alice Ryhl: Async: What is blocking?](https://ryhl.io/blog/async-what-is-blocking/), 2020-12-21). Its cheat sheet becomes this table, with the Tokio docs' caveats added:
+`alice-ryhl`, a Tokio maintainer, gives the rule: "Async code should never spend a long time without reaching an `.await`", and "a good rule of thumb is no more than 10 to 100 microseconds between each `.await`. That said, this depends on the kind of application you are writing" ([Alice Ryhl: Async: What is blocking?](https://ryhl.io/blog/async-what-is-blocking/), 2020-12-21). An `.await` gives the thread back only when its future returns `Poll::Pending`. A future that's already ready continues in the same poll (`[expr.await.effects]` in [The Rust Reference: Await expressions](https://doc.rust-lang.org/reference/expressions/await-expr.html)), so a loop over futures that are always ready can block as surely as a loop with no `.await`. The rule measures time between yields, not between `.await` keywords. Its cheat sheet becomes this table, with the Tokio docs' caveats added:
 
 | Work                                        | Use                           | Why                                                                                                                                                                                                                           |
 | ------------------------------------------- | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -142,7 +142,7 @@ The Tokio docs answer the mutex question directly: "Contrary to popular belief, 
 
 ## Lints
 
-Clippy enforces most of the rules above. Groups, levels, and versions are from [Clippy Lints](https://clippy.rust-lang.org/stable/index.html), 1.99, read 2026-10-19, and the editor confirmed each level with a probe on 1.99.1.
+Clippy enforces several of the rules above: lock and borrow guards held across an `.await`, futures dropped without being polled, and future size. Task ownership, bounded queues, and where blocking work runs have no lint. Groups, levels, and versions are from [Clippy Lints](https://clippy.rust-lang.org/stable/index.html), 1.99, read 2026-10-19, and the editor confirmed each level with a probe on 1.99.1.
 
 | Lint                         | Group       | Level | Added | Catches                                                                                           |
 | ---------------------------- | ----------- | ----- | ----- | ------------------------------------------------------------------------------------------------- |
