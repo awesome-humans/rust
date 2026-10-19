@@ -8,7 +8,7 @@ sources: [burntsushi, corrode, matklad, nnethercote, rust-blog, rust-docs]
 
 Structure every multi-crate repository as one Cargo workspace whose root is a virtual manifest, and declare every shared setting once at the root:
 
-- **Put the crates one level deep under `crates/`,** list them with `members = ["crates/*"]`, and name each directory after its crate.
+- **Put the crates one level deep under `crates/`,** list them with `members = ["crates/*"]`, and name each directory after its crate. Crates you publish go under `libs/`, which adds `"libs/*"` to `members`.
 - **Declare shared package fields in `[workspace.package]`, every external dependency's version in `[workspace.dependencies]`, and the lint levels in `[workspace.lints]`.** Each member inherits all three. `cargo new` inside the workspace writes the inheritance for you.
 - **Pin the toolchain in `rust-toolchain.toml` to the targeted minor release,** and set `rust-version` from it for an application, or from a written support policy for a library.
 - **Write project automation as an `xtask` crate,** run through a `.cargo/config.toml` alias, instead of shell scripts.
@@ -30,7 +30,7 @@ matklad adds four rules that the Cargo Book doesn't state:
 1. "The name of each directory is equal to the name of the crate", and "Don't succumb to the temptation to strip common prefix from folder names."
 2. A flat layout beats a hierarchy, because Cargo's crate namespace is flat anyway, and moving or splitting a crate needs no new folder.
 3. Keep `src/lib.rs` in a single-file crate: "even if crate is single file now, it might get expanded later."
-4. Put crates you publish under a separate top-level `libs/`, so you're "very deliberate" about which crates carry a SemVer promise, and `libs/` can't depend on `crates/`.
+4. Put crates you publish under a separate top-level `libs/`, so you're "very deliberate" about which crates carry a SemVer promise, and `libs/` can't depend on `crates/`. The glob then needs both directories, as `members = ["crates/*", "libs/*"]`, or Cargo refuses to build a `libs/` crate that no member depends on: "current package believes it's in a workspace when it's not" (editor's probe on Cargo 1.99.1, 2026-10-19).
 
 He scopes the advice to projects of roughly 10 thousand to 1 million lines. Below that, a single package needs no workspace.
 
@@ -189,7 +189,7 @@ These are unstable on nightly as of 2026-10-19, so they're not yet an opinion:
 
 - **No opinion covers the topic.** Run `resolve-research` to create `opinions/project-structure.md`. Its first sentence is the opening list here. It needs these sections: workspace layout, the three shared tables, the toolchain file and `rust-version`, `xtask`, and `Cargo.lock`. List it under README.md's Scope and in the layout tree.
 - **The templates need these changes:**
-  - `templates/Cargo.toml`: `members = ["crates/*"]`, and `rust-version`, `license`, `repository`, and `publish = false` in `[workspace.package]`. Add an empty `[workspace.dependencies]` with a comment on declaring versions only.
+  - `templates/Cargo.toml`: `members = ["crates/*"]` with a comment to add `"libs/*"` for published crates, and `rust-version`, `license`, `repository`, and `publish = false` in `[workspace.package]`. Add an empty `[workspace.dependencies]` with a comment on declaring versions only.
   - `templates/rust-toolchain.toml` and `templates/.cargo/config.toml`, which PLAN.md plans: `channel = "1.99"` with `clippy` and `rustfmt`, and the `xtask` alias. This settles the deferred decision PLAN.md records for `refresh-rust-versions`: the templates pin the minor release.
 - **The planned `justfile` template has no citable source.** `resolve-research` should either drop it from the template set, reduce it to recipes that only call `cargo` and `cargo xtask`, or record it as a house opinion through `weave-house-opinion`.
 - **Hand off what other topics own:** integration-test layout and doctests to `testing.md`, `[profile.release]` to `runtime-performance.md`, MSRV checks in CI and `build.warnings = "deny"` to `ci.md`, and which lints to set to `rust.md` and `ci.md`.
