@@ -1,7 +1,7 @@
 ---
 targets: [rust-1.99, edition-2024]
 last-reviewed: 2026-10-19
-sources: [corrode, matklad, nnethercote, rust-blog, rust-docs, tweede-golf]
+sources: [corrode, matklad, nnethercote, rust-blog, rust-docs, tokio-blog, tweede-golf]
 ---
 
 # Runtime performance: profiling, allocation, and release profile settings
