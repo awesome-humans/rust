@@ -2,6 +2,7 @@
 # identifiers, and terms the dictionaries lack. One per line, sorted case-insensitively.
 # Never add an American spelling. For a quoted title, see AGENTS.md: Spelling.
 agentskills
+ANSSI
 axum
 backpressure
 binstall
@@ -62,6 +63,7 @@ supertrait
 Swatinem
 timezone
 tomllib
+tweede
 unparseable
 unpushed
 unvetted
