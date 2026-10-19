@@ -8,13 +8,13 @@ sources: [burntsushi, corrode, matklad, predrag, rust-blog, rust-docs]
 
 Design a library's public API so that you can add to it in a minor release, and check every release for accidental breakage before you publish:
 
-- **Treat the Cargo Book's SemVer chapter as the rule book.** Removing or renaming a public item, adding a public field to a struct with no private ones, adding an enum variant, adding a non-defaulted trait item, and removing a Cargo feature are all major changes.
-- **Mark a public struct or enum `#[non_exhaustive]` when you introduce it,** unless the set is closed. Adding the attribute later is itself a major change.
+- **Treat the Cargo Book's SemVer chapter as the rule book.** Removing or renaming a public item, adding a public field to a struct with no private ones, adding a variant to an exhaustive enum, adding a non-defaulted trait item, and removing a Cargo feature are all major changes.
+- **Mark a public struct or enum `#[non_exhaustive]` when you introduce it,** unless the set is closed. Adding the attribute later to a type with no private fields is itself a major change.
 - **Seal a public trait that downstream code doesn't need to implement,** so you can add items to it later.
 - **Prefer concrete types, newtypes, and enums to `bool` and to generics** in public signatures, and add `#[must_use]` where ignoring the return value is a bug.
-- **Document every public item, with `# Errors`, `# Panics`, and `# Safety` sections,** and turn on the lints that enforce it.
+- **Document every public item,** with `# Errors` on a function that returns `Result`, `# Panics` on one that can panic, and `# Safety` on an `unsafe fn`, and turn on the lints that enforce it.
 - **Treat a `rust-version` bump as a minor change,** under a written MSRV policy.
-- **Run a SemVer checker before `cargo publish`.** `cargo-semver-checks` is the only one, and the Rust standard library now runs it, but its case rests on its own author's writing.
+- **Check every release for SemVer breakage before `cargo publish`.** `cargo-semver-checks` is the only tool, and the Rust standard library now runs it. Recommending it is still pending, because the case for adopting it rests on its author alone.
 
 Everything recommended here is stable in Rust 1.99.1 (released 2026-10-15). The two language features that would make sealing and dependency hygiene first-class, `impl` restrictions and public dependencies, are unstable on nightly as of 2026-10-19 ([Coming next](#coming-next)).
 
@@ -45,7 +45,7 @@ For a `0.y.z` release, a change in `y` counts as major and a change in `z` as mi
 
 Two of the chapter's mitigations are rules to apply when a type or trait is first published: "Mark structs, enums, and enum variants as `#[non_exhaustive]` when first introducing them, rather than adding `#[non_exhaustive]` later on", and "When introducing the trait, use the sealed trait technique to prevent users outside of the crate from implementing the trait."
 
-**Auto traits leak through private fields.** The chapter doesn't name `Send` or `Sync`. `predrag` shows the case: changing a private field from `String` to `Rc<str>` makes the public struct neither `Send` nor `Sync`, which is a major change ([Predrag Gruevski: Toward fearless cargo update](https://predr.ag/blog/toward-fearless-cargo-update/), 2022-08-25). The Rustonomicon's rule that a type made only of `Send` or `Sync` types is itself `Send` or `Sync` is the mechanism ([The Rustonomicon: Send and Sync](https://doc.rust-lang.org/nomicon/send-and-sync.html)). Removing an auto-trait impl was the fourth most common violation in `predrag`'s study, below.
+**Auto traits leak through private fields.** The chapter doesn't name `Send` or `Sync`. `predrag` shows the case: changing a private field from `String` to `Rc<str>` makes the public struct neither `Send` nor `Sync`, which is a major change ([Predrag Gruevski: Toward fearless cargo update](https://predr.ag/blog/toward-fearless-cargo-update/), 2022-08-25). The Rustonomicon's rule that a type made only of `Send` or `Sync` types is itself `Send` or `Sync` is the mechanism ([The Rustonomicon: Send and Sync](https://doc.rust-lang.org/nomicon/send-and-sync.html)). Removing an auto-trait impl was the fourth most common violation in `predrag`'s study, which [Checking SemVer before publishing](#checking-semver-before-publishing) describes.
 
 **Adding a public item is technically breaking, and still minor.** A new item can collide with a downstream glob import. RFC 1105 says "all major changes are breaking, but not all breaking changes are major", and a minor release may contain breakage the user can fix locally ([Predrag Gruevski: Some Rust breaking changes don't require a major version](https://predr.ag/blog/some-rust-breaking-changes-do-not-require-major-version/), 2023-01-26, quoting [RFC 1105: API evolution](https://rust-lang.github.io/rfcs/1105-api-evolution.html)).
 
@@ -63,7 +63,7 @@ The `dep:` prefix removes the implicit feature an optional dependency would othe
 
 ## Checking SemVer before publishing
 
-**Run `cargo semver-checks` before `cargo publish`, in CI.** It compares the rustdoc JSON of the new version against the last published one, and fails on any violation it has a lint for. The latest release is 0.51.0, from 2026-10-03, with `rust-version` 1.93 (crates.io, checked 2026-10-19).
+**`cargo semver-checks` is the candidate check, pending a second citable source.** It compares the rustdoc JSON of the new version against the last published one, and fails on any violation it has a lint for. The latest release is 0.51.0, from 2026-10-03, with `rust-version` 1.93 (crates.io, checked 2026-10-19).
 
 The evidence that people need a tool, and not more care:
 
@@ -119,7 +119,7 @@ impl Shape for Square {
 }
 ```
 
-Three things unseal a trait without warning ([Predrag Gruevski: Is this trait sealed, or not sealed](https://predr.ag/blog/is-this-trait-sealed-or-not-sealed/), 2024-09-03): a `pub use` that makes the private type nameable, a blanket impl such as `impl<T: Clone> Sealed for T`, and a public function that returns a value of the unnameable type.
+Two things unseal a trait silently ([Predrag Gruevski: Is this trait sealed, or not sealed](https://predr.ag/blog/is-this-trait-sealed-or-not-sealed/), 2024-09-03): a `pub use` that makes the private type nameable, and a blanket impl such as `impl<T: Clone> Sealed for T`. A method-sealed or partially sealed trait has a third gap: a public function that returns a value of the token type lets downstream code call the methods that take it, though it still can't implement the trait (Predrag Gruevski: A definitive guide to sealed traits in Rust, above).
 
 ### Options structs and builders
 
