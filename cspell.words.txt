@@ -11,6 +11,7 @@ bors
 burntsushi
 Cascadia
 CISA
+codegen
 Consolas
 dasharray
 DENV
@@ -26,6 +27,7 @@ fieldless
 Fira
 frontmatter
 fullmatch
+futurelock
 Gjengset
 Greptime
 Gruevski
@@ -70,10 +72,12 @@ Ronacher
 roundup
 roundups
 RPIT
+RPITIT
 rsplit
 rumdl
 rustflags
 Rustonomicon
+Ryhl
 scannable
 Segoe
 smol
@@ -83,6 +87,7 @@ Swatinem
 thiserror
 timezone
 tomllib
+tweede
 unparseable
 unpushed
 unvetted
