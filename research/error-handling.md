@@ -111,9 +111,13 @@ pub fn load(path: &Path) -> Result<Vec<u64>, LoadError> {
     text.lines()
         .enumerate()
         .map(|(i, line)| {
-            line.trim()
-                .parse()
-                .map_err(|source| Repr::Parse { line: i + 1, source }.into())
+            line.trim().parse().map_err(|source| {
+                Repr::Parse {
+                    line: i + 1,
+                    source,
+                }
+                .into()
+            })
         })
         .collect()
 }
@@ -139,7 +143,7 @@ No lint checks this, so it's a review rule. Clippy's `map_err_ignore` (restricti
 
 ## Application errors
 
-**Return `anyhow::Result<()>` from `main`, and add context where a layer knows what it was doing.** `burntsushi`: "Just cargo add anyhow and then use `fn main() -> anyhow::Result<()>`. That's it", and attaching context "is one of the most important parts" of errors as values, which "the anyhow crate makes … effortless" (2022-08-08, above). Use `with_context(|| …)` when the message formats anything, so it's built only on failure, and `bail!` for an early `Err`. The probe's binary:
+**Return `anyhow::Result<()>` from `main`, and add context where a layer knows what it was doing.** `burntsushi`: "Just cargo add anyhow and then use `fn main() -> anyhow::Result<()>`. That's it", and attaching context "is one of the most important parts" of errors as values, which "the anyhow crate makes … effortless" (2022-08-08, above). Use `with_context(|| …)` when the message formats anything, so it's built only on failure, `bail!` for an early `Err`, and `.context()` on an `Option` to turn `None` into an error. The probe's binary:
 
 ```rust
 use std::path::PathBuf;
@@ -151,7 +155,11 @@ fn main() -> Result<()> {
         bail!("usage: app <file>");
     };
     let numbers = probe::load(&path).with_context(|| format!("loading {}", path.display()))?;
-    println!("{}", numbers.iter().sum::<u64>());
+    let total = numbers
+        .iter()
+        .try_fold(0_u64, |sum, &n| sum.checked_add(n))
+        .context("the total overflows u64")?;
+    println!("{total}");
     Ok(())
 }
 ```
