@@ -12,7 +12,7 @@ Measure first, then tune what the measurements point at, and keep the build sett
 - **Set `codegen-units = 1` and `lto = "fat"` in `[profile.release]`** of a workspace that ships a binary, and leave `panic` at `"unwind"`.
 - **Add a `[profile.profiling]` that inherits `release` with `debug = "line-tables-only"`,** profile with samply, and find allocation hot spots with DHAT.
 - **Cut allocations before anything else in a hot path:** pre-size collections, reuse buffers, buffer and lock I/O, and let Clippy's warn-by-default `perf` group catch the known patterns.
-- **Swap in a faster hasher or a global allocator only behind a benchmark,** and only where the input is trusted or the binary is yours.
+- **Swap in a faster hasher or a global allocator only behind a benchmark.** Use a faster hasher only for keys an attacker can't choose, and set a global allocator only in a binary.
 - **Treat `#[inline]`, `-C target-cpu=native`, and PGO as last steps,** each with a measured reason.
 
 Everything here is stable in Rust 1.99.1 (released 2026-10-15). Nightly-only items are in [Coming next](#coming-next), unstable as of 2026-10-19.
@@ -86,7 +86,7 @@ Three facts update the book's profiling chapter for 1.99:
 
 Each rule here is from the `nnethercote` chapter named, except where marked. An allocation takes a global lock, bookkeeping, and sometimes a system call, and a small one isn't necessarily cheaper than a large one ([Heap Allocations](https://nnethercote.github.io/perf-book/heap-allocations.html)).
 
-- **Pre-size:** `Vec::with_capacity` or `reserve` when the length is known. Pushing 20 elements into an empty `Vec` allocates four times, at capacities 4, 8, 16, and 32.
+- **Pre-size:** `Vec::with_capacity` or `reserve` when the length is known. `std` guarantees no growth strategy ([`Vec`](https://doc.rust-lang.org/std/vec/struct.Vec.html#guarantees)), but the book's example shows today's: pushing 20 elements into an empty `Vec` allocated four times, at capacities 4, 8, 16, and 32.
 - **Reuse:** Keep a working `Vec` or `String` outside the loop and `clear()` it. Use `clone_from` to reuse the destination's allocation.
 - **Read lines into one buffer:** `BufRead::lines()` allocates a `String` per line. Use `read_line` and clear the buffer ([I/O](https://nnethercote.github.io/perf-book/io.html)).
 - **Buffer and lock I/O:** `println!` locks stdout on every call, and files are unbuffered. Wrap a locked handle in `BufWriter`, and call `flush()` yourself, because a drop ignores errors.
@@ -116,7 +116,11 @@ fn main() -> io::Result<()> {
     let mut out = BufWriter::new(io::stdout().lock());
     let mut line = String::new();
     while input.read_line(&mut line)? != 0 {
-        writeln!(out, "{}", line.trim_end().len())?;
+        // Strip what `lines()` strips: one `\n` or `\r\n`.
+        let text = line
+            .strip_suffix('\n')
+            .map_or(line.as_str(), |l| l.strip_suffix('\r').unwrap_or(l));
+        writeln!(out, "{}", text.len())?;
         line.clear();
     }
     out.flush()
