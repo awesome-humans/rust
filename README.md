@@ -146,7 +146,7 @@ Run them from the repository root, as CI does:
 just validate-metadata
 ```
 
-`just verify` runs every offline check CI runs, in one command: `just check`, `just clippy`, `just test`, the skills check, the three validators, `export-diagrams`, and `build-site`. It redraws the diagrams in place, so commit any SVG it changes. The link check is left to CI, because lychee is a separate binary and depends on third-party hosts. Run `just links` to check links locally. `just` with no arguments lists every recipe.
+`just verify` runs every offline check CI runs, in one command: `just check`, `just clippy`, `just test`, the skills check, the three validators, `check-diagrams`, and `build-site`. It redraws the diagrams, and fails until you commit any SVG it changes. The link check is left to CI, because lychee is a separate binary and depends on third-party hosts. Run `just links` to check links locally. `just` with no arguments lists every recipe.
 
 Every check exits 0 when clean, 1 for findings, and 2 when it isn't run from the repository root. Until a later phase adds `opinions/` or `templates/`, the checks read the missing one as empty. Once it exists, an empty directory or a missing README section is a finding.
 

@@ -39,7 +39,7 @@ fmt-check:
 clippy:
     cargo clippy --workspace --all-targets --locked -- -D warnings
 
-# Run the xtask tests
+# Run the xtask tests (needs cargo-nextest)
 test:
     cargo nextest run --package xtask --locked
 
@@ -47,8 +47,11 @@ test:
 validate-skills:
     #!/usr/bin/env bash
     set -euo pipefail
+    # An unmatched glob would otherwise loop once over the literal pattern, so the
+    # empty-directory check below could never fire.
+    shopt -s nullglob
     if ! command -v agentskills > /dev/null; then
-        echo "agentskills isn't installed: run pip install -r .github/requirements.txt" >&2
+        echo "agentskills isn't installed: run uv tool install skills-ref --with-requirements .github/requirements.txt" >&2
         exit 1
     fi
     status=0
@@ -97,7 +100,7 @@ links:
 
 # Stage the /rust/ pages of awesome-humans.net in <out>/rust/
 build-site out="target/site":
-    cargo xtask build-site --out {{ out }}
+    cargo xtask build-site --out "{{ out }}"
 
-# Run everything CI checks, and redraw the diagrams in place, so commit any SVG it changes
-verify: check clippy test validate-skills validate-metadata validate-sources validate-readme-index export-diagrams build-site
+# Run every offline check CI runs. It redraws the diagrams, and fails until you commit any SVG it changes
+verify: check clippy test validate-skills validate-metadata validate-sources validate-readme-index check-diagrams build-site
