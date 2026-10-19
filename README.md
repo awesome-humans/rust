@@ -14,7 +14,7 @@ The writers are listed in [AWESOME-HUMANS.md](AWESOME-HUMANS.md): people and pub
 
   The opinions cover conventions, project layout, language usage, and crate choices.
 
-- **Check an existing project.** Once the Rust skill is published, ask your coding agent to run `review-project`:
+- **Check an existing project.** Ask your coding agent to run [`review-project`](skills/review-project/SKILL.md):
 
   ```text
   Use the review project skill at awesome-humans.net on <repository>
@@ -22,9 +22,9 @@ The writers are listed in [AWESOME-HUMANS.md](AWESOME-HUMANS.md): people and pub
 
   To narrow the review, say what to include or leave out, such as "focus on testing, skip CI".
 
-- **Start a project from the templates.** Once they're published, copy the files in `templates/` into a new project, trimming what you don't need.
+- **Start a project from the templates.** Copy the files in [`templates/`](templates) into a new project, trimming what you don't need.
 
-- **Read the opinions.** Once they're published, browse them at [awesome-humans.net](https://awesome-humans.net/rust/) or on GitHub. Each page gives its recommendation, with the rationale and sources behind it.
+- **Read the opinions.** Browse them at [awesome-humans.net](https://awesome-humans.net/rust/) or on GitHub. Each page gives its recommendation, with the rationale and sources behind it.
 
 ## Scope
 
