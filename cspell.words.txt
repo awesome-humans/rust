@@ -2,17 +2,22 @@
 # identifiers, and terms the dictionaries lack. One per line, sorted case-insensitively.
 # Never add an American spelling. For a quoted title, see AGENTS.md: Spelling.
 agentskills
+anssi
+ANSSI's
 axum
 backpressure
 binstall
 burntsushi
 Cascadia
+CKNONROBUST
 Consolas
+CTYPE
 dasharray
 DHAT
 doctest
 doctests
 Dwarnings
+ENCP
 endler
 feff
 Fira
@@ -20,6 +25,8 @@ frontmatter
 fullmatch
 Gruevski
 hyperbezier
+interleavings
+Kani
 katex
 Kladov
 labelledby
@@ -40,10 +47,16 @@ Neue
 newtype
 nextest
 niko
+NODROP
+NOENUM
+NOPANIC
 Noto
 Palmieri
 Pavex
+PFTYPE
+PLDI
 Polonius
+POPL
 Predrag
 quot
 Raph
@@ -53,8 +66,10 @@ roundups
 RPIT
 rsplit
 rumdl
+Rustaceans
 rustflags
 Rustonomicon
+SAFEWRAPPING
 scannable
 Segoe
 smol
@@ -62,6 +77,7 @@ supertrait
 Swatinem
 timezone
 tomllib
+tweede
 unparseable
 unpushed
 unvetted
