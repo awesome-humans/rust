@@ -10,7 +10,7 @@
 //!
 //! A house profile's ID, `house:<profile>`, isn't on the roster. Instead, each one in a file's
 //! sources must match a house block in the opinion, or a house region in the template, and
-//! every house opinion must sit inside one (HOUSE-OPINIONS.md: How this works).
+//! every house opinion must sit inside one (awesome-humans/website: House opinions).
 //!
 //! It also holds the roster to its shape: each table sorted by ID, no ID used twice, and the
 //! count sentence above the Citable table in step with its rows. The roster is parsed by ID,

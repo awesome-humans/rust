@@ -1,6 +1,6 @@
 //! House opinions, which `validate-sources` and `build-site` both read. A house opinion
 //! belongs to a house profile, and sits beside the sourced text it changes, never inside it
-//! (HOUSE-OPINIONS.md: How this works). In an opinion it's a block:
+//! (awesome-humans/website: House opinions). In an opinion it's a block:
 //!
 //! ```text
 //! /// house | simon-mckenna
