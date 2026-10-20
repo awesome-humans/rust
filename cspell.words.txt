@@ -9,6 +9,7 @@ burntsushi
 Cascadia
 Consolas
 dasharray
+devex
 DHAT
 doctest
 doctests
@@ -20,10 +21,12 @@ frontmatter
 fullmatch
 Gruevski
 hyperbezier
+insta
 katex
 Kladov
 labelledby
 Levien
+libtest
 Linebender
 llms
 llmstxt
@@ -45,9 +48,11 @@ Palmieri
 Pavex
 Polonius
 Predrag
+proptest
 quot
 Raph
 rect
+Ronacher
 roundup
 roundups
 RPIT
@@ -58,6 +63,7 @@ Rustonomicon
 scannable
 Segoe
 smol
+sunshowers
 supertrait
 Swatinem
 timezone
