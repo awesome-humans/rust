@@ -7,6 +7,7 @@ backpressure
 binstall
 burntsushi
 Cascadia
+codegen
 Consolas
 dasharray
 DHAT
@@ -18,6 +19,7 @@ feff
 Fira
 frontmatter
 fullmatch
+futurelock
 Gruevski
 hyperbezier
 katex
@@ -51,17 +53,21 @@ rect
 roundup
 roundups
 RPIT
+RPITIT
 rsplit
 rumdl
 rustflags
 Rustonomicon
+Ryhl
 scannable
 Segoe
 smol
+sunshowers
 supertrait
 Swatinem
 timezone
 tomllib
+tweede
 unparseable
 unpushed
 unvetted
