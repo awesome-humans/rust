@@ -4,9 +4,14 @@
 agentskills
 axum
 backpressure
+Beránek
 binstall
 burntsushi
+bytehound
+Cachegrind
+Callgrind
 Cascadia
+codegen
 Consolas
 dasharray
 DHAT
@@ -19,9 +24,14 @@ Fira
 frontmatter
 fullmatch
 Gruevski
+Gungraun
+heaptrack
+HOTPATH
 hyperbezier
+Jakub
 katex
 Kladov
+Kobzol
 labelledby
 Levien
 Linebender
@@ -40,6 +50,7 @@ Neue
 newtype
 nextest
 niko
+nnethercote
 Noto
 Palmieri
 Pavex
@@ -55,6 +66,7 @@ rsplit
 rumdl
 rustflags
 Rustonomicon
+samply
 scannable
 Segoe
 smol
@@ -62,6 +74,7 @@ supertrait
 Swatinem
 timezone
 tomllib
+tweede
 unparseable
 unpushed
 unvetted
