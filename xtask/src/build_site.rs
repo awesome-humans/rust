@@ -1,7 +1,7 @@
 //! `build-site`: stages the Rust ecosystem's pages of awesome-humans.net, under `/rust/`.
 //! They're generated from this repository's own files, so the site never carries a second copy
-//! to drift: README.md up to its layout section becomes the overview, `opinions/` and
-//! `skills/` are copied in full, the roster is split into a page per section, and every file
+//! to drift: README.md up to its layout section becomes the overview, `opinions/`,
+//! `research/`, and `skills/` are copied in full, the roster is split into a page per section, and every file
 //! under `templates/` gets a page showing it. `llms.txt` points agents at the raw files.
 //! Relative links are rewritten to the page they now point at, or to GitHub for a file the
 //! site doesn't carry. The navigation is generated too: the opinions take their titles and
@@ -161,6 +161,7 @@ impl Site<'_> {
         };
 
         let opinions = self.repo.opinions();
+        let research = self.research_topics();
         let mut templates = self.repo.template_files();
         templates.sort_by_key(|path| path.to_lowercase());
         let diagrams = self.diagrams();
@@ -214,6 +215,9 @@ impl Site<'_> {
             self.page(repo::TEMPLATES, "templates/index.md");
             self.page("templates/projects", "templates/index.md");
         }
+        if !research.is_empty() {
+            self.page(repo::RESEARCH, "research/index.md");
+        }
         if !skills.is_empty() {
             self.page(repo::SKILLS, "skills/index.md");
         }
@@ -226,6 +230,10 @@ impl Site<'_> {
 
         for path in &opinions {
             self.page(path, &format!("opinions/{}", file_name(path)));
+        }
+
+        for (path, _) in &research {
+            self.page(path, &format!("research/{}", file_name(path)));
         }
 
         for template in &templates {
@@ -270,7 +278,7 @@ impl Site<'_> {
         }
 
         for path in &opinions {
-            self.stage_opinion(path);
+            self.stage_with_meta(path, true, "");
         }
 
         let scope: Vec<(String, String, String)> = SCOPE_BULLET
@@ -298,6 +306,10 @@ impl Site<'_> {
 
         if !templates.is_empty() {
             self.stage_templates(&templates);
+        }
+
+        if !research.is_empty() {
+            self.stage_research(&research);
         }
 
         if !skills.is_empty() {
@@ -330,6 +342,7 @@ impl Site<'_> {
             &scope,
             &opinions,
             &templates,
+            &research,
             &skills,
             roster_pages.as_ref(),
         );
@@ -504,11 +517,12 @@ impl Site<'_> {
         Some(roster_pages)
     }
 
-    // An opinion, with the design system's OpinionMeta strip under its title, from its
-    // frontmatter: a paragraph marked { .ah-meta }, as the staging contract defines. The
-    // freshness chip turns stale past audit-freshness's 180-day tolerance, counted from the
-    // day the site is staged, which the weekly rebuild keeps current.
-    fn stage_opinion(&mut self, path: &str) {
+    // An opinion or research topic, with the design system's OpinionMeta strip under its
+    // title, from its frontmatter: a paragraph marked { .ah-meta }, as the staging contract
+    // defines, then the lead, if any. An opinion's freshness chip turns stale past
+    // audit-freshness's 180-day tolerance, counted from the day the site is staged, which the
+    // weekly rebuild keeps current.
+    fn stage_with_meta(&mut self, path: &str, freshness: bool, lead: &str) {
         let Some(text) = self.read(path) else { return };
         let meta = match frontmatter::parse(&text) {
             Ok(meta) => meta,
@@ -530,10 +544,15 @@ impl Site<'_> {
 
         let today = Timestamp::now().to_zoned(TimeZone::UTC).date();
         let age = reviewed.until(today).map_or(0, |span| span.get_days());
-        let freshness = if age > OPINION_TOLERANCE {
+        let state = if age > OPINION_TOLERANCE {
             "stale"
         } else {
             "fresh"
+        };
+        let chip = if freshness {
+            format!(" <span class=\"ah-chip ah-chip--{state} ah-chip--dot\">{state}</span>")
+        } else {
+            String::new()
         };
 
         let targets = values(meta.get("targets"))
@@ -555,12 +574,7 @@ impl Site<'_> {
         let strip = format!(
             "{}{}{}\n{{ .ah-meta }}",
             meta_item("Targets", &targets),
-            meta_item(
-                "Last reviewed",
-                &format!(
-                    "{reviewed} <span class=\"ah-chip ah-chip--{freshness} ah-chip--dot\">{freshness}</span>"
-                )
-            ),
+            meta_item("Last reviewed", &format!("{reviewed}{chip}")),
             meta_item("Sources", &sources)
         );
 
@@ -574,15 +588,64 @@ impl Site<'_> {
         let title_end = staged[title + 1..]
             .find('\n')
             .map_or(staged.len(), |offset| title + 1 + offset);
+        let lead = if lead.is_empty() {
+            String::new()
+        } else {
+            format!("\n\n{}", lead.trim_end_matches('\n'))
+        };
         let page = self.pages[path].clone();
         self.write(
             &page,
             &format!(
-                "{}\n\n{strip}{}",
+                "{}\n\n{strip}{lead}{}",
                 &staged[..title_end],
                 &staged[title_end..]
             ),
         );
+    }
+
+    // The unresolved research topics, with their titles, ordered by title. resolve-research
+    // deletes a topic once it's resolved, so every file here is open.
+    fn research_topics(&mut self) -> Vec<(String, String)> {
+        let mut topics = Vec::new();
+        for path in self.repo.markdown_in(repo::RESEARCH) {
+            let Some(text) = self.read(&path) else {
+                continue;
+            };
+            match HEADING.captures_iter(&text).find(|heading| {
+                heading
+                    .name("hashes")
+                    .is_some_and(|hashes| hashes.len() == 1)
+            }) {
+                Some(title) => topics.push((path, title["text"].to_string())),
+                None => self.errors.push(format!("{path}: no '# ' title")),
+            }
+        }
+        topics.sort_by_key(|(_, title)| title.to_lowercase());
+        topics
+    }
+
+    // A page per research topic, with the same strip as an opinion but no freshness chip,
+    // since a topic is evidence waiting on resolve-research rather than guidance to keep
+    // current. An index lists them. llms.txt leaves them out, so agents follow only the
+    // opinions.
+    fn stage_research(&mut self, research: &[(String, String)]) {
+        for (path, _) in research {
+            self.stage_with_meta(
+                path,
+                false,
+                "**Unresolved research.** This topic is evidence that `research-topic` gathered, waiting on `resolve-research`. It isn't an opinion, and it can cite unvetted material. Follow the [opinions](../opinions/index.md) instead.",
+            );
+        }
+
+        let mut index = String::from(
+            "# Research\n\nTopics under research: the evidence `research-topic` gathered, before `resolve-research` decides what becomes an opinion. Resolving a topic deletes it, so every topic here is still open. None of it is guidance yet.\n\n",
+        );
+        for (path, title) in research {
+            let _ = writeln!(index, "- [{title}]({})", file_name(path));
+        }
+        let page = self.pages[repo::RESEARCH].clone();
+        self.write(&page, &index);
     }
 
     // A page per template file, and an index of them.
@@ -824,6 +887,7 @@ impl Site<'_> {
         scope: &[(String, String, String)],
         opinions: &[String],
         templates: &[String],
+        research: &[(String, String)],
         skills: &[Skill],
         roster_pages: Option<&BTreeMap<&'static str, String>>,
     ) {
@@ -846,6 +910,17 @@ impl Site<'_> {
         }
 
         let mut nav = vec![entry("Overview", &self.pages[README])];
+        if let Some(roster_pages) = roster_pages {
+            nav.push(section(
+                "Awesome humans",
+                vec![
+                    entry("Overview", &self.pages[ROSTER]),
+                    entry("Citable", &roster_pages["citable"]),
+                    entry("Watch list", &roster_pages["watch-list"]),
+                    entry("Decision log", &roster_pages["decision-log"]),
+                ],
+            ));
+        }
         if !opinions.is_empty() {
             let mut items = vec![entry("Overview", &self.pages[repo::OPINIONS])];
             items.extend(opinion_entries);
@@ -860,6 +935,15 @@ impl Site<'_> {
             );
             nav.push(section("Templates", items));
         }
+        if !research.is_empty() {
+            let mut items = vec![entry("Overview", &self.pages[repo::RESEARCH])];
+            items.extend(
+                research
+                    .iter()
+                    .map(|(path, title)| entry(&nav_title(title), &self.pages[path])),
+            );
+            nav.push(section("Research", items));
+        }
         if !skills.is_empty() {
             let mut items = vec![entry("Overview", &self.pages[repo::SKILLS])];
             items.extend(skills.iter().filter_map(|skill| {
@@ -868,17 +952,6 @@ impl Site<'_> {
                     .map(|page| entry(&skill.name, page))
             }));
             nav.push(section("Skills", items));
-        }
-        if let Some(roster_pages) = roster_pages {
-            nav.push(section(
-                "Awesome humans",
-                vec![
-                    entry("Overview", &self.pages[ROSTER]),
-                    entry("Citable", &roster_pages["citable"]),
-                    entry("Watch list", &roster_pages["watch-list"]),
-                    entry("Decision log", &roster_pages["decision-log"]),
-                ],
-            ));
         }
         nav.push(entry("House opinions", &self.pages[HOUSE_OPINIONS]));
 
@@ -1231,6 +1304,20 @@ fn section(title: &str, items: Vec<Value>) -> Value {
     Value::Object(item)
 }
 
+// A research topic's sidebar label: its title up to any colon, which names the topic, without
+// the ecosystem the section already sets, such as "in Rust code", or the backticks a label
+// can't render.
+fn nav_title(title: &str) -> String {
+    let mut topic = title.split(':').next().unwrap_or(title);
+    for context in [
+        format!(" in {ECOSYSTEM_NAME}"),
+        format!(" for {ECOSYSTEM_NAME}"),
+    ] {
+        topic = topic.split(context.as_str()).next().unwrap_or(topic);
+    }
+    topic.replace('`', "")
+}
+
 // One labelled group in an opinion's metadata strip. Markdown inside the span still renders.
 fn meta_item(label: &str, values: &str) -> String {
     format!("<span class=\"ah-meta__item\"><span class=\"ah-label\">{label}</span> {values}</span>")
@@ -1443,6 +1530,7 @@ mod tests {
             .file("HOUSE-OPINIONS.md", "# House opinions\n")
             .file(ROSTER, ROSTER_TEXT)
             .file("opinions/rust.md", OPINION)
+            .file("research/unsafe.md", "---\ntargets: [rust-1.99]\nlast-reviewed: 2026-10-19\nsources: [matklad]\n---\n\n# `unsafe` code in Rust: when and how\n\nSee [the opinion](../opinions/rust.md).\n")
             .file("skills/vet-source/SKILL.md", "---\nname: vet-source\n---\n\n# Vet a source\n\nSee [the roster](../../AWESOME-HUMANS.md).\n")
             .file(
                 "templates/.cargo/config.toml",
@@ -1466,6 +1554,24 @@ mod tests {
             "{overview}"
         );
         assert!(!overview.contains("Licence"), "{overview}");
+
+        let research = staged(&fixture, "rust/research/unsafe.md");
+        assert!(
+            research.contains("<span class=\"ah-label\">Last reviewed</span> 2026-10-19</span>"),
+            "{research}"
+        );
+        assert!(
+            research.contains("{ .ah-meta }\n\n**Unresolved research.**"),
+            "{research}"
+        );
+        assert!(
+            research.contains("[the opinion](../opinions/rust.md)"),
+            "{research}"
+        );
+        assert!(
+            staged(&fixture, "rust/research/index.md")
+                .contains("- [`unsafe` code in Rust: when and how](unsafe.md)\n")
+        );
 
         let opinion = staged(&fixture, "rust/opinions/rust.md");
         assert!(opinion.contains("# Rust\n\n<span class=\"ah-meta__item\"><span class=\"ah-label\">Targets</span> `rust-1.99` `edition-2024`</span>"), "{opinion}");
@@ -1566,15 +1672,16 @@ mod tests {
             nav["nav"],
             json!([
                 {"Overview": "index.md"},
-                {"Opinions": [{"Overview": "opinions/index.md"}, {"Rust": "opinions/rust.md"}]},
-                {"Templates": [{"Overview": "templates/index.md"}, {"config.toml": "templates/cargo/config.toml.md"}, {"Cargo.toml": "templates/Cargo.toml.md"}]},
-                {"Skills": [{"Overview": "skills/index.md"}, {"vet-source": "skills/vet-source.md"}]},
                 {"Awesome humans": [
                     {"Overview": "awesome-humans/index.md"},
                     {"Citable": "awesome-humans/citable.md"},
                     {"Watch list": "awesome-humans/watch-list.md"},
                     {"Decision log": "awesome-humans/decision-log.md"}
                 ]},
+                {"Opinions": [{"Overview": "opinions/index.md"}, {"Rust": "opinions/rust.md"}]},
+                {"Templates": [{"Overview": "templates/index.md"}, {"config.toml": "templates/cargo/config.toml.md"}, {"Cargo.toml": "templates/Cargo.toml.md"}]},
+                {"Research": [{"Overview": "research/index.md"}, {"unsafe code": "research/unsafe.md"}]},
+                {"Skills": [{"Overview": "skills/index.md"}, {"vet-source": "skills/vet-source.md"}]},
                 {"House opinions": "house-opinions.md"}
             ])
         );
