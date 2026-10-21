@@ -630,12 +630,17 @@ impl Site<'_> {
     // current. An index lists them. llms.txt leaves them out, so agents follow only the
     // opinions.
     fn stage_research(&mut self, research: &[(String, String)]) {
+        // Before the first opinion, there's no opinions page to point at.
+        let follow = if self.pages.contains_key(repo::OPINIONS) {
+            " Follow the [opinions](../opinions/index.md) instead."
+        } else {
+            ""
+        };
+        let lead = format!(
+            "**Unresolved research.** This topic is evidence that `research-topic` gathered, waiting on `resolve-research`. It isn't an opinion, and it can cite unvetted material.{follow}"
+        );
         for (path, _) in research {
-            self.stage_with_meta(
-                path,
-                false,
-                "**Unresolved research.** This topic is evidence that `research-topic` gathered, waiting on `resolve-research`. It isn't an opinion, and it can cite unvetted material. Follow the [opinions](../opinions/index.md) instead.",
-            );
+            self.stage_with_meta(path, false, &lead);
         }
 
         let mut index = String::from(
@@ -1304,11 +1309,11 @@ fn section(title: &str, items: Vec<Value>) -> Value {
     Value::Object(item)
 }
 
-// A research topic's sidebar label: its title up to any colon, which names the topic, without
+// A research topic's sidebar label: its title up to any ": ", which names the topic, without
 // the ecosystem the section already sets, such as "in Rust code", or the backticks a label
 // can't render.
 fn nav_title(title: &str) -> String {
-    let mut topic = title.split(':').next().unwrap_or(title);
+    let mut topic = title.split(": ").next().unwrap_or(title);
     for context in [
         format!(" in {ECOSYSTEM_NAME}"),
         format!(" for {ECOSYSTEM_NAME}"),
@@ -1743,6 +1748,16 @@ mod tests {
         assert_eq!(
             combine("skills/vet-source", "../../AWESOME-HUMANS.md"),
             "AWESOME-HUMANS.md"
+        );
+    }
+
+    #[test]
+    fn a_research_label_names_the_topic() {
+        assert_eq!(nav_title("Unsafe: soundness and Miri"), "Unsafe");
+        assert_eq!(nav_title("`unsafe` code in Rust"), "unsafe code");
+        assert_eq!(
+            nav_title("`std::sync::Mutex` in Rust: lock poisoning"),
+            "std::sync::Mutex"
         );
     }
 
