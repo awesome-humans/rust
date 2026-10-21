@@ -609,6 +609,13 @@ impl Site<'_> {
     fn research_topics(&mut self) -> Vec<(String, String)> {
         let mut topics = Vec::new();
         for path in self.repo.markdown_in(repo::RESEARCH) {
+            // research/index.md would land on the research overview's page.
+            if file_name(&path) == "index.md" {
+                self.errors.push(format!(
+                    "{path}: the research overview takes this page; rename the topic"
+                ));
+                continue;
+            }
             let Some(text) = self.read(&path) else {
                 continue;
             };
@@ -1734,6 +1741,19 @@ mod tests {
         assert_eq!(
             run(&fixture.repo(), &fixture.path().join("out")),
             ["README.md: link to missing.md resolves to missing.md, which does not exist"]
+        );
+    }
+
+    #[test]
+    fn a_research_topic_named_index_is_an_error() {
+        let readme = "# Rust\n\n## Repository layout\n";
+        let fixture = Fixture::new()
+            .file("README.md", readme)
+            .file("HOUSE-OPINIONS.md", "# House opinions\n")
+            .file("research/index.md", "# Index\n");
+        assert_eq!(
+            run(&fixture.repo(), &fixture.path().join("out")),
+            ["research/index.md: the research overview takes this page; rename the topic"]
         );
     }
 
