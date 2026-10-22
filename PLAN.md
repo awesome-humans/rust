@@ -297,6 +297,8 @@ Run `research-topic`, then `resolve-research`, for each topic. Write an opinion 
 - **Two templates gain settings from it:** `templates/Cargo.toml` takes `edition = "2024"`, `resolver = "3"`, and `allow_attributes` with `allow_attributes_without_reason` in `[workspace.lints.clippy]`, and `templates/rustfmt.toml` takes `style_edition = "2024"`.
 - **Rust 1.100, due 2026-11-12, stabilises the never type.** `refresh-rust-versions` picks it up, and the opinion's "Coming next" table loses that row.
 
+**Progress (2026-10-22):** rust#18 resolved the topic into `opinions/rust.md`, with `templates/Cargo.toml` and `templates/rustfmt.toml`. rust#23 and rust#24 merged `research/project-structure.md` and `research/ci.md` on 2026-10-21, and neither is resolved yet. rust#25 to rust#31 stage the other seven topics, from `error-handling` to `runtime-performance`, and wait for the owner's review. Next is `resolve-research` for `project-structure` and `ci`, then for each of the seven as it merges.
+
 CodeRabbit raised one finding, that the dates should read 2026-10-18, which was declined: the checks ran on 2026-10-19 in local time. Next is `resolve-research` for the topic, on branch `resolve/rust`.
 
 Templates, each with a first-line header comment:
