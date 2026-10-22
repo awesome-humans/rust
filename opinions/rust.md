@@ -50,7 +50,7 @@ To migrate a crate, follow the Edition Guide's steps ([Rust Edition Guide: Trans
 
 ### Flat control flow
 
-**Use let chains and `if let` guards instead of nested `if let` blocks.** Both are stable on edition 2024: let chains since 1.88 and `if let` guards since 1.95 ([Rust Blog: Announcing Rust 1.88.0](https://blog.rust-lang.org/2025/06/26/Rust-1.88.0/), [Announcing Rust 1.95.0](https://blog.rust-lang.org/2026/04/16/Rust-1.95.0/)). Clippy's `collapsible_if` rewrites the nested form into a chain on edition 2024.
+**Use let chains and `if let` guards instead of nested `if let` blocks.** Both are stable on edition 2024: let chains since 1.88 and `if let` guards since 1.95 ([Rust Blog: Announcing Rust 1.88.0](https://blog.rust-lang.org/2025/06/26/Rust-1.88.0/), [Announcing Rust 1.95.0](https://blog.rust-lang.org/2026/04/16/Rust-1.95.0/), [rust-lang/rust#132833](https://github.com/rust-lang/rust/pull/132833), [rust-lang/rust#141295](https://github.com/rust-lang/rust/pull/141295)). Clippy's `collapsible_if` rewrites the nested form into a chain on edition 2024.
 
 Before:
 
@@ -146,7 +146,7 @@ allow_attributes_without_reason = "warn"
 manual_let_else = "warn"
 ```
 
-- **Silence a lint with `#[expect(…, reason = "…")]`, never `#[allow]`.** `#[expect]` raises `unfulfilled_lint_expectations` once the lint stops firing, so a stale suppression surfaces ([The Rust Reference: Diagnostic attributes](https://doc.rust-lang.org/reference/attributes/diagnostics.html#the-expect-attribute)). `allow_attributes` rewrites `#[allow]` as `#[expect]`, and `allow_attributes_without_reason` reports an attribute with no `reason`. Both are restriction lints, so they're off until you set them.
+- **Silence a lint with `#[expect(…, reason = "…")]`, never `#[allow]`.** `#[expect]` raises `unfulfilled_lint_expectations` once the lint stops firing, so a stale suppression surfaces ([The Rust Reference: Diagnostic attributes](https://doc.rust-lang.org/reference/attributes/diagnostics.html#the-expect-attribute), [rust-lang/rfcs: RFC 2383, `lint_reasons`](https://github.com/rust-lang/rfcs/blob/master/text/2383-lint-reasons.md#expect-lint-attribute)). `allow_attributes` rewrites `#[allow]` as `#[expect]`, and `allow_attributes_without_reason` reports an attribute with no `reason`. Both are restriction lints, so they're off until you set them.
 - **`manual_let_else` is pedantic,** so it's off unless you turn on the group. It reports a `match` or `if let` that `let … else` would replace.
 
 ```rust

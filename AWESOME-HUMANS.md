@@ -68,6 +68,15 @@ A watch-list source is never cited. `just validate-sources` rejects a watch-list
 | `sabrina-jewson`     | person      | [Sabrina Jewson](https://sabrinajewson.org/blog)                                                                        | Lifetimes, GATs, error design, async destructors          | 2022  |
 | `without-boats`      | person      | [withoutboats: without.boats](https://without.boats/blog/)                                                              | Async and await design, `Pin`, generators                 | 2017  |
 
+## Named references
+
+The [admission criteria](https://github.com/awesome-humans/website/blob/main/pages/conventions/admission-criteria.md#reserved-ids-markings-and-references) define a reference and the rules for citing one. A reference corroborates a claim from a roster source, never carries one, and never appears in `sources:`. A crate's or tool's own repository already qualifies when an opinion names it, such as `rust-lang/cargo` or `rust-lang/rust-clippy`, so it isn't listed here. This roster also names:
+
+- **[rust-lang/rfcs](https://github.com/rust-lang/rfcs):** The RFC for a language, Cargo, or library feature an opinion names, for how the feature behaves, not whether to use it.
+- **[rust-lang/rust](https://github.com/rust-lang/rust):** The tracking issue or stabilization pull request for a feature or lint an opinion names, for when it shipped or what still blocks it.
+
+The repositories behind `rust-docs`, such as `rust-lang/reference` and `rust-lang/book`, aren't references. Cite the published page as `rust-docs`.
+
 ## Opted out
 
 A source moves here when its owner asks to stop being cited. Its row keeps the same five columns, and its section under [Source notes](#source-notes) goes. The ID stays reserved, so a later suggestion of the source is turned away, and `just validate-sources` rejects it in any `sources:` list. An opt-out from any awesome-humans ecosystem covers this one too, so `vet-source` reads every other ecosystem's Opted out section before admitting anyone. Opting back in is a suggestion like any other, and the source leaves this section only on admission. For the policy, see [Want in or out?](https://awesome-humans.net/want-in-or-out/)
@@ -410,3 +419,4 @@ Citable on async and effects design, from 177 posts since 2016.
 | 2026-10-18 | Watch-listed `ms-rust-guidelines` | First published 2025-08, short of two years |
 | 2026-10-18 | Watch-listed `sabrina-jewson` | No writing since 2024-09 |
 | 2026-10-18 | Watch-listed `without-boats` | No writing since 2024-10 |
+| 2026-10-23 | Named two repositories as references (no roster change) | `rust-lang/rfcs` and `rust-lang/rust` can corroborate a roster-sourced claim inline. Crate and tool repositories already qualify, and the repositories behind `rust-docs` stay part of that source |
