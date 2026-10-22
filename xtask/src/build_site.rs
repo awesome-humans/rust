@@ -415,7 +415,10 @@ impl Site<'_> {
 
         for section in &sections[1..] {
             let first_line = section.lines().next().unwrap_or_default();
-            if section.starts_with("## Admission criteria") || section.starts_with("## Opted out") {
+            if section.starts_with("## Admission criteria")
+                || section.starts_with("## Named references")
+                || section.starts_with("## Opted out")
+            {
                 append(&mut texts, &overview, section);
             } else if section.starts_with("## Citable") {
                 append(
@@ -1503,7 +1506,7 @@ mod tests {
 
     const README_TEXT: &str = "# Awesome Humans of Rust\n\nSee [house opinions](HOUSE-OPINIONS.md), [metadata](AGENTS.md#metadata), and [scope](#scope).\n\n## Scope\n\n- **[Rust](opinions/rust.md):** the language\n\n## Repository layout\n\n[Licence](LICENSE)\n\n## Maintenance via skills\n\n| Skill | Purpose |\n| --- | --- |\n| [`vet-source`](skills/vet-source/SKILL.md) | Vet a source |\n";
 
-    const ROSTER_TEXT: &str = "# Awesome humans\n\n## Admission criteria\n\nTwo years.\n\n## Citable: quotable in opinions and templates\n\nThe table lists 2 sources: 1 people and 1 publications.\n\n| ID | Kind | Source | Focus | Since |\n| --- | --- | --- | --- | --- |\n| `matklad` | person | [Alex Kladov: Blog](https://matklad.github.io/) | Tooling | 2017 |\n| `rust-docs` | publication | [The Rust Programming Language](https://doc.rust-lang.org/) | Language | ~2015 (book) |\n\n## Watch list\n\n| ID | Kind | Source | Focus | Since |\n| --- | --- | --- | --- | --- |\n\n## Opted out\n\n| ID | Kind | Source | Focus | Since |\n| --- | --- | --- | --- | --- |\n\n## Source notes\n\nEach source's notes.\n\n### `matklad`: Citable, **Corroborate.**\n\nWrites about tooling.\n\n## Decision log\n\n- 2026-10-18: admitted both.\n";
+    const ROSTER_TEXT: &str = "# Awesome humans\n\n## Admission criteria\n\nTwo years.\n\n## Citable: quotable in opinions and templates\n\nThe table lists 2 sources: 1 people and 1 publications.\n\n| ID | Kind | Source | Focus | Since |\n| --- | --- | --- | --- | --- |\n| `matklad` | person | [Alex Kladov: Blog](https://matklad.github.io/) | Tooling | 2017 |\n| `rust-docs` | publication | [The Rust Programming Language](https://doc.rust-lang.org/) | Language | ~2015 (book) |\n\n## Watch list\n\n| ID | Kind | Source | Focus | Since |\n| --- | --- | --- | --- | --- |\n\n## Named references\n\nRFCs.\n\n## Opted out\n\n| ID | Kind | Source | Focus | Since |\n| --- | --- | --- | --- | --- |\n\n## Source notes\n\nEach source's notes.\n\n### `matklad`: Citable, **Corroborate.**\n\nWrites about tooling.\n\n## Decision log\n\n- 2026-10-18: admitted both.\n";
 
     const OPINION: &str = "---\ntargets: [rust-1.99, edition-2024]\nlast-reviewed: 2026-10-14\nsources: [house:simon-mckenna, matklad, rust-docs]\n---\n\n# Rust\n\nUse edition 2024 ([matklad](../AWESOME-HUMANS.md#matklad-citable-corroborate)), and start from [the config](../templates/.cargo/config.toml).\n\n/// house | simon-mckenna\n\n**House:** Deny warnings.\n\n///\n\nMore.\n";
 
@@ -1615,7 +1618,9 @@ mod tests {
             "{citable}"
         );
         assert!(citable.contains("<details id=\"matklad-citable-corroborate\" markdown=\"1\">\n<summary><code>matklad</code>: Citable, <strong>Corroborate.</strong></summary>"), "{citable}");
-        assert!(staged(&fixture, "rust/awesome-humans/index.md").contains("## Admission criteria"));
+        let overview = staged(&fixture, "rust/awesome-humans/index.md");
+        assert!(overview.contains("## Admission criteria"), "{overview}");
+        assert!(overview.contains("## Named references"), "{overview}");
         assert!(
             staged(&fixture, "rust/awesome-humans/decision-log.md").starts_with("# Decision log\n")
         );
