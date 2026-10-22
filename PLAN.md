@@ -196,6 +196,8 @@ Branch `vet/initial-roster`. Every candidate below goes through `vet-source` bef
 
 A reference corroborates a claim and never carries one, under the existing rules. These include docs.rs pages, crates.io pages, RustSec advisories, and the RFC book.
 
+**Done 2026-10-23:** rust#42 adds a Named references section to `AWESOME-HUMANS.md`, naming `rust-lang/rfcs` and `rust-lang/rust`, and the shared [admission criteria](https://github.com/awesome-humans/website/blob/main/pages/conventions/admission-criteria.md#reserved-ids-markings-and-references) hold the rules, since awesome-humans/website#118.
+
 ### How to run the vetting
 
 Follow `AGENTS.md: Orchestration and model economy`. Cheaper worker agents check each candidate in parallel for longevity, latest post, and a few sample posts for depth and accuracy. The strongest model is the editor: it decides each standing and writes `AWESOME-HUMANS.md` with its decision log. Use one pull request for the whole first pass.
