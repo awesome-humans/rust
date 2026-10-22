@@ -74,6 +74,8 @@ The [admission criteria](https://github.com/awesome-humans/website/blob/main/pag
 
 - **[rust-lang/rfcs](https://github.com/rust-lang/rfcs):** The RFC for a language, Cargo, or library feature an opinion names, for how the feature behaves, not whether to use it.
 - **[rust-lang/rust](https://github.com/rust-lang/rust):** The tracking issue or stabilization pull request for a feature or lint an opinion names, for when it shipped or what still blocks it.
+- **[rust-lang/libs-team](https://github.com/rust-lang/libs-team):** The API change proposal for a `std` addition an opinion names, for what it adds and the problem it solves.
+- **[rustsec/advisory-db](https://github.com/rustsec/advisory-db):** The RustSec advisory for a crate an opinion names, for what's affected and which version fixes it.
 
 The repositories behind `rust-docs`, such as `rust-lang/reference` and `rust-lang/book`, aren't references. Cite the published page as `rust-docs`.
 
@@ -419,4 +421,4 @@ Citable on async and effects design, from 177 posts since 2016.
 | 2026-10-18 | Watch-listed `ms-rust-guidelines` | First published 2025-08, short of two years |
 | 2026-10-18 | Watch-listed `sabrina-jewson` | No writing since 2024-09 |
 | 2026-10-18 | Watch-listed `without-boats` | No writing since 2024-10 |
-| 2026-10-23 | Named two repositories as references (no roster change) | `rust-lang/rfcs` and `rust-lang/rust` can corroborate a roster-sourced claim inline. Crate and tool repositories already qualify, and the repositories behind `rust-docs` stay part of that source |
+| 2026-10-23 | Named four repositories as references (no roster change) | `rust-lang/rfcs`, `rust-lang/rust`, `rust-lang/libs-team`, and `rustsec/advisory-db` can corroborate a roster-sourced claim inline. Crate and tool repositories already qualify, and the repositories behind `rust-docs` stay part of that source |
