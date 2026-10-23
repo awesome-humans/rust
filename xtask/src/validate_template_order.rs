@@ -68,6 +68,10 @@ fn check(path: &str, text: &str, errors: &mut Vec<String>) -> usize {
             }
             continue;
         }
+        // A full-line comment can mention a delimiter without opening a string.
+        if line.trim_start().starts_with('#') {
+            continue;
+        }
         string = ["\"\"\"", "'''"]
             .into_iter()
             .find(|delimiter| line.matches(delimiter).count() % 2 == 1);
@@ -214,6 +218,18 @@ mod tests {
                 "[package.metadata.notes]\ntext = \"\"\"\n[dependencies]\ntokio = \"1\"\nanyhow = \"1\"\n\"\"\"\n"
             ),
             Vec::<String>::new()
+        );
+    }
+
+    #[test]
+    fn a_delimiter_in_a_comment_opens_no_string() {
+        assert_eq!(
+            errors(
+                "[dependencies]\n# Use \"\"\" for multiline values.\ntokio = \"1\"\nanyhow = \"1\"\n"
+            ),
+            [
+                "templates/Cargo.toml:3: the keys in [dependencies] are not sorted; expected anyhow, tokio"
+            ]
         );
     }
 
