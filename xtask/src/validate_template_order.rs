@@ -57,14 +57,28 @@ fn check(path: &str, text: &str, errors: &mut Vec<String>) -> usize {
     let mut table: Option<String> = None;
     let mut group: Vec<(usize, String)> = Vec::new();
     let mut checked = 0;
+    // The delimiter of the multiline string a line sits inside, if any. Its lines are text,
+    // not headers or keys.
+    let mut string: Option<&str> = None;
 
     for (index, line) in text.lines().enumerate() {
-        let line = line.trim_end();
+        if let Some(delimiter) = string {
+            if line.matches(delimiter).count() % 2 == 1 {
+                string = None;
+            }
+            continue;
+        }
+        string = ["\"\"\"", "'''"]
+            .into_iter()
+            .find(|delimiter| line.matches(delimiter).count() % 2 == 1);
+
+        // TOML allows indentation before a header or a key.
+        let line = line.trim();
         if let Some(captures) = TABLE.captures(line) {
             checked += finish(path, table.as_deref(), &mut group, errors);
             let name = captures[1].trim().to_owned();
             table = is_sortable(&name).then_some(name);
-        } else if line.starts_with("[[") || line.trim().is_empty() {
+        } else if line.starts_with("[[") || line.is_empty() {
             checked += finish(path, table.as_deref(), &mut group, errors);
             if line.starts_with("[[") {
                 table = None;
@@ -107,11 +121,15 @@ fn finish(
     1
 }
 
-/// Whether a table holds interchangeable entries: a dependency table or a lint table.
+/// Whether a table holds interchangeable entries: a dependency table at the root, under
+/// `workspace`, or under a `target`, or a lint table. `[package.metadata.dependencies]` is
+/// free-form metadata, not a dependency table.
 fn is_sortable(name: &str) -> bool {
-    let last = name.rsplit('.').next().unwrap_or(name);
-    DEPENDENCY_TABLES.contains(&last)
-        || name.starts_with("lints.")
+    DEPENDENCY_TABLES.iter().any(|table| {
+        name == *table
+            || name.strip_prefix("workspace.") == Some(table)
+            || (name.starts_with("target.") && name.ends_with(&format!(".{table}")))
+    }) || name.starts_with("lints.")
         || name.starts_with("workspace.lints.")
 }
 
@@ -175,6 +193,34 @@ mod tests {
             errors(
                 "[workspace]\nmembers = []\nresolver = \"3\"\n\n[package]\nname = \"x\"\nedition = \"2024\"\n"
             ),
+            Vec::<String>::new()
+        );
+    }
+
+    #[test]
+    fn indented_keys_are_checked() {
+        assert_eq!(
+            errors("[dependencies]\n  tokio = \"1\"\n  anyhow = \"1\"\n"),
+            [
+                "templates/Cargo.toml:2: the keys in [dependencies] are not sorted; expected anyhow, tokio"
+            ]
+        );
+    }
+
+    #[test]
+    fn a_multiline_string_is_not_parsed() {
+        assert_eq!(
+            errors(
+                "[package.metadata.notes]\ntext = \"\"\"\n[dependencies]\ntokio = \"1\"\nanyhow = \"1\"\n\"\"\"\n"
+            ),
+            Vec::<String>::new()
+        );
+    }
+
+    #[test]
+    fn package_metadata_dependencies_keep_their_order() {
+        assert_eq!(
+            errors("[package.metadata.dependencies]\ntokio = \"1\"\nanyhow = \"1\"\n"),
             Vec::<String>::new()
         );
     }
