@@ -80,6 +80,10 @@ validate-sources:
 validate-readme-index:
     cargo xtask validate-readme-index
 
+# Check that each template's dependency and lint keys are sorted within their group
+validate-template-order:
+    cargo xtask validate-template-order
+
 # Draw the SVG diagrams in assets/diagrams/
 export-diagrams:
     cargo xtask export-diagrams
@@ -103,4 +107,4 @@ build-site out="target/site":
     cargo xtask build-site --out "{{ out }}"
 
 # Run every offline check CI runs. It redraws the diagrams, and fails until you commit any SVG it changes
-verify: check clippy test validate-skills validate-metadata validate-sources validate-readme-index check-diagrams build-site
+verify: check clippy test validate-skills validate-metadata validate-sources validate-readme-index validate-template-order check-diagrams build-site

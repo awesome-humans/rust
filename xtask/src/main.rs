@@ -14,6 +14,7 @@ mod repo;
 mod validate_metadata;
 mod validate_readme_index;
 mod validate_sources;
+mod validate_template_order;
 
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
@@ -37,6 +38,8 @@ enum Command {
     ValidateSources,
     /// Check that README.md indexes every opinion and skill, in order
     ValidateReadmeIndex,
+    /// Check that each template's dependency and lint keys are sorted within their group
+    ValidateTemplateOrder,
     /// Draw the SVG diagrams in assets/diagrams/
     ExportDiagrams,
     /// Stage the /rust/ pages of awesome-humans.net in <dir>/rust/
@@ -84,6 +87,7 @@ fn main() -> ExitCode {
         Command::ValidateMetadata => validate_metadata::run(&repo).print(),
         Command::ValidateSources => validate_sources::run(&repo).print(),
         Command::ValidateReadmeIndex => validate_readme_index::run(&repo).print(),
+        Command::ValidateTemplateOrder => validate_template_order::run(&repo).print(),
         Command::ExportDiagrams => match export_diagrams::run(&repo) {
             Ok(()) => {
                 println!("Exported to {}/", export_diagrams::OUTPUT);
