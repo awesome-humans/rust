@@ -48,6 +48,29 @@ To migrate a crate, follow the Edition Guide's steps ([Rust Edition Guide: Trans
 | `expr` fragment specifier   | `edition_2024_expr_fragment_specifier`   | Revert `expr_2021` to `expr` in most macros                                                           |
 | Combined doctests           | none                                     | Mark a doctest that depends on `Location`, `type_name`, or line numbers as `standalone_crate`         |
 
+### Lints
+
+**Deny warnings in CI with `cargo clippy -- -D warnings`, and add three lints to `[workspace.lints.clippy]`:**
+
+```toml
+[workspace.lints.clippy]
+allow_attributes = "warn"
+allow_attributes_without_reason = "warn"
+manual_let_else = "warn"
+```
+
+- **Silence a lint with `#[expect(…, reason = "…")]`, never `#[allow]`.** `#[expect]` raises `unfulfilled_lint_expectations` once the lint stops firing, so a stale suppression surfaces ([The Rust Reference: Diagnostic attributes](https://doc.rust-lang.org/reference/attributes/diagnostics.html#the-expect-attribute), [rust-lang/rfcs: RFC 2383, `lint_reasons`](https://github.com/rust-lang/rfcs/blob/master/text/2383-lint-reasons.md#expect-lint-attribute)). `allow_attributes` rewrites `#[allow]` as `#[expect]`, and `allow_attributes_without_reason` reports an attribute with no `reason`. Both are restriction lints, so they're off until you set them.
+- **`manual_let_else` is pedantic,** so it's off unless you turn on the group. It reports a `match` or `if let` that `let … else` would replace.
+
+```rust
+#[expect(clippy::needless_pass_by_value, reason = "the callback API takes ownership")]
+pub fn log_owned(message: String) {
+    eprintln!("{message}");
+}
+```
+
+The warn-by-default lints already enforce the rest of this file. Among them are `collapsible_if`, `question_mark`, `needless_return`, `manual_ok_err`, `unnecessary_map_or`, `io_other_error`, `manual_is_multiple_of`, and `manual_pop_if` ([Clippy Lints](https://rust-lang.github.io/rust-clippy/stable/index.html)). Two rustc lints change everyday code: `mismatched_lifetime_syntaxes` (1.89) asks for `Iter<'_, u8>` where a return type hides an elided lifetime, and `dangling_pointers_from_locals` (1.91) catches a raw pointer to a local that escapes its function ([Rust Blog: Announcing Rust 1.89.0](https://blog.rust-lang.org/2025/08/07/Rust-1.89.0/), [Announcing Rust 1.91.0](https://blog.rust-lang.org/2025/10/30/Rust-1.91.0/)).
+
 ### Flat control flow
 
 **Use let chains and `if let` guards instead of nested `if let` blocks.** Both are stable on edition 2024: let chains since 1.88 and `if let` guards since 1.95 ([Rust Blog: Announcing Rust 1.88.0](https://blog.rust-lang.org/2025/06/26/Rust-1.88.0/), [Announcing Rust 1.95.0](https://blog.rust-lang.org/2026/04/16/Rust-1.95.0/), [rust-lang/rust#132833](https://github.com/rust-lang/rust/pull/132833), [rust-lang/rust#141295](https://github.com/rust-lang/rust/pull/141295)). Clippy's `collapsible_if` rewrites the nested form into a chain on edition 2024.
@@ -134,29 +157,6 @@ fn total(lines: &[&str]) -> u32 {
 | `{integer}::format_into`                   | 1.98    | The `itoa` crate                                                       |
 
 Use `thread::scope` for threads that borrow local data, instead of `thread::spawn` with `Arc` clones ([Matthias Endler: Sharp Edges In The Rust Standard Library](https://corrode.dev/blog/sharp-edges-in-rust-std/)).
-
-### Lints
-
-**Deny warnings in CI with `cargo clippy -- -D warnings`, and add three lints to `[workspace.lints.clippy]`:**
-
-```toml
-[workspace.lints.clippy]
-allow_attributes = "warn"
-allow_attributes_without_reason = "warn"
-manual_let_else = "warn"
-```
-
-- **Silence a lint with `#[expect(…, reason = "…")]`, never `#[allow]`.** `#[expect]` raises `unfulfilled_lint_expectations` once the lint stops firing, so a stale suppression surfaces ([The Rust Reference: Diagnostic attributes](https://doc.rust-lang.org/reference/attributes/diagnostics.html#the-expect-attribute), [rust-lang/rfcs: RFC 2383, `lint_reasons`](https://github.com/rust-lang/rfcs/blob/master/text/2383-lint-reasons.md#expect-lint-attribute)). `allow_attributes` rewrites `#[allow]` as `#[expect]`, and `allow_attributes_without_reason` reports an attribute with no `reason`. Both are restriction lints, so they're off until you set them.
-- **`manual_let_else` is pedantic,** so it's off unless you turn on the group. It reports a `match` or `if let` that `let … else` would replace.
-
-```rust
-#[expect(clippy::needless_pass_by_value, reason = "the callback API takes ownership")]
-pub fn log_owned(message: String) {
-    eprintln!("{message}");
-}
-```
-
-The warn-by-default lints already enforce the rest of this file. Among them are `collapsible_if`, `question_mark`, `needless_return`, `manual_ok_err`, `unnecessary_map_or`, `io_other_error`, `manual_is_multiple_of`, and `manual_pop_if` ([Clippy Lints](https://rust-lang.github.io/rust-clippy/stable/index.html)). Two rustc lints change everyday code: `mismatched_lifetime_syntaxes` (1.89) asks for `Iter<'_, u8>` where a return type hides an elided lifetime, and `dangling_pointers_from_locals` (1.91) catches a raw pointer to a local that escapes its function ([Rust Blog: Announcing Rust 1.89.0](https://blog.rust-lang.org/2025/08/07/Rust-1.89.0/), [Announcing Rust 1.91.0](https://blog.rust-lang.org/2025/10/30/Rust-1.91.0/)).
 
 ### Panics
 
