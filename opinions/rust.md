@@ -50,7 +50,7 @@ To migrate a crate, follow the Edition Guide's steps ([Rust Edition Guide: Trans
 
 ### Lints
 
-**Deny warnings in CI with `cargo clippy -- -D warnings`, and add three lints to `[workspace.lints.clippy]`:**
+**Deny warnings in CI with `CARGO_BUILD_WARNINGS=deny cargo clippy`, and add three lints to `[workspace.lints.clippy]`:**
 
 ```toml
 [workspace.lints.clippy]
@@ -59,8 +59,9 @@ allow_attributes_without_reason = "warn"
 manual_let_else = "warn"
 ```
 
-- **Silence a lint with `#[expect(…, reason = "…")]`, never `#[allow]`.** `#[expect]` raises `unfulfilled_lint_expectations` once the lint stops firing, so a stale suppression surfaces ([The Rust Reference: Diagnostic attributes](https://doc.rust-lang.org/reference/attributes/diagnostics.html#the-expect-attribute), [rust-lang/rfcs: RFC 2383, `lint_reasons`](https://github.com/rust-lang/rfcs/blob/master/text/2383-lint-reasons.md#expect-lint-attribute)). `allow_attributes` rewrites `#[allow]` as `#[expect]`, and `allow_attributes_without_reason` reports an attribute with no `reason`. Both are restriction lints, so they're off until you set them.
-- **`manual_let_else` is pedantic,** so it's off unless you turn on the group. It reports a `match` or `if let` that `let … else` would replace.
+- **Deny warnings through Cargo, not with `cargo clippy -- -D warnings`.** Cargo's `build.warnings` setting, stable since 1.97, fails the build on any warning, rustc's included, and doesn't invalidate the build cache as `-D warnings` does ([Rust Blog: Announcing Rust 1.97.0](https://blog.rust-lang.org/2026/07/09/Rust-1.97.0/#cargo-support-for-denying-warnings), [Clippy Documentation: Usage](https://doc.rust-lang.org/clippy/usage.html#elevating-warning-to-errors)).
+- **Silence a lint with `#[expect(…, reason = "…")]`, never `#[allow]`.** `#[expect]` raises `unfulfilled_lint_expectations` once the lint stops firing, so a stale suppression surfaces ([The Rust Reference: Diagnostic attributes](https://doc.rust-lang.org/reference/attributes/diagnostics.html#the-expect-attribute), [rust-lang/rfcs: RFC 2383, `lint_reasons`](https://github.com/rust-lang/rfcs/blob/master/text/2383-lint-reasons.md#expect-lint-attribute)). `allow_attributes` reports an outer `#[allow]` and suggests `#[expect]` in its place, and `allow_attributes_without_reason` reports an attribute with no `reason`. Both are restriction lints, so they're off until you set them ([Clippy Lints: `allow_attributes`](https://rust-lang.github.io/rust-clippy/stable/index.html#allow_attributes), [`allow_attributes_without_reason`](https://rust-lang.github.io/rust-clippy/stable/index.html#allow_attributes_without_reason)).
+- **`manual_let_else` is pedantic,** so it's off by default, and the table above turns it on without the rest of the group. It reports a `match` or `if let` that `let … else` would replace ([Clippy Lints: `manual_let_else`](https://rust-lang.github.io/rust-clippy/stable/index.html#manual_let_else)).
 
 ```rust
 #[expect(clippy::needless_pass_by_value, reason = "the callback API takes ownership")]
@@ -195,7 +196,7 @@ These are unstable on nightly as of 2026-10-19, so don't use them yet:
 ## Sources
 
 - **`rust-blog`:** the release announcements for 1.80 to 1.98, and edition 2024.
-- **`rust-docs`:** the Edition Guide, the Cargo Book, the Reference, the Book, and Clippy's lint list.
+- **`rust-docs`:** the Edition Guide, the Cargo Book, the Reference, the Book, and Clippy's usage guide and lint list.
 - **`corrode`:** `let … else`, panics, safe-Rust pitfalls, cloning, signatures, and iterators.
 - **`burntsushi`:** when a panic is the right response.
 - **`matklad`:** moving conditions to the caller.

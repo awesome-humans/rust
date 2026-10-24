@@ -37,7 +37,7 @@ fmt-check:
 
 # Lint the xtask crate, denying every warning, as CI does
 clippy:
-    cargo clippy --workspace --all-targets --locked -- -D warnings
+    CARGO_BUILD_WARNINGS=deny cargo clippy --workspace --all-targets --locked
 
 # Run the xtask tests (needs cargo-nextest)
 test:
