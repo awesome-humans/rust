@@ -12,6 +12,8 @@ metadata:
 
 House opinions are a house profile's preferences, such as the owner's `simon-mckenna`. They're always marked, and they sit beside the sourced text, never in it, so nobody mistakes them for community best practice. A reader or agent sees them only after choosing the profile.
 
+This skill maintains [awesome-humans/rust](https://github.com/awesome-humans/rust), and "this repository" means that one. Run it in a clone, where each path in it, such as `opinions/` or `templates/Cargo.toml`, is relative to the repository's root.
+
 ## Steps
 
 1. **Take the entry** from the HOUSE-OPINIONS.md inbox, with its profile. If the owner asks directly, add the entry to the inbox first, so the record starts there. The profile must be in HOUSE-OPINIONS.md's Profiles table and registered for this ecosystem in [awesome-humans/website: `houses.toml`](https://github.com/awesome-humans/website/blob/main/houses.toml). If it isn't, stop and ask the owner: a new profile needs their approval.

@@ -1,6 +1,6 @@
 ---
 name: research-topic
-description: Research a Rust topic conversationally using this repository's opinions and vetted sources, such as "research async closures", "what's the story on error-handling crates", "should we adopt cargo-nextest". Produces a cited research topic where every claim carries its source and that source's standing, labels nightly-only features as the freshness policy requires, and closes with what the research reveals about the repository (a missing opinion, a stale aside, or a feature that reached stable). Use whenever the user wants to understand, evaluate, or decide on a Rust subject rather than change the repository.
+description: Research a Rust topic conversationally using the opinions and vetted sources in awesome-humans/rust, such as "research async closures", "what's the story on error-handling crates", "should we adopt cargo-nextest". Produces a cited research topic where every claim carries its source and that source's standing, labels nightly-only features as the freshness policy requires, and closes with what the research reveals about the repository (a missing opinion, a stale aside, or a feature that reached stable). Use whenever the user wants to understand, evaluate, or decide on a Rust subject rather than change the repository.
 license: See repository LICENSE
 compatibility: Requires internet access for source reading; degrades to opinions-only offline
 metadata:
@@ -11,6 +11,8 @@ metadata:
 # Research a topic
 
 Answer "What should I know or do about X?" from this repository's opinions first, then its vetted roster. This skill writes one thing, on a research branch: the research topic. It changes `opinions/` and `templates/` only through the skills it recommends at the end.
+
+This skill belongs to [awesome-humans/rust](https://github.com/awesome-humans/rust), and "this repository" means that one. Each path in it, such as `opinions/` or `templates/Cargo.toml`, is relative to the repository's root. Without a checkout, read a file at `https://raw.githubusercontent.com/awesome-humans/rust/main/<path>`, and find the opinions and templates in [llms.txt](https://awesome-humans.net/rust/llms.txt).
 
 ## Orchestration
 

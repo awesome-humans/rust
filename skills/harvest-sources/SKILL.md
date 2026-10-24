@@ -12,6 +12,8 @@ metadata:
 
 Collect what the vetted sources have published since the last sweep, and update the opinions from it.
 
+This skill maintains [awesome-humans/rust](https://github.com/awesome-humans/rust), and "this repository" means that one. Run it in a clone, where each path in it, such as `opinions/` or `templates/Cargo.toml`, is relative to the repository's root.
+
 ## Orchestration
 
 As [AGENTS.md: Orchestration and model economy](../../AGENTS.md#orchestration-and-model-economy) describes, fan the per-source sweeps in step 3 out to worker agents. Only the editor triages their findings and edits `opinions/` and `templates/`.

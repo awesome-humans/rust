@@ -12,6 +12,8 @@ metadata:
 
 Apply the admission criteria in [AWESOME-HUMANS.md](../../AWESOME-HUMANS.md) to a candidate source, or re-evaluate an existing one. Every opinion cites only the roster, so when in doubt, decline.
 
+This skill maintains [awesome-humans/rust](https://github.com/awesome-humans/rust), and "this repository" means that one. Run it in a clone, where each path in it, such as `opinions/` or `templates/Cargo.toml`, is relative to the repository's root.
+
 ## Orchestration
 
 As [AGENTS.md: Orchestration and model economy](../../AGENTS.md#orchestration-and-model-economy) describes, delegate the evidence gathering in step 3, such as searching archives and sampling posts, to worker agents. Only the editor weighs the evidence, decides, and edits the roster.
