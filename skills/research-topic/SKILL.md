@@ -12,7 +12,7 @@ metadata:
 
 Answer "What should I know or do about X?" from this repository's opinions first, then its vetted roster. This skill writes one thing, on a research branch: the research topic. It changes `opinions/` and `templates/` only through the skills it recommends at the end.
 
-This skill belongs to [awesome-humans/rust](https://github.com/awesome-humans/rust), and "this repository" means that one. Each path in it, such as `opinions/` or `templates/Cargo.toml`, is relative to the repository's root. Without a checkout, read a file at `https://raw.githubusercontent.com/awesome-humans/rust/main/<path>`, and find the opinions and templates in [llms.txt](https://awesome-humans.net/rust/llms.txt).
+"This repository" in this skill means [awesome-humans/rust](https://github.com/awesome-humans/rust). Each path in it, such as `opinions/` or `templates/Cargo.toml`, is relative to the repository's root. Without a checkout, read a file at `https://raw.githubusercontent.com/awesome-humans/rust/main/<path>`, and find the opinions and templates in [llms.txt](https://awesome-humans.net/rust/llms.txt).
 
 ## Orchestration
 

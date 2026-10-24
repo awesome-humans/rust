@@ -12,7 +12,7 @@ metadata:
 
 `research/` is a staging area, and this skill empties it. A research topic is evidence gathered at one point in time. Promotion makes it the repository's position. Discard is just as valid: the topic answered a question, and that was its job. Both end with the file deleted, except a partial promotion, which keeps the blocked part on disk. For details, see [Edge cases](#edge-cases).
 
-This skill maintains [awesome-humans/rust](https://github.com/awesome-humans/rust), and "this repository" means that one. Run it in a clone, where each path in it, such as `opinions/` or `templates/Cargo.toml`, is relative to the repository's root.
+"This repository" in this skill means [awesome-humans/rust](https://github.com/awesome-humans/rust). Run the skill in a clone, where each path in it, such as `opinions/` or `templates/Cargo.toml`, is relative to the repository's root.
 
 ## Orchestration
 

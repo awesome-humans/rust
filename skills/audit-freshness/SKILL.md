@@ -12,7 +12,7 @@ metadata:
 
 Report what's stale. This skill never edits content. Version drift goes to `refresh-rust-versions`, and content drift goes to `harvest-sources`.
 
-This skill maintains [awesome-humans/rust](https://github.com/awesome-humans/rust), and "this repository" means that one. Run it in a clone, where each path in it, such as `opinions/` or `templates/Cargo.toml`, is relative to the repository's root.
+"This repository" in this skill means [awesome-humans/rust](https://github.com/awesome-humans/rust). Run the skill in a clone, where each path in it, such as `opinions/` or `templates/Cargo.toml`, is relative to the repository's root.
 
 ## Tolerances
 
