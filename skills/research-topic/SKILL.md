@@ -1,6 +1,6 @@
 ---
 name: research-topic
-description: Research a Rust topic conversationally using the opinions and vetted sources in awesome-humans/rust, such as "research async closures", "what's the story on error-handling crates", "should we adopt cargo-nextest". Produces a cited research topic where every claim carries its source and that source's standing, labels nightly-only features as the freshness policy requires, and closes with what the research reveals about the repository (a missing opinion, a stale aside, or a feature that reached stable). Use whenever the user wants to understand, evaluate, or decide on a Rust subject rather than change the repository.
+description: Research a Rust topic conversationally using the opinions and vetted sources in awesome-humans/rust, such as "research async closures", "what's the story on error-handling crates", "should we adopt cargo-nextest". Produces a cited research topic where every claim cites its source, with that source's standing where it limits the claim, labels nightly-only features as the freshness policy requires, and closes with what the research reveals about the repository (a missing opinion, a stale aside, or a feature that reached stable). Use whenever the user wants to understand, evaluate, or decide on a Rust subject rather than change the repository.
 license: See repository LICENSE
 compatibility: Requires internet access for source reading; degrades to opinions-only offline
 metadata:
