@@ -62,7 +62,7 @@ Every topic on disk is unresolved, so all of them count. A topic still on disk a
 
 A reference is a named crate's or tool's own material, or a repository named under [AWESOME-HUMANS.md: Named references](../../AWESOME-HUMANS.md#named-references), linked inline to corroborate a roster-sourced claim. The [admission criteria](https://github.com/awesome-humans/website/blob/main/pages/conventions/admission-criteria.md#reserved-ids-markings-and-references) set the rules. Report each of these as a finding:
 
-- **A linked issue or pull request has changed state.** The opinion calls a feature unstable, or relies on an issue as a current limitation, and the issue has closed, the pull request has merged, or the feature has shipped in a release. Send it to `harvest-sources` or `refresh-rust-versions` to update or drop the note.
+- **A linked issue or pull request no longer matches the claim.** The opinion calls a feature unstable, or relies on an issue as a current limitation, and the issue has closed, the pull request has merged, or the feature has shipped in a release. A link cited for when a feature shipped, such as a merged stabilization pull request, is current and isn't a finding. Send a feature that has shipped in a stable Rust release to `refresh-rust-versions`, and any other closed issue or merged pull request to `harvest-sources`.
 - **A reference carries a claim alone.** The sentence or bullet it supports has no roster citation, so the reference is doing a source's job.
 - **A reference is in `sources:`.** References never go there.
 - **A reference points into an archived repository, or anchors a line on a branch.** Link where the content moved, and pin a line anchor to a commit.

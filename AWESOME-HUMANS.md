@@ -70,12 +70,12 @@ A watch-list source is never cited. `just validate-sources` rejects a watch-list
 
 ## Named references
 
-The [admission criteria](https://github.com/awesome-humans/website/blob/main/pages/conventions/admission-criteria.md#reserved-ids-markings-and-references) define a reference and the rules for citing one. A reference corroborates a claim from a roster source, never carries one, and never appears in `sources:`. A crate's or tool's own repository already qualifies when an opinion names it, such as `rust-lang/cargo` or `rust-lang/rust-clippy`, so it isn't listed here. This roster also names:
+The [admission criteria](https://github.com/awesome-humans/website/blob/main/pages/conventions/admission-criteria.md#reserved-ids-markings-and-references) define a reference and the rules for citing one. A reference corroborates a claim from a roster source, never carries one, and never appears in `sources:`. A crate's or tool's own material already qualifies when an opinion names it, such as its repository (`rust-lang/cargo` or `rust-lang/rust-clippy`), its docs.rs page, or its crates.io page, so it isn't listed here. This roster also names:
 
-- **[rust-lang/rfcs](https://github.com/rust-lang/rfcs):** The RFC for a language, Cargo, or library feature an opinion names, for how the feature behaves, not whether to use it.
+- **[rust-lang/rfcs](https://github.com/rust-lang/rfcs):** The RFC for a language, Cargo, or library feature an opinion names, for how the feature behaves, not whether to use it. Link its page in [the RFC Book](https://rust-lang.github.io/rfcs/), such as `https://rust-lang.github.io/rfcs/2383-lint-reasons.html`.
 - **[rust-lang/rust](https://github.com/rust-lang/rust):** The tracking issue or stabilization pull request for a feature or lint an opinion names, for when it shipped or what still blocks it.
 - **[rust-lang/libs-team](https://github.com/rust-lang/libs-team):** The API change proposal for a `std` addition an opinion names, for what it adds and the problem it solves.
-- **[rustsec/advisory-db](https://github.com/rustsec/advisory-db):** The RustSec advisory for a crate an opinion names, for what's affected and which version fixes it.
+- **[rustsec/advisory-db](https://github.com/rustsec/advisory-db):** The RustSec advisory for a crate an opinion names, for what's affected and which version fixes it. Link its page on [rustsec.org](https://rustsec.org/advisories/), such as `https://rustsec.org/advisories/RUSTSEC-2020-0071.html`.
 
 The repositories behind `rust-docs`, such as `rust-lang/reference` and `rust-lang/book`, aren't references. Cite the published page as `rust-docs`.
 
