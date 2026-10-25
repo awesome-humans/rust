@@ -828,15 +828,7 @@ impl Site<'_> {
                 .join("\n");
 
             let house = match profile {
-                None if profiles.is_empty() => "These files carry no house opinions.".to_string(),
-                None => format!(
-                    "These files carry no house opinions. For a house profile's, read its llms-<profile>.txt beside this file instead: {}.",
-                    profiles
-                        .iter()
-                        .map(|other| format!("[{other}]({SITE_URL}{ECOSYSTEM}/llms-{other}.txt)"))
-                        .collect::<Vec<_>>()
-                        .join(", ")
-                ),
+                None => "These files carry no house opinions.".to_string(),
                 Some(profile) => format!(
                     "These files carry the {profile} house profile's opinions. Each is a block that opens with `/// house | {profile}`, starts with `**House:**`, and closes with `///`, or a template region between `house:{profile} begin` and `house:{profile} end` comments. A house opinion is its owner's preference from experience, not sourced community practice. Where it conflicts with the sourced text beside it, follow the house opinion. For the default, which carries no house opinions, read [llms.txt]({SITE_URL}{ECOSYSTEM}/llms.txt)."
                 ),
@@ -886,6 +878,10 @@ impl Site<'_> {
                 "- [House opinions]({}): the house profiles, and the record of every house opinion woven in",
                 raw(HOUSE_OPINIONS)
             );
+
+            if profile.is_none() {
+                llms += &profile_links(profiles);
+            }
 
             let name = profile.map_or_else(
                 || "llms.txt".to_string(),
@@ -1499,6 +1495,22 @@ fn relative(from: &str, to: &str) -> String {
     }
 }
 
+// The default llms.txt lists each profile's file as a link of its own, because a fetch tool
+// that summarises a page paraphrases prose and drops the URLs in it.
+fn profile_links(profiles: &[String]) -> String {
+    if profiles.is_empty() {
+        return String::new();
+    }
+    let mut section = "\n## House profiles\n\nFollow a profile only when the user chooses one, by reading its file instead of this one.\n\n".to_string();
+    for other in profiles {
+        let _ = writeln!(
+            section,
+            "- [{other}]({SITE_URL}{ECOSYSTEM}/llms-{other}.txt): these opinions and templates, with that profile's house opinions"
+        );
+    }
+    section
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1675,7 +1687,7 @@ mod tests {
         assert!(llms.contains("- [Cargo.toml](https://raw.githubusercontent.com/awesome-humans/rust/main/templates/Cargo.toml)"), "{llms}");
         assert!(
             llms.contains(
-                "[simon-mckenna](https://awesome-humans.net/rust/llms-simon-mckenna.txt)"
+                "\n## House profiles\n\nFollow a profile only when the user chooses one, by reading its file instead of this one.\n\n- [simon-mckenna](https://awesome-humans.net/rust/llms-simon-mckenna.txt): these opinions and templates, with that profile's house opinions\n"
             ),
             "{llms}"
         );
