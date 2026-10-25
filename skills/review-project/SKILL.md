@@ -1,6 +1,6 @@
 ---
 name: review-project
-description: Check an external Rust crate or workspace, given a local path or a repository URL and optionally a house profile, against this repository's opinions and templates, and report deviations with severity and suggested fixes. Use when asked to verify, audit, review, or grade a Rust codebase against Awesome Humans of Rust conventions, or to check whether a project "does what good looks like".
+description: Check an external Rust crate or workspace, given a local path or a repository URL and optionally a house profile, against the opinions and templates in awesome-humans/rust, and report deviations with severity and suggested fixes. Use when asked to verify, audit, review, or grade a Rust codebase against Awesome Humans of Rust conventions, or to check whether a project "does what good looks like".
 license: See repository LICENSE
 compatibility: Requires read access to the target project; git and internet access for URL targets; a Rust toolchain with cargo-deny helpful but optional
 metadata:
@@ -13,6 +13,8 @@ metadata:
 Compare a target Rust crate or workspace with this repository's opinions and templates, and report where it deviates. This skill **only reports** unless the user asks for fixes.
 
 By default, it checks sourced community practice only. If the user names a house profile, such as `simon-mckenna`, it checks that profile's house opinions too ([HOUSE-OPINIONS.md](../../HOUSE-OPINIONS.md)).
+
+"This repository" in this skill means [awesome-humans/rust](https://github.com/awesome-humans/rust). Each path in it, such as `opinions/` or `templates/Cargo.toml`, is relative to the repository's root. Without a checkout, read a file at `https://raw.githubusercontent.com/awesome-humans/rust/main/<path>`, and find the opinions and templates in [llms.txt](https://awesome-humans.net/rust/llms.txt).
 
 ## Steps
 
