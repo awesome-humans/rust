@@ -12,7 +12,7 @@ metadata:
 
 Move every resource to the **latest stable** Rust release and the latest edition, and every crate pin in `templates/Cargo.toml` to its **latest stable** version.
 
-"This repository" in this skill means [awesome-humans/rust](https://github.com/awesome-humans/rust). Run the skill in a clone, where each path in it, such as `opinions/` or `templates/Cargo.toml`, is relative to the repository's root.
+"This repository" in this skill means [awesome-humans/rust](https://github.com/awesome-humans/rust). Run the skill in a checkout, where each path in it, such as `opinions/` or `templates/Cargo.toml`, is relative to the repository's root.
 
 ## Trigger
 

@@ -12,7 +12,7 @@ metadata:
 
 Collect what the vetted sources have published since the last sweep, and update the opinions from it.
 
-"This repository" in this skill means [awesome-humans/rust](https://github.com/awesome-humans/rust). Run the skill in a clone, where each path in it, such as `opinions/` or `templates/Cargo.toml`, is relative to the repository's root.
+"This repository" in this skill means [awesome-humans/rust](https://github.com/awesome-humans/rust). Run the skill in a checkout, where each path in it, such as `opinions/` or `templates/Cargo.toml`, is relative to the repository's root.
 
 ## Orchestration
 
