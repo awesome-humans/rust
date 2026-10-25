@@ -10,7 +10,7 @@ Every awesome-humans ecosystem admits a source by the same rules, in [awesome-hu
 
 - **Independence:** `ferrous-systems`, `tokio-blog`, and `tweede-golf` each record a usage limit under [Source notes](#source-notes). `predrag` and `sunshowers` each record a conflict, where an opinion might recommend their own crate.
 - **Dormancy:** `burntsushi` is admitted on documentation written in a repository.
-- **References:** A RustSec advisory and an accepted RFC in the RFC Book also qualify, for what they record.
+- **References:** A RustSec advisory also qualifies as a reference for the vulnerability it describes, and an accepted RFC in the RFC Book for the design it specifies.
 
 ### How the roster is organised
 
