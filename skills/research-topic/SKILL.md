@@ -14,8 +14,6 @@ Answer "What should I know or do about X?" from this repository's opinions first
 
 "This repository" in this skill means [awesome-humans/rust](https://github.com/awesome-humans/rust). Each path in it, such as `opinions/` or `templates/Cargo.toml`, is relative to the repository's root. Without a checkout, read a file at `https://raw.githubusercontent.com/awesome-humans/rust/main/<path>`, and find the opinions and templates in [llms.txt](https://awesome-humans.net/rust/llms.txt).
 
-**Outside a checkout of this repository, answer in the conversation.** A reader might run this skill from their own project, or with no checkout at all. Then skip the worktree in step 2 and [Persistence and lifecycle](#persistence-and-lifecycle): write no file, and open no pull request. In step 7, recommend no skill. Tell the reader what the research revealed about the repository, and that they can raise it in an [issue](https://github.com/awesome-humans/rust/issues).
-
 ## Orchestration
 
 As [AGENTS.md: Orchestration and model economy](../../AGENTS.md#orchestration-and-model-economy) describes, fan the per-source reading out to worker agents. Only the editor weighs conflicting sources, writes the research topic, and answers follow-up questions.
