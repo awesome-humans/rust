@@ -8,16 +8,16 @@ sources: [corrode, luca-palmieri, matklad, rust-blog, rust-docs, sunshowers]
 
 Run tests with `cargo nextest run` and doctests with `cargo test --doc`, keep the test suite to one integration-test binary per crate, and let Clippy enforce the test hygiene:
 
-- **Run tests with cargo-nextest, and doctests with `cargo test --doc`.** Nextest can't run doctests on stable Rust, so CI needs both commands. Configure a `ci` profile in `.config/nextest.toml` with `fail-fast = false` and JUnit output.
+- **Run tests with cargo-nextest, and doctests with `cargo test --doc`.** Nextest can't run doctests on stable Rust, so CI needs both commands in a package with a library target. Configure a `ci` profile in `.config/nextest.toml` with `fail-fast = false` and JUnit output.
 - **Put unit tests in a `#[cfg(test)] mod tests` at the end of the file they test, and integration tests in one binary,** `tests/it/main.rs`, with a module per area. Each file directly under `tests/` is a separate binary that has to be linked.
 - **Keep `main.rs` thin over `lib.rs`,** so integration tests can reach the logic through `use`.
-- **Write a snapshot test when you can't write a property test,** and a property test, with `proptest`, when you can state what makes an output correct.
+- **Write a property test, with `proptest`, when you can state what makes an output correct, and a snapshot test when you can't.**
 - **Keep doctests on for a published library.** Edition 2024 merges compatible doctests into one binary, which removes most of their old compile cost.
-- **Turn on the test lints:** `clippy::should_panic_without_expect` and `clippy::ignore_without_reason`, both pedantic, plus the warn-by-default `items_after_test_module`.
+- **Warn on the two pedantic test lints:** set `should_panic_without_expect = "warn"` and `ignore_without_reason = "warn"` in `[workspace.lints.clippy]`, unless the workspace already warns on `clippy::pedantic`. `items_after_test_module` warns by default and needs no key.
 
 Every feature recommended here is stable in Rust 1.99.1, and cargo-nextest 0.9.148 is the latest release (crates.io, read 2026-10-19). Nextest's setup scripts are experimental, and stabilising libtest's JSON output is a 2026 project goal that's open for help. Both are in [Coming next](#coming-next).
 
-**No opinion file covers this.** `opinions/` holds only `rust.md`, which fixes the panic boundary (`unwrap` in tests is fine) but says nothing else about testing. This topic is the fifth in [PLAN.md: Phase 6](../PLAN.md#phase-6-first-opinions-and-templates), whose target is `opinions/testing.md`.
+**No opinion file covers this.** `opinions/` holds only `rust.md`, which touches testing in three places: the panic boundary (`unwrap` in tests is fine), step 4 of its edition migration ("Run `cargo build` and `cargo test`"), and the `standalone_crate` row of its edition 2024 table, under Combined doctests. This topic is the fifth in [PLAN.md: Phase 6](../PLAN.md#phase-6-first-opinions-and-templates), whose target is `opinions/testing.md`.
 
 ## How the sweep ran
 
@@ -36,13 +36,13 @@ How nextest differs from `cargo test`, from its documentation (a reference):
 | ------------------- | ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Scheduling          | One test binary at a time, so a slow test holds up its binary | Each test in its own process, scheduled across all binaries ([nextest: How nextest works](https://nexte.st/docs/design/how-it-works/))                      |
 | Fail fast           | Stops at the first failing binary, unless `--no-fail-fast`    | "By default, nextest stops running tests after the first failure", and lets running tests finish ([nextest: Running tests](https://nexte.st/docs/running/)) |
-| No tests matched    | Passes                                                        | Fails by default since 0.9.85                                                                                                                               |
+| No tests matched    | Passes                                                        | Fails by default since 0.9.85, set by `--no-tests` (nextest: Running tests, above)                                                                          |
 | Doctests            | Runs them                                                     | "Doctests are currently not supported because of limitations in stable Rust"                                                                                |
 | Flaky tests         | No retries                                                    | `--retries 2` or a profile's `retries`, and a test that passes on retry is reported `FLAKY` ([nextest: Retries](https://nexte.st/docs/features/retries/))   |
 | Slow and hung tests | No timeout                                                    | `SLOW` after 60 seconds by default, and `slow-timeout = { period = "60s", terminate-after = 5 }` kills a hung test                                          |
 | CI output           | Text only on stable                                           | JUnit XML from `[profile.ci.junit]`, archives with `cargo nextest archive`, and sharding with `--partition hash:1/3`                                        |
 
-The editor checked the fail-fast default, `--partition`, and the doctest gap against cargo-nextest 0.9.148 on Rust 1.99.1 on 2026-10-19.
+The editor checked the fail-fast default, `--partition`, and the doctest gap against cargo-nextest 0.9.148 on Rust 1.99.1 on 2026-10-19, and the `--no-tests` and `--flaky-result` defaults against nextest's documentation and cargo-nextest 0.9.149 on 2026-10-26.
 
 **The cost of a process per test.** Nextest's own page says it's "quite slow on Windows", and can be slow on macOS where anti-malware scanning interferes. It also makes in-process sharing, such as a cache or an in-memory server reused across tests, "harder to achieve", and "Adapting existing tests to process-per-test may require a significant engineering effort" ([nextest: Why process-per-test?](https://nexte.st/docs/design/why-process-per-test/)). An opinion should name these as the reasons to stay on `cargo test`, not as reasons against nextest in general.
 
@@ -58,11 +58,11 @@ slow-timeout = { period = "60s", terminate-after = 5 }
 path = "junit.xml"
 ```
 
-CI then runs `cargo nextest run --profile ci` and `cargo test --doc`. `ci.md` owns the workflow around them.
+CI then runs `cargo nextest run --profile ci` and `cargo test --doc`. Run the second only for a package with a library target: on a binary-only package, `cargo test --doc` fails with "no library targets found" (editor's probe on 1.99.1, 2026-10-26). `ci.md` owns the workflow around them.
 
 ### Flaky tests and retries
 
-The sources don't settle retries. Nextest offers them, and by default a test that passes on retry counts as a pass, unless you set `--flaky-result fail`. `matklad` doesn't discuss retries, but warns that "the temptation to just re-run the test suite is enormous". He says to keep running the full suite on `main` behind a merge queue, where "every failure on main is a flake, by definition", and to "Maintain an easily accessible list of recent main failures" ([Alex Kladov: Catch Flakes On Main](https://matklad.github.io/2026/05/14/catch-flakes-on-main.html), 2026-05-14; the post is language-agnostic).
+The sources don't settle retries. Nextest offers them, and "By default, flaky tests are treated as ultimately successful". Since 0.9.131, `--flaky-result fail` or `NEXTEST_FLAKY_RESULT=fail` fails the run instead ([nextest: Retries](https://nexte.st/docs/features/retries/)). `matklad` doesn't discuss retries, but warns that "the temptation to just re-run the test suite is enormous". He says to keep running the full suite on `main` behind a merge queue, where "every failure on main is a flake, by definition", and to "Maintain an easily accessible list of recent main failures" ([Alex Kladov: Catch Flakes On Main](https://matklad.github.io/2026/05/14/catch-flakes-on-main.html), 2026-05-14; the post is language-agnostic).
 
 The editor's reading: leave retries off by default, so a flake fails the run and lands on that list. If a project turns retries on in the `ci` profile, track each `FLAKY` result, which the JUnit output records as `<flakyFailure>`, instead of letting it pass unseen. That's a synthesis of two sources, and an opinion needs to say it's one.
 
@@ -99,18 +99,18 @@ tests/
 
 ## Snapshot and property tests
 
-**Prefer a property test, and fall back to a snapshot test.** `matklad`: "If I can't fuzz, I write a snapshot test" ([Alex Kladov: Underusing Snapshot Testing](https://matklad.github.io/2025/04/15/underusing-snapshot-testing.html), 2025-04-15). That post's examples are Zig, but the rule is language-independent, and his 2021 Rust post makes the same case for expect tests, where "a mismatch between expected and actual causes the gold value to be updated in-place" (How to Test, above).
+**Prefer a property test, and fall back to a snapshot test.** `matklad`: "If I need to test something, I write a property/fuzz/randomized test. If I can't fuzz, I write a snapshot test" ([Alex Kladov: Underusing Snapshot Testing](https://matklad.github.io/2025/04/15/underusing-snapshot-testing.html), 2025-04-15). He names no property-testing crate, so the choice of `proptest` rests on `sunshowers` (below). That post's examples are Zig, but the rule is language-independent, and his 2021 Rust post makes the same case for expect tests, where "a mismatch between expected and actual causes the gold value to be updated in-place" (How to Test, above).
 
 ### Snapshot tests
 
-`matklad` recommends inline snapshots that the tool rewrites in the source. No roster source compares the Rust crates, so the crate facts below are references only:
+`matklad` recommends inline snapshots that the tool rewrites in the source, and lists "insta, k9, expect-test" without choosing one (How to Test, above). Both crates in the table below update inline snapshots in place, so his preference doesn't separate them. No roster source compares them, so the crate facts are references only:
 
 | Crate         | Version, crates.io 2026-10-19 | Inline snapshots | Update                                  | On CI                                                                                                                          |
 | ------------- | ----------------------------- | ---------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
 | `insta`       | 1.49.0, 2026-10-03            | `@"…"` literal   | `cargo insta review`, or `INSTA_UPDATE` | `INSTA_UPDATE=auto` acts as `no`: "does not update snapshot files at all" ([insta: Advanced](https://insta.rs/docs/advanced/)) |
 | `expect-test` | 1.5.1, 2024-12-21             | `expect![[…]]`   | `UPDATE_EXPECT=1`                       | Fails on a mismatch                                                                                                            |
 
-`insta` also stores snapshots in files and supports redactions for timestamps and IDs, and it's the one released in the last year. Choosing it rests on references and the editor's reading, so the opinion needs a roster source for the choice. Its author, Armin Ronacher, is a `vet-source` candidate (see the closing section).
+`insta` also stores snapshots in files and supports redactions for timestamps and IDs, and it's the one released in the last year. `expect-test` is smaller, and it's the crate `matklad`'s examples resemble most: `expect![[…]]` and a single update variable. The editor leans to `insta` for its file snapshots and redactions, but that rests on references and the editor's reading, so the opinion needs a roster source for the choice. Its author, Armin Ronacher, is a `vet-source` candidate (see the closing section).
 
 ### Property tests
 
@@ -135,7 +135,7 @@ tests/
 - Hide setup lines with `#`, and end a doctest that uses `?` with `Ok::<(), E>(())`.
 - Use `no_run` for code that needs a network or other environment, `compile_fail` for code the compiler must reject, and `should_panic` for code that must panic. `ignore` "is almost never what you want".
 
-A doctest isn't merged if it uses `compile_fail` or an `edition` tag, sets a crate attribute, or defines a macro that uses `$crate`. Mark one that depends on line numbers or `Location` with `standalone_crate` ([Rust Edition Guide: Rustdoc combined tests](https://doc.rust-lang.org/edition-guide/rust-2024/rustdoc-doctests.html)). On 1.99.1, `cargo test --doc` reports "merged doctests compilation" as its own step (editor's probe, 2026-10-19).
+A doctest isn't merged if it uses `compile_fail` or an `edition` tag, uses a global attribute such as `global_allocator`, sets a crate-wide attribute, or defines a macro that uses `$crate`. Mark one that depends on line numbers or `Location` with `standalone_crate` ([Rust Edition Guide: Rustdoc combined tests](https://doc.rust-lang.org/edition-guide/rust-2024/rustdoc-doctests.html)). On 1.99.1, `cargo test --doc` reports "merged doctests compilation" as its own step (editor's probe, 2026-10-19).
 
 ### Where the roster disagrees: `doctest = false`
 
@@ -172,7 +172,7 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "binds a real socket; run with --run-ignored"]
+    #[ignore = "binds a real socket; run with --run-ignored all"]
     fn binds() {}
 }
 ```
@@ -189,7 +189,7 @@ This passes `cargo clippy --all-targets -- -D warnings -W clippy::pedantic` and 
 | `tests_outside_test_module`   | restriction | 1.70  | Every `#[test]` inside a `#[cfg(test)]` module               |
 | `redundant_test_prefix`       | restriction | 1.88  | No `test_` prefix on a test function's name                  |
 
-The pedantic pair comes with `clippy::pedantic`. The two restriction lints match the Book's layout, but `tests_outside_test_module` also fires on the single integration binary's tests unless those are wrapped too, so an opinion should leave it off.
+The pedantic pair comes with `clippy::pedantic`. `templates/Cargo.toml` doesn't warn on that group, and turns on pedantic lints one at a time, as it does `manual_let_else`, so the opinion should name the pair as keys. The two restriction lints match the Book's layout, but `tests_outside_test_module` also fires on a `#[test]` in `tests/it/` unless it's wrapped in a `#[cfg(test)]` module too (editor's probe on 1.99.1, 2026-10-26), so an opinion should leave it off.
 
 **`unwrap` in tests.** `opinions/rust.md` already says `unwrap` is fine in tests. A workspace that turns on `clippy::unwrap_used` or `expect_used` needs `allow-unwrap-in-tests = true` and `allow-expect-in-tests = true` in `clippy.toml`, because both default to `false` (`cargo clippy --explain unwrap_used` on 1.99.1).
 
@@ -234,7 +234,8 @@ Kept apart from the roster findings above.
 
 - **No opinion covers the topic.** Run `resolve-research` to create `opinions/testing.md`. Its first sentence is the opening list here. It needs sections for the runner and its CI profile, the test layout, snapshot and property tests, doctests, and the lints. List it under README.md's Scope and in the layout tree.
 - **The expected sources need one swap.** PLAN.md expects `sunshowers`, `matklad`, and `luca-palmieri`. `luca-palmieri` is watch-listed and can't be cited, and `sunshowers` can't carry nextest adoption alone. `corrode` fills both gaps.
-- **Templates could gain two files:** `templates/.config/nextest.toml` with the `ci` profile above, and the `allow-*-in-tests` keys in a `templates/clippy.toml`, if `ci.md` or the template set turns on `unwrap_used`. The single integration binary fits the planned example crates under `templates/projects/`.
+- **Avoid repeating `rust.md`.** `opinions/testing.md` should link the `standalone_crate` row in `rust.md` instead of repeating it. Step 4 of the migration can keep `cargo test`, because it also runs the doctests that nextest can't. Leave `rust.md` unchanged.
+- **Templates:** add `templates/.config/nextest.toml` with the `ci` profile above, and add `should_panic_without_expect` and `ignore_without_reason` to `[workspace.lints.clippy]` in `templates/Cargo.toml`. Don't add a `templates/clippy.toml` for `allow-unwrap-in-tests`: no template turns on `unwrap_used` or `expect_used`, so the keys would do nothing. The single integration binary fits the planned example crates under `templates/projects/`.
 - **Leave the CI workflow, Miri, and async tests to their own topics.** `ci.md` owns the commands' place in a workflow, `unsafe.md` owns Miri, and `async.md` owns `#[tokio::test]` and paused time.
 - **`vet-source` candidate:** Armin Ronacher ([Armin Ronacher's Thoughts and Writings](https://lucumr.pocoo.org/)), the author of `insta`, if the opinion names a snapshot crate. He'd carry a conflict on adopting `insta`, like `sunshowers` on nextest.
 - **A harvest could fill the gap the rate limit left:** `burntsushi`, `tokio-blog`, and the others listed in [How the sweep ran](#how-the-sweep-ran) weren't searched for testing posts.
