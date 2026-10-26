@@ -20,7 +20,7 @@ Choose an error's shape by how its caller uses it, and let the library-or-applic
 
 - **Give a caller that branches on the failure a concrete error type.** In a library, make it an opaque struct that boxes its representation, with a `kind()` method that returns a `#[non_exhaustive]` fieldless enum. Derive `std::error::Error` with `thiserror` 2.
 - **Report a failure that nobody branches on with `anyhow::Error`.** That's most of an application: `fn main() -> anyhow::Result<()>`, with `.context()` or `.with_context()` at each layer that knows what it was doing.
-- **Write `Display` as a short lowercase phrase with no trailing punctuation, and expose the cause through `source()`, never both.**
+- **Write `Display` as a short lowercase phrase with no trailing punctuation, Return the cause from `source()` and leave it out of the message, so it never appears in both.**
 - **Panic only on a bug.** Prefer `expect("… should …")` to `unwrap()`, but keep `unwrap()` where a message would only repeat the code. Don't turn on `clippy::unwrap_used` across a codebase.
 - **Document both:** a `# Errors` section on every public function that returns `Result`, and `# Panics` on one that can panic. Turn on `clippy::missing_errors_doc` and `clippy::missing_panics_doc` to enforce it.
 
@@ -32,7 +32,7 @@ Everything here is stable in Rust 1.99.1 (released 2026-10-15), with `thiserror`
 
 `matklad` puts the design question first: "When designing an Error type for use with `Result<T, E>`, the main question to ask is 'how the error will be used?'" Either the consumer inspects the error, "so its internal structure needs to be exposed to a reasonable degree", or it propagates the error to a person, which "is typically handled by using a boxed trait object" ([Alex Kladov: Study of std::io::Error](https://matklad.github.io/2020/10/15/study-of-std-io-error.html), 2020-10-15).
 
-`burntsushi` gives the same split as library and application. "If you're writing a library, defining your own error type should be strongly preferred so that you don't remove choices from the caller unnecessarily" ([Andrew Gallant: Error Handling in Rust](https://burntsushi.net/rust-error-handling/), 2015-05-14, updated 2020-01-03 to recommend `anyhow`). His 2022 post adds: "anyhow is great for application oriented code, but if one is building a library intended for others to use, I'd suggest writing out concrete error types and providing an appropriate `std::fmt::Display` impl" ([Andrew Gallant: Using unwrap() in Rust is Okay](https://burntsushi.net/unwrap/), 2022-08-08). The Book agrees on the library side: "it's best to return an error if you can so that the user of the library can decide what they want to do in that case" ([The Rust Programming Language: To panic! or Not to panic!](https://doc.rust-lang.org/book/ch09-03-to-panic-or-not-to-panic.html), Book for Rust 1.97).
+`burntsushi` gives the same split as library and application. "If you're writing a library, defining your own error type should be strongly preferred so that you don't remove choices from the caller unnecessarily" ([Andrew Gallant: Error Handling in Rust](https://burntsushi.net/rust-error-handling/), 2015-05-14, updated 2020-01-03 to recommend `anyhow`). His 2022 post adds: "anyhow is great for application oriented code, but if one is building a library intended for others to use, I'd suggest writing out concrete error types and providing an appropriate `std::fmt::Display` impl" ([Andrew Gallant: Using unwrap() in Rust is Okay](https://burntsushi.net/unwrap/), 2022-08-08). The Book agrees on the library side: "it's best to return an error if you can so that the user of the library can decide what they want to do in that case" ([The Rust Programming Language: To panic! or Not to panic!](https://doc.rust-lang.org/book/ch09-03-to-panic-or-not-to-panic.html), the Book shipped with Rust 1.99.1, which targets Rust 1.97 or later).
 
 The two framings agree, because a library's caller is the one most likely to branch. `matklad`'s question also settles the cases the split misses: an application module whose caller retries on one failure needs a concrete type, and a library function whose only failure is "report this" can return a boxed error. The crate READMEs, which are references, frame it the same way: thiserror "most often applies to library-like code", and anyhow suits code that doesn't "care what error type your functions return" ([dtolnay/thiserror: Comparison to anyhow](https://github.com/dtolnay/thiserror#comparison-to-anyhow), [dtolnay/anyhow: Comparison to thiserror](https://github.com/dtolnay/anyhow#comparison-to-thiserror)).
 
@@ -40,9 +40,9 @@ The two framings agree, because a library's caller is the one most likely to bra
 
 **Make the public type an opaque struct, and expose a `#[non_exhaustive]` fieldless kind enum for callers that branch.** This is `std::io::Error`'s design. `matklad`: its internal enum "is a well-hidden implementation detail", while "publicly exposing `ErrorKind` is much less scary. A `#[non_exhaustive]` `Copy` fieldless enum's design space is a point — there are no plausible alternatives or compatibility hazards" (2020-10-15, above).
 
-A public enum whose variants hold other crates' errors lost. `matklad` names two costs: "exposing errors from underlying libraries makes them a part of your public API. Major semver bump in your dependency would require you to make a new major version as well", and "it sets all the implementation details in stone" (2020-10-15, above). `burntsushi`'s own crates show the same lesson. The `regex` crate's public `Error` enum carries the comment "We really should have made the Error type in the regex crate completely opaque. Rookie mistake." ([rust-lang/regex: src/error.rs](https://github.com/rust-lang/regex/blob/master/src/error.rs)). His later crates are opaque. `csv` has `pub struct Error(Box<ErrorKind>)` with `kind()` ([BurntSushi/rust-csv: src/error.rs](https://github.com/BurntSushi/rust-csv/blob/master/src/error.rs)). `jiff` has one opaque `Error` with predicates such as `is_range()`, chosen "after attempting to provide finer grained error types. But finer grained error types proved difficult in the face of composition" ([BurntSushi/jiff: crates/jiff/src/error/mod.rs](https://github.com/BurntSushi/jiff/blob/master/crates/jiff/src/error/mod.rs), changed 2026-07-19).
+A public enum whose variants hold other crates' errors lost. `matklad` names two costs: "exposing errors from underlying libraries makes them a part of your public API. Major semver bump in your dependency would require you to make a new major version as well", and "it sets all the implementation details in stone" (2020-10-15, above). `burntsushi`'s own crates show the same lesson. The `regex` crate's public `Error` enum carries the comment "We really should have made the Error type in the regex crate completely opaque. Rookie mistake." ([rust-lang/regex: src/error.rs](https://github.com/rust-lang/regex/blob/master/src/error.rs)). His later `jiff` has one opaque `Error` with predicates such as `is_range()`, chosen "after attempting to provide finer grained error types. But finer grained error types proved difficult in the face of composition" ([BurntSushi/jiff: crates/jiff/src/error/mod.rs](https://github.com/BurntSushi/jiff/blob/master/crates/jiff/src/error/mod.rs), changed 2026-07-19).
 
-**Box the representation, so the `Err` side stays one pointer.** `matklad`: "On-the-stack size of errors is important: you pay for it even if there are no errors!" (2020-10-15), and "just a single large error on however rare code path leads to worse code everywhere" ([Alex Kladov: Error ABI](https://matklad.github.io/2025/11/09/error-ABI.html), 2025-11-09). `nnethercote`: "If an enum has an outsized variant, consider boxing one or more fields", which is "more likely to be a net performance win if the `A::Z` variant is relatively rare" ([The Rust Performance Book: Type Sizes](https://nnethercote.github.io/perf-book/type-sizes.html)). Clippy's `result_large_err` (perf, warn) fires at an `Err` of 128 bytes, set by `large-error-threshold` ([Clippy Lints](https://rust-lang.github.io/rust-clippy/stable/index.html#result_large_err)). In the editor's probe below, `Result<Vec<u64>, LoadError>` is 24 bytes, the same as `Vec<u64>`.
+**Box the representation, so the `Err` side stays one pointer.** `matklad`: "On-the-stack size of errors is important: you pay for it even if there are no errors!" (2020-10-15), and "just a single large error on however rare code path leads to worse code everywhere" ([Alex Kladov: Error ABI](https://matklad.github.io/2025/11/09/error-ABI.html), 2025-11-09). That post covers languages in general, so under his roster notes it corroborates and doesn't carry the rule. `nnethercote`: "If an enum has an outsized variant, consider boxing one or more fields", which is "more likely to be a net performance win if the `A::Z` variant is relatively rare" ([The Rust Performance Book: Type Sizes](https://nnethercote.github.io/perf-book/type-sizes.html)). Clippy's `result_large_err` (perf, warn) fires at an `Err` of 128 bytes, set by `large-error-threshold` ([Clippy Lints](https://rust-lang.github.io/rust-clippy/stable/index.html#result_large_err)). In the editor's probe below, `Result<Vec<u64>, LoadError>` is 24 bytes, the same as `Vec<u64>`.
 
 **Derive with `thiserror`.** It writes the `Display`, `Error`, and `From` implementations a hand-written type needs. Its README says it "deliberately does not appear in your public API", so "switching from handwritten impls to thiserror or vice versa is not a breaking change" ([dtolnay/thiserror: Details](https://github.com/dtolnay/thiserror#details)). Version 2 builds without `std` when you set `default-features = false` ([thiserror 2.0.0 release notes](https://github.com/dtolnay/thiserror/releases/tag/2.0.0), 2024-11-06), on the `core::error::Error` that Rust 1.81 stabilised ([Rust Blog: Announcing Rust 1.81.0](https://blog.rust-lang.org/2024/09/05/Rust-1.81.0/)).
 
@@ -51,11 +51,7 @@ A public enum whose variants hold other crates' errors lost. `matklad` names two
 This compiles with `-D warnings -W clippy::pedantic` on 1.99.1, with `thiserror` 2.0.21 (editor's probe, 2026-10-19):
 
 ```rust
-use std::{
-    fs, io,
-    num::ParseIntError,
-    path::{Path, PathBuf},
-};
+use std::{fs, io, num::ParseIntError, path::Path};
 
 /// The error [`load`] returns.
 #[derive(Debug, thiserror::Error)]
@@ -74,8 +70,8 @@ pub enum LoadErrorKind {
 
 #[derive(Debug, thiserror::Error)]
 enum Repr {
-    #[error("failed to read {}", path.display())]
-    Read { path: PathBuf, source: io::Error },
+    #[error("failed to read the file")]
+    Read { source: io::Error },
     #[error("line {line} is not a number")]
     Parse { line: usize, source: ParseIntError },
 }
@@ -104,10 +100,7 @@ impl From<Repr> for LoadError {
 /// Returns [`LoadErrorKind::Read`] if the file can't be read, and
 /// [`LoadErrorKind::Parse`] if a line isn't a number.
 pub fn load(path: &Path) -> Result<Vec<u64>, LoadError> {
-    let text = fs::read_to_string(path).map_err(|source| Repr::Read {
-        path: path.to_owned(),
-        source,
-    })?;
+    let text = fs::read_to_string(path).map_err(|source| Repr::Read { source })?;
     text.lines()
         .enumerate()
         .map(|(i, line)| {
@@ -123,16 +116,24 @@ pub fn load(path: &Path) -> Result<Vec<u64>, LoadError> {
 }
 ```
 
-`#[error(transparent)]` forwards both `Display` and `source()` to `Repr`, and a field named `source` becomes the `source()` without an attribute.
+`#[error(transparent)]` forwards both `Display` and `source()` to `Repr`, and a field named `source` becomes the `source()` without an attribute. The caller passed the path, so the error leaves it out, and the caller's context adds it once.
 
 ## `Display` and `source()`
 
 **Write the message as a concise lowercase phrase with no trailing punctuation.** `std`: "Error messages are typically concise lowercase sentences without trailing punctuation", as in `"invalid digit found in string"` ([std::error::Error](https://doc.rust-lang.org/std/error/trait.Error.html)).
 
-**Return the wrapped error from `source()`, and leave it out of the message.** `std`: "the underlying error should be either returned by the outer error's `Error::source()`, or rendered by the outer error's `Display` implementation, but not both" (same page). A reporter such as `anyhow` walks the chain, so an error that does both prints its cause twice. With the probe above, `anyhow` prints each layer once:
+**Return the wrapped error from `source()`, and leave it out of the message.** `std`: "the underlying error should be either returned by the outer error's `Error::source()`, or rendered by the outer error's `Display` implementation, but not both" (same page). A reporter such as `anyhow` walks the chain, so an error that does both prints its cause twice. With the probe above, `anyhow` prints each layer once, on both failure paths:
 
 ```text
-Error: loading ../n.txt
+Error: loading nope.txt
+
+Caused by:
+    0: failed to read the file
+    1: No such file or directory (os error 2)
+```
+
+```text
+Error: loading n.txt
 
 Caused by:
     0: line 2 is not a number
@@ -166,7 +167,7 @@ fn main() -> Result<()> {
 
 `std` prints an `Err` from `main` to stderr as `Error: {err:?}` and exits with `EXIT_FAILURE` ([std::process::Termination](https://doc.rust-lang.org/std/process/trait.Termination.html), stable since 1.61). `anyhow`'s `Debug` prints the chain, as shown above, and a backtrace when `RUST_BACKTRACE=1` or `RUST_LIB_BACKTRACE=1` is set ([std::backtrace: Environment Variables](https://doc.rust-lang.org/std/backtrace/index.html#environment-variables), stable since 1.65).
 
-`matklad` notes that the ecosystem never settled: "Rust doesn't really have super strong conventions about the errors, but it started with mostly enums, and then failure and anyhow shone spotlight on the universal error type", and threading precise types through a large codebase "ultimately leads to 'a bag of everything' error types with many 'dead' variants" ([Alex Kladov: The Second Great Error Model Convergence](https://matklad.github.io/2025/12/29/second-error-model-convergence.html), 2025-12-29). That supports the universal type for the reporting path, not a ruling between crates.
+`matklad` notes that the ecosystem never settled: "Rust doesn't really have super strong conventions about the errors, but it started with mostly enums, and then failure and anyhow shone spotlight on the universal error type", and threading precise types through a large codebase "ultimately leads to 'a bag of everything' error types with many 'dead' variants" ([Alex Kladov: The Second Great Error Model Convergence](https://matklad.github.io/2025/12/29/second-error-model-convergence.html), 2025-12-29). The post compares languages in general, so under his roster notes it can't carry a Rust detail. It's context for `burntsushi`'s `anyhow` advice above, not a ruling between crates.
 
 ## Panics
 
@@ -180,7 +181,7 @@ fn main() -> Result<()> {
 
 **Choose the panic strategy in the binary, never in a library.** `sunshowers`: "in typical production-grade Rust, expected errors are `Result`s while unexpected errors (and only unexpected errors) are panics", and "reusable Rust libraries _cannot_ require `panic = 'abort'`" ([Rain: In defense of lock poisoning in Rust](https://sunshowers.io/posts/on-poisoning/), 2025-12-02). The same post defends `.lock().unwrap()`: poisoning is how a panic in a critical section is detected. `corrode`: "Panic behavior is part of your system's failure model", so "Be explicit about whether a failure may take down a single task, a single thread, or the entire process", and "If you maintain a library, you have less control over where your code runs and what a panic can take down" (2026-07-23, above). An opinion could say: a binary sets `panic` in `[profile.release]` on purpose, and a library stays correct under unwinding.
 
-### Lints
+## Lints
 
 Groups and defaults are from [Clippy Lints](https://rust-lang.github.io/rust-clippy/stable/index.html) for Rust 1.99, and the warn-by-default ones were confirmed by the editor's probe.
 
@@ -196,7 +197,7 @@ Groups and defaults are from [Clippy Lints](https://rust-lang.github.io/rust-cli
 | `unwrap_used`        | restriction | allow   | `unwrap()` on `Option` or `Result`                        |
 | `expect_used`        | restriction | allow   | `expect()` on `Option` or `Result`                        |
 
-Turn on `missing_errors_doc` and `missing_panics_doc`. Leave `unwrap_used` and `expect_used` off, for the reasons above. `map_err_ignore` is a candidate, but no roster source argues for it.
+Turn on `missing_errors_doc` and `missing_panics_doc`. Leave `unwrap_used` and `expect_used` off, for the reasons in [Panics](#panics). `map_err_ignore` is a candidate, but no roster source argues for it.
 
 ## Where the roster disagrees
 
@@ -205,11 +206,11 @@ Turn on `missing_errors_doc` and `missing_panics_doc`. Leave `unwrap_used` and `
 
 ## Coming next
 
-Unstable on nightly as of 2026-10-19, not yet an opinion. Statuses are from the tracking issues, which are references.
+Not stable as of 2026-10-19, so not yet an opinion. Statuses are from the tracking issues, which are references.
 
 | Feature                                | Status, 2026-10-19                                                                                                                                                                                                                                                                                                                                  |
 | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Never type `!`                         | Stable in 1.100, due 2026-11-12. Makes `Infallible` an alias of `!` ([rust-lang/rust#155499](https://github.com/rust-lang/rust/pull/155499)). `opinions/rust.md` already carries the note                                                                                                                                                           |
+| Never type `!`                         | On beta, and stable in 1.100, due 2026-11-12. Makes `Infallible` an alias of `!` ([rust-lang/rust#155499](https://github.com/rust-lang/rust/pull/155499)). `opinions/rust.md` already carries the note                                                                                                                                              |
 | `try` blocks                           | Unstable, with no stabilisation PR ([rust-lang/rust#154391](https://github.com/rust-lang/rust/issues/154391))                                                                                                                                                                                                                                       |
 | `Try` trait v2                         | Unstable, labelled for design concerns ([rust-lang/rust#84277](https://github.com/rust-lang/rust/issues/84277))                                                                                                                                                                                                                                     |
 | `Error::provide` and `Request`         | Unstable. On 2026-02-26 the libraries API team said it prefers language-level trait-object casting, RFC 3885, and the stabilisation proposal was cancelled ([rust-lang/rust#99301](https://github.com/rust-lang/rust/issues/99301)). The `std` page already says to "avoid delegating implementations of `provide` to source error implementations" |
