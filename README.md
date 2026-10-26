@@ -32,7 +32,7 @@ The writers are listed in [AWESOME-HUMANS.md](AWESOME-HUMANS.md): people and pub
   Use the research-topic skill at awesome-humans.net/rust/llms.txt to research whether to adopt cargo-nextest
   ```
 
-- **Read the opinions and templates.** Browse them at [awesome-humans.net](https://awesome-humans.net/rust/) or on GitHub. Each opinion gives its recommendation, with the rationale and sources behind it, and the [`templates/`](templates) encode them.
+- **Read the opinions and templates.** Browse them at [awesome-humans.net](https://awesome-humans.net/rust/) or on GitHub. Each opinion gives its recommendation, with the rationale and sources behind it, and the [`templates/`](templates) encode those opinions.
 
 ## Scope
 
