@@ -15,7 +15,7 @@ Run tests with `cargo nextest run` and doctests with `cargo test --doc`, keep th
 - **Keep doctests on for a published library.** Edition 2024 merges compatible doctests into one binary, which removes most of their old compile cost.
 - **Warn on the two pedantic test lints:** set `should_panic_without_expect = "warn"` and `ignore_without_reason = "warn"` in `[workspace.lints.clippy]`, unless the workspace already warns on `clippy::pedantic`. `items_after_test_module` warns by default and needs no key.
 
-Every feature recommended here is stable in Rust 1.99.1, and cargo-nextest 0.9.148 is the latest release (crates.io, read 2026-10-19). Nextest's setup scripts are experimental, and stabilising libtest's JSON output is a 2026 project goal that's open for help. Both are in [Coming next](#coming-next).
+Every feature recommended here is stable in Rust 1.99.1, and cargo-nextest 0.9.148 was the latest release when the sweep ran (crates.io, read 2026-10-19). 0.9.149 has shipped since. Nextest's setup scripts are experimental, and stabilising libtest's JSON output is a 2026 project goal that's open for help. Both are in [Coming next](#coming-next).
 
 **No opinion file covers this.** `opinions/` holds only `rust.md`, which touches testing in three places: the panic boundary (`unwrap` in tests is fine), step 4 of its edition migration ("Run `cargo build` and `cargo test`"), and the `standalone_crate` row of its edition 2024 table, under Combined doctests. This topic is the fifth in [PLAN.md: Phase 6](../PLAN.md#phase-6-first-opinions-and-templates), whose target is `opinions/testing.md`.
 
@@ -25,7 +25,7 @@ Four worker agents were assigned the sweep. The `sunshowers` worker finished. Th
 
 ## Test runner: cargo-nextest
 
-**Run `cargo nextest run` in place of `cargo test`, and run `cargo test --doc` beside it.** Two unmarked roster sources recommend it, and one of them has no stake in it:
+**Run `cargo nextest run` in place of `cargo test`, and run `cargo test --doc` beside it.** `corrode`, which has no stake in it, recommends adopting it, and `sunshowers` explains its design:
 
 - `corrode` says "Use Cargo Nextest Instead of `cargo test`", which "can be up to 60% faster than `cargo test` thanks to its parallel execution model" ([Matthias Endler: Tips For Faster Rust Compile Times](https://corrode.dev/blog/tips-for-faster-rust-compile-times/), published 2024-01-12, updated 2026-03-14). Its table of 1.37× to 3.38× speed-ups across nine projects is copied from nextest's own benchmarks page, so the measurement is the vendor's, and the recommendation is `corrode`'s.
 - `sunshowers` explains the design: "One test segfaulting does not take down a bunch of other tests", and the process-per-test model "forms a universal protocol that everyone in the ecosystem can rely on" ([Rain: Why nextest is process-per-test](https://sunshowers.io/posts/nextest-process-per-test/), 2025-01-07). Rain writes nextest, and the roster note forbids citing them alone on adopting it. Here `corrode` carries the adoption, and `sunshowers` carries how it works.
@@ -42,7 +42,7 @@ How nextest differs from `cargo test`, from its documentation (a reference):
 | Slow and hung tests | No timeout                                                    | `SLOW` after 60 seconds by default, and `slow-timeout = { period = "60s", terminate-after = 5 }` kills a hung test                                          |
 | CI output           | Text only on stable                                           | JUnit XML from `[profile.ci.junit]`, archives with `cargo nextest archive`, and sharding with `--partition hash:1/3`                                        |
 
-The editor checked the fail-fast default, `--partition`, and the doctest gap against cargo-nextest 0.9.148 on Rust 1.99.1 on 2026-10-19, and the `--no-tests` and `--flaky-result` defaults against nextest's documentation and cargo-nextest 0.9.149 on 2026-10-26.
+The editor checked the fail-fast default, `--partition`, and the doctest gap against cargo-nextest 0.9.148 on Rust 1.99.1 on 2026-10-19, and the defaults for `--no-tests` and `--flaky-result` against nextest's documentation and cargo-nextest 0.9.149 on 2026-10-26.
 
 **The cost of a process per test.** Nextest's own page says it's "quite slow on Windows", and can be slow on macOS where anti-malware scanning interferes. It also makes in-process sharing, such as a cache or an in-memory server reused across tests, "harder to achieve", and "Adapting existing tests to process-per-test may require a significant engineering effort" ([nextest: Why process-per-test?](https://nexte.st/docs/design/why-process-per-test/)). An opinion should name these as the reasons to stay on `cargo test`, not as reasons against nextest in general.
 
