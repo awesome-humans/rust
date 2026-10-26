@@ -26,9 +26,13 @@ The writers are listed in [AWESOME-HUMANS.md](AWESOME-HUMANS.md): people and pub
   Use the review-project skill at awesome-humans.net/rust/llms.txt on <repository>, focus on panics and lints, skip the edition
   ```
 
-- **Start a project from the templates.** Copy the files in [`templates/`](templates) into a new project, trimming what you don't need.
+- **Research a topic.** Ask your coding agent to run [`research-topic`](skills/research-topic/SKILL.md), which answers from the opinions and the vetted sources, citing each claim:
 
-- **Read the opinions.** Browse them at [awesome-humans.net](https://awesome-humans.net/rust/) or on GitHub. Each page gives its recommendation, with the rationale and sources behind it.
+  ```text
+  Use the research-topic skill at awesome-humans.net/rust/llms.txt to research whether to adopt cargo-nextest
+  ```
+
+- **Read the opinions and templates.** Browse them at [awesome-humans.net](https://awesome-humans.net/rust/) or on GitHub. Each opinion gives its recommendation, with the rationale and sources behind it, and the [`templates/`](templates) encode those opinions.
 
 ## Scope
 
