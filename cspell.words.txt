@@ -25,6 +25,7 @@ fullmatch
 Gjengset
 Gruevski
 hyperbezier
+impls
 katex
 Kladov
 labelledby
@@ -44,6 +45,7 @@ mckenna
 Miri
 Neue
 newtype
+newtypes
 nextest
 niko
 nnethercote
