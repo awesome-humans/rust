@@ -79,7 +79,7 @@ Branch `chore/scaffold`.
    - Template headers use `#` for TOML and `//` for `.rs`. `rust-toolchain.toml` can carry a header. A JSON template, if one is ever added, is exempt.
    - The Scripts section describes `xtask` and `just`, not file-based apps.
    - Branch prefix `refresh/dotnet-<version>` becomes `refresh/rust-<version>`.
-3. Port `README.md` with an empty Scope list and the heading "Awesome Humans of Rust", which the site also uses as the title of `/rust/`. Open it with "An agentic take on [awesome-rust](https://github.com/rust-unofficial/awesome-rust): distilled, opinionated guidance, thanks to awesome humans." Match `dotnet`'s Usage section: the two prompts in `text` blocks inside their list items, `Follow the conventions at awesome-humans.net when writing Rust code` and `Use the review project skill at awesome-humans.net on <repository>`, then the templates and reading bullets. Add `HOUSE-OPINIONS.md` with an empty Inbox and Woven table.
+3. Port `README.md` with an empty Scope list and the heading "Awesome Humans of Rust", which the site also uses as the title of `/rust/`. Open it with "An agentic take on [awesome-rust](https://github.com/rust-unofficial/awesome-rust): distilled, opinionated guidance, thanks to awesome humans." Match `dotnet`'s Usage section: the two prompts in `text` blocks inside their list items, `Follow the conventions at awesome-humans.net when writing Rust code` and `Use the review-project skill at awesome-humans.net on <repository>`, then the templates and reading bullets. Add `HOUSE-OPINIONS.md` with an empty Inbox and Woven table.
 4. Port `renovate.json`:
    - Turn on the `cargo` manager for `xtask/` and the root workspace.
    - Turn it off for `templates/**`, because those pins are content that `refresh-rust-versions` maintains.
@@ -194,7 +194,9 @@ Branch `vet/initial-roster`. Every candidate below goes through `vet-source` bef
 
 ### References, not sources
 
-A reference corroborates a claim and never carries one, under the existing rules. These include docs.rs pages, crates.io pages, RustSec advisories, and the RFC book.
+A reference corroborates a claim and never carries one, under the existing rules. These include a named crate's docs.rs and crates.io pages, and the repositories `AWESOME-HUMANS.md` names under Named references. An RFC links to its RFC Book page, and a RustSec advisory to its page on `rustsec.org`.
+
+**Done 2026-10-23:** [rust#42](https://github.com/awesome-humans/rust/pull/42) adds a Named references section to `AWESOME-HUMANS.md`, naming `rust-lang/rfcs`, `rust-lang/rust`, `rust-lang/libs-team`, and `rustsec/advisory-db`, and the shared [admission criteria](https://github.com/awesome-humans/website/blob/main/pages/conventions/admission-criteria.md#reserved-ids-markings-and-references) hold the rules, since [awesome-humans/website#118](https://github.com/awesome-humans/website/pull/118).
 
 ### How to run the vetting
 
@@ -297,7 +299,9 @@ Run `research-topic`, then `resolve-research`, for each topic. Write an opinion 
 - **Two templates gain settings from it:** `templates/Cargo.toml` takes `edition = "2024"`, `resolver = "3"`, and `allow_attributes` with `allow_attributes_without_reason` in `[workspace.lints.clippy]`, and `templates/rustfmt.toml` takes `style_edition = "2024"`.
 - **Rust 1.100, due 2026-11-12, stabilises the never type.** `refresh-rust-versions` picks it up, and the opinion's "Coming next" table loses that row.
 
-CodeRabbit raised one finding, that the dates should read 2026-10-18, which was declined: the checks ran on 2026-10-19 in local time. Next is `resolve-research` for the topic, on branch `resolve/rust`.
+CodeRabbit raised one finding, that the dates should read 2026-10-18, which was declined: the checks ran on 2026-10-19 in local time.
+
+**Progress (2026-10-22):** rust#18 resolved the topic into `opinions/rust.md`, with `templates/Cargo.toml` and `templates/rustfmt.toml`. rust#23 and rust#24 merged `research/project-structure.md` and `research/ci.md` on 2026-10-21, and neither is resolved yet. rust#25 to rust#31 stage the other seven topics, from `error-handling` to `runtime-performance`, and wait for the owner's review. Next is `resolve-research` for `project-structure` and `ci`, then for each of the seven as it merges.
 
 Templates, each with a first-line header comment:
 

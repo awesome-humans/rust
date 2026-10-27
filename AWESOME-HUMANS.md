@@ -10,7 +10,7 @@ Every awesome-humans ecosystem admits a source by the same rules, in [awesome-hu
 
 - **Independence:** `ferrous-systems`, `tokio-blog`, and `tweede-golf` each record a usage limit under [Source notes](#source-notes). `predrag` and `sunshowers` each record a conflict, where an opinion might recommend their own crate.
 - **Dormancy:** `burntsushi` is admitted on documentation written in a repository.
-- **References:** A RustSec advisory and an accepted RFC in the RFC Book also qualify, for what they record.
+- **References:** A RustSec advisory also qualifies as a reference for the vulnerability it describes, and an accepted RFC in the RFC Book for the design it specifies.
 
 ### How the roster is organised
 
@@ -19,7 +19,7 @@ Every awesome-humans ecosystem admits a source by the same rules, in [awesome-hu
 - **Tables:** A row holds only what identifies a source: its ID, its kind, where to read it, what it covers, and how far back it goes.
 - **Kind:** `person` or `publication`. A newsletter or link blog that one person writes is still a `publication`. A person's Source link text starts with their name, as in `Ralf Jung: Ralf's Ramblings`, because the site takes the name from it.
 - **Notes:** The evidence behind a row goes in its notes section, in the shape [Source notes](#source-notes) describes, one sentence per line. Rows stay short, and a reworded sentence shows in a diff as that one sentence.
-- **Decision log:** Each entry gives the decision and the fact behind it. The evidence is in the source's notes and the pull request. It's the only table Prettier doesn't align: `<!-- prettier-ignore -->` stops one long Detail cell from realigning every row.
+- **Decision log:** Entries run newest first, so add each one at the top, under the header row. Each entry gives the decision and the fact behind it. The evidence is in the source's notes and the pull request. It's the only table Prettier doesn't align: `<!-- prettier-ignore -->` stops one long Detail cell from realigning every row.
 
 ## Citable: quotable in opinions and templates
 
@@ -67,6 +67,17 @@ A watch-list source is never cited. `just validate-sources` rejects a watch-list
 | `ms-rust-guidelines` | publication | [Microsoft: Pragmatic Rust Guidelines](https://microsoft.github.io/rust-guidelines/)                                    | Coding standards for application and library teams        | 2025  |
 | `sabrina-jewson`     | person      | [Sabrina Jewson](https://sabrinajewson.org/blog)                                                                        | Lifetimes, GATs, error design, async destructors          | 2022  |
 | `without-boats`      | person      | [withoutboats: without.boats](https://without.boats/blog/)                                                              | Async and await design, `Pin`, generators                 | 2017  |
+
+## Named references
+
+The [admission criteria](https://github.com/awesome-humans/website/blob/main/pages/conventions/admission-criteria.md#reserved-ids-markings-and-references) define a reference and the rules for citing one. A reference corroborates a claim from a roster source, never carries one, and never appears in `sources:`. A crate's or tool's own material already qualifies when an opinion names it, such as its repository (`rust-lang/cargo` or `rust-lang/rust-clippy`), its docs.rs page, or its crates.io page, so it isn't listed here. This roster also names:
+
+- **[rust-lang/rfcs](https://github.com/rust-lang/rfcs):** The RFC for a language, Cargo, or library feature an opinion names, for how the feature behaves, not whether to use it. Link its page in [the RFC Book](https://rust-lang.github.io/rfcs/), such as `https://rust-lang.github.io/rfcs/2383-lint-reasons.html`.
+- **[rust-lang/rust](https://github.com/rust-lang/rust):** The tracking issue or stabilization pull request for a feature or lint an opinion names, for when it shipped or what still blocks it.
+- **[rust-lang/libs-team](https://github.com/rust-lang/libs-team):** The API change proposal for a `std` addition an opinion names, for what it adds and the problem it solves.
+- **[rustsec/advisory-db](https://github.com/rustsec/advisory-db):** The RustSec advisory for a crate an opinion names, for what's affected and which version fixes it. Link its page on [rustsec.org](https://rustsec.org/advisories/), such as `https://rustsec.org/advisories/RUSTSEC-2020-0071.html`.
+
+The repositories behind `rust-docs`, such as `rust-lang/reference` and `rust-lang/book`, aren't references. Cite the published page as `rust-docs`.
 
 ## Opted out
 
@@ -378,35 +389,36 @@ Citable on async and effects design, from 177 posts since 2016.
 <!-- prettier-ignore -->
 | Date | Decision | Detail |
 | --- | --- | --- |
-| 2026-10-18 | Initial roster | First vetting pass over the 31 candidates in PLAN.md phase 3. No other ecosystem lists an opted-out source, so none was declined on that ground |
-| 2026-10-18 | Admitted `alice-ryhl` | Rust writing since 2020, latest 2025-11-05 |
-| 2026-10-18 | Admitted `anssi-rust` | Maintained since 2018-12, with content changes in 2026 |
-| 2026-10-18 | Admitted `awesome-rust` (discovery-only) | Curated since 2014-07 |
-| 2026-10-18 | Admitted `blessed-rs` (discovery-only) | Curated since 2022-03, updated 2026-08 |
-| 2026-10-18 | Admitted `burntsushi` | Blog quiet since 2023-07. Admitted under the dormancy exception, on Jiff documentation written in 2026 |
-| 2026-10-18 | Admitted `corrode` | Rust writing since 2017. Conflict recorded: a Rust consultancy |
-| 2026-10-18 | Admitted `fasterthanlime` | Articles since 2013, latest 2025-12-31. Text only |
-| 2026-10-18 | Admitted `ferrous-systems` | Publishing since 2018. Usage limit for its toolchain and services |
-| 2026-10-18 | Admitted `lib-rs` (discovery-only) | Running since 2018 |
-| 2026-10-18 | Admitted `matklad` | Writing since 2017, weekly in 2026 |
-| 2026-10-18 | Admitted `niko-matsakis` | Writing since 2011. Proposals are never cited as current Rust |
-| 2026-10-18 | Admitted `nnethercote` | The Rust Performance Book since 2020, blog through 2026-09. Proposed as `perf-book`, renamed because it's one person's work |
-| 2026-10-18 | Admitted `predrag` | Rust writing since 2022. Conflict recorded: author of `cargo-semver-checks` |
-| 2026-10-18 | Admitted `ralf-jung` | Writing since 2015, latest 2026-03 |
-| 2026-10-18 | Admitted `raph-levien` | Writing since 2017, continuing on the Linebender blog through 2026-08 |
-| 2026-10-18 | Admitted `rust-blog` | The Rust project's blog since 2014 |
-| 2026-10-18 | Admitted `rust-docs` | The Rust project's documentation since 2015 |
-| 2026-10-18 | Admitted `rust-patterns` (corroborate) | Maintained since 2015, uneven depth |
-| 2026-10-18 | Admitted `sunshowers` | Writing since 2020, with a correction on record. Conflict recorded: author of `cargo-nextest` |
-| 2026-10-18 | Admitted `this-week-in-rust` (discovery-only) | Weekly since 2013-06 |
-| 2026-10-18 | Admitted `tokio-blog` | Publishing since 2017. Usage limit as the project's view of itself |
-| 2026-10-18 | Admitted `tweede-golf` | Rust posts since 2019, monthly through 2026-10. Proposed for the watch list as dormant, but the checked page was out of date |
-| 2026-10-18 | Admitted `yoshua-wuyts` | Writing since 2016. Proposed as Corroborate, but its proposals are deep, so it gets a usage limit instead |
-| 2026-10-18 | Watch-listed `api-guidelines` | No content change since 2024-03 |
-| 2026-10-18 | Watch-listed `effective-rust` | No writing since the 2024-04 print edition |
-| 2026-10-18 | Watch-listed `jon-gjengset` | One 2021 book, with the rest of the output on video |
-| 2026-10-18 | Watch-listed `luca-palmieri` | No writing since 2025-02 |
-| 2026-10-18 | Watch-listed `mara-bos` | No writing since 2023-12 |
-| 2026-10-18 | Watch-listed `ms-rust-guidelines` | First published 2025-08, short of two years |
-| 2026-10-18 | Watch-listed `sabrina-jewson` | No writing since 2024-09 |
+| 2026-10-23 | Named four repositories as references (no roster change) | `rust-lang/rfcs`, `rust-lang/rust`, `rust-lang/libs-team`, and `rustsec/advisory-db` can corroborate a roster-sourced claim inline. Crate and tool repositories already qualify, and the repositories behind `rust-docs` stay part of that source |
 | 2026-10-18 | Watch-listed `without-boats` | No writing since 2024-10 |
+| 2026-10-18 | Watch-listed `sabrina-jewson` | No writing since 2024-09 |
+| 2026-10-18 | Watch-listed `ms-rust-guidelines` | First published 2025-08, short of two years |
+| 2026-10-18 | Watch-listed `mara-bos` | No writing since 2023-12 |
+| 2026-10-18 | Watch-listed `luca-palmieri` | No writing since 2025-02 |
+| 2026-10-18 | Watch-listed `jon-gjengset` | One 2021 book, with the rest of the output on video |
+| 2026-10-18 | Watch-listed `effective-rust` | No writing since the 2024-04 print edition |
+| 2026-10-18 | Watch-listed `api-guidelines` | No content change since 2024-03 |
+| 2026-10-18 | Admitted `yoshua-wuyts` | Writing since 2016. Proposed as Corroborate, but its proposals are deep, so it gets a usage limit instead |
+| 2026-10-18 | Admitted `tweede-golf` | Rust posts since 2019, monthly through 2026-10. Proposed for the watch list as dormant, but the checked page was out of date |
+| 2026-10-18 | Admitted `tokio-blog` | Publishing since 2017. Usage limit as the project's view of itself |
+| 2026-10-18 | Admitted `this-week-in-rust` (discovery-only) | Weekly since 2013-06 |
+| 2026-10-18 | Admitted `sunshowers` | Writing since 2020, with a correction on record. Conflict recorded: author of `cargo-nextest` |
+| 2026-10-18 | Admitted `rust-patterns` (corroborate) | Maintained since 2015, uneven depth |
+| 2026-10-18 | Admitted `rust-docs` | The Rust project's documentation since 2015 |
+| 2026-10-18 | Admitted `rust-blog` | The Rust project's blog since 2014 |
+| 2026-10-18 | Admitted `raph-levien` | Writing since 2017, continuing on the Linebender blog through 2026-08 |
+| 2026-10-18 | Admitted `ralf-jung` | Writing since 2015, latest 2026-03 |
+| 2026-10-18 | Admitted `predrag` | Rust writing since 2022. Conflict recorded: author of `cargo-semver-checks` |
+| 2026-10-18 | Admitted `nnethercote` | The Rust Performance Book since 2020, blog through 2026-09. Proposed as `perf-book`, renamed because it's one person's work |
+| 2026-10-18 | Admitted `niko-matsakis` | Writing since 2011. Proposals are never cited as current Rust |
+| 2026-10-18 | Admitted `matklad` | Writing since 2017, weekly in 2026 |
+| 2026-10-18 | Admitted `lib-rs` (discovery-only) | Running since 2018 |
+| 2026-10-18 | Admitted `ferrous-systems` | Publishing since 2018. Usage limit for its toolchain and services |
+| 2026-10-18 | Admitted `fasterthanlime` | Articles since 2013, latest 2025-12-31. Text only |
+| 2026-10-18 | Admitted `corrode` | Rust writing since 2017. Conflict recorded: a Rust consultancy |
+| 2026-10-18 | Admitted `burntsushi` | Blog quiet since 2023-07. Admitted under the dormancy exception, on Jiff documentation written in 2026 |
+| 2026-10-18 | Admitted `blessed-rs` (discovery-only) | Curated since 2022-03, updated 2026-08 |
+| 2026-10-18 | Admitted `awesome-rust` (discovery-only) | Curated since 2014-07 |
+| 2026-10-18 | Admitted `anssi-rust` | Maintained since 2018-12, with content changes in 2026 |
+| 2026-10-18 | Admitted `alice-ryhl` | Rust writing since 2020, latest 2025-11-05 |
+| 2026-10-18 | Initial roster | First vetting pass over the 31 candidates in PLAN.md phase 3. No other ecosystem lists an opted-out source, so none was declined on that ground |

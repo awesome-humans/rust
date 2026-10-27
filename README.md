@@ -9,22 +9,30 @@ The writers are listed in [AWESOME-HUMANS.md](AWESOME-HUMANS.md): people and pub
 - **Point your agent at it.** Tell your coding agent to follow the opinions when it writes code:
 
   ```text
-  Follow the conventions at awesome-humans.net when writing Rust code
+  Follow the conventions at awesome-humans.net/rust/llms.txt when writing Rust code
   ```
 
   The opinions cover conventions, project layout, language usage, and crate choices.
 
-- **Check an existing project.** Once the Rust skill is published, ask your coding agent to run `review-project`:
+- **Check an existing project.** Ask your coding agent to run [`review-project`](skills/review-project/SKILL.md):
 
   ```text
-  Use the review project skill at awesome-humans.net on <repository>
+  Use the review-project skill at awesome-humans.net/rust/llms.txt on <repository>
   ```
 
-  To narrow the review, say what to include or leave out, such as "focus on testing, skip CI".
+  To narrow the review, say what to include or leave out:
 
-- **Start a project from the templates.** Once they're published, copy the files in `templates/` into a new project, trimming what you don't need.
+  ```text
+  Use the review-project skill at awesome-humans.net/rust/llms.txt on <repository>, focus on panics and lints, skip the edition
+  ```
 
-- **Read the opinions.** Once they're published, browse them at [awesome-humans.net](https://awesome-humans.net/rust/) or on GitHub. Each page gives its recommendation, with the rationale and sources behind it.
+- **Research a topic.** Ask your coding agent to run [`research-topic`](skills/research-topic/SKILL.md), which answers from the opinions and the vetted sources, citing each claim:
+
+  ```text
+  Use the research-topic skill at awesome-humans.net/rust/llms.txt to research whether to adopt cargo-nextest
+  ```
+
+- **Read the opinions and templates.** Browse them at [awesome-humans.net](https://awesome-humans.net/rust/) or on GitHub. Each opinion gives its recommendation, with the rationale and sources behind it, and the [`templates/`](templates) encode those opinions.
 
 ## Scope
 
@@ -87,7 +95,8 @@ House opinions are preferences from experience rather than from a vetted source.
 │   ├── repo.rs               ← shared module: the repository's files
 │   ├── validate_metadata.rs
 │   ├── validate_readme_index.rs
-│   └── validate_sources.rs
+│   ├── validate_sources.rs
+│   └── validate_template_order.rs
 └── PLAN.md                   ← the plan for setting up this repository, deleted when it's done
 ```
 
@@ -97,9 +106,9 @@ Agent skills maintain the repository. They follow the [Agent Skills specificatio
 
 The skills split work by cost. Cheaper worker agents run the web searches and source sweeps in parallel. The strongest available model is the editor, and only the editor writes to the opinions and templates.
 
-Every skill except the two report-only ones works on its own branch, and its changes land through a pull request that passes CI and the owner's review. Each `SKILL.md` is canonical over this diagram.
+Every skill except the two report-only ones works on its own branch, and its changes land through a pull request that passes CI, gets an agent review, and passes the owner's review. Each `SKILL.md` is canonical over this diagram.
 
-![Maintenance pipeline: each skill from what starts it, through CI and the owner's review, to the roster, research/, or the opinions and templates; audit-freshness and review-project only report](assets/diagrams/maintenance-pipeline.svg)
+![Maintenance pipeline: each skill from what starts it, through CI checks, an agent review, and the owner's review, to the roster, research, or the opinions and templates; audit-freshness and review-project only report](assets/diagrams/maintenance-pipeline.svg)
 
 | Skill                                                            | Purpose                                                                                            |
 | ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
@@ -130,15 +139,16 @@ A second, [`.github/workflows/harvest-reminder.yml`](.github/workflows/harvest-r
 
 [`xtask/`](xtask) holds the pull request checks as one binary crate, with one subcommand each, and the [`justfile`](justfile) runs them. CI calls the same recipes, so a check runs the same way everywhere.
 
-| Recipe                       | Checks                                                                                                                                                                                                                                                                                                                                                                                    |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `just validate-skills`       | Every skill under `skills/` passes the Agent Skills specification's reference validator, `skills-ref`, pinned in `.github/requirements.txt`                                                                                                                                                                                                                                               |
-| `just validate-metadata`     | Every resource under `opinions/`, `research/`, and `templates/` has `targets`, `last-reviewed`, and `sources`, with ISO 8601 dates and a sorted `sources` list, and no retired `last-used` field                                                                                                                                                                                          |
-| `just validate-sources`      | Every source ID in `opinions/` and `templates/` exists in the [AWESOME-HUMANS.md](AWESOME-HUMANS.md) roster and is citable. Each `house:<profile>` ID has a house block or region of that profile, and every house opinion sits inside one. The roster tables and notes sections are sorted by ID, no ID appears twice, every notes section matches a row, and the Citable count is right |
-| `just validate-readme-index` | This README lists every opinion and skill, and lists nothing that doesn't exist. Scope is sorted by title, the layout tree by file name, and the skills table by skill name                                                                                                                                                                                                               |
-| `just export-diagrams`       | Draws the SVG diagrams in `assets/diagrams/`. It doesn't check anything, but CI runs `just check-diagrams`, which redraws them and fails if the committed SVGs differ                                                                                                                                                                                                                     |
-| `just links`                 | Every link in the repository resolves, with the settings in `lychee.toml`. CI runs it on every pull request and weekly                                                                                                                                                                                                                                                                    |
-| `just build-site`            | Stages the `/rust/` pages of awesome-humans.net in `<out>/rust/`, `target/site/` by default, to the [awesome-humans/website staging contract](https://github.com/awesome-humans/website#staging-contract)                                                                                                                                                                                 |
+| Recipe                         | Checks                                                                                                                                                                                                                                                                                                                                                                                    |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `just validate-skills`         | Every skill under `skills/` passes the Agent Skills specification's reference validator, `skills-ref`, pinned in `.github/requirements.txt`                                                                                                                                                                                                                                               |
+| `just validate-metadata`       | Every resource under `opinions/`, `research/`, and `templates/` has `targets`, `last-reviewed`, and `sources`, with ISO 8601 dates and a sorted `sources` list, and no retired `last-used` field                                                                                                                                                                                          |
+| `just validate-sources`        | Every source ID in `opinions/` and `templates/` exists in the [AWESOME-HUMANS.md](AWESOME-HUMANS.md) roster and is citable. Each `house:<profile>` ID has a house block or region of that profile, and every house opinion sits inside one. The roster tables and notes sections are sorted by ID, no ID appears twice, every notes section matches a row, and the Citable count is right |
+| `just validate-readme-index`   | This README lists every opinion and skill, and lists nothing that doesn't exist. Scope is sorted by title, the layout tree by file name, and the skills table by skill name                                                                                                                                                                                                               |
+| `just validate-template-order` | Every dependency and lint table in a TOML template is sorted by key, ignoring case, within each run of keys between blank lines                                                                                                                                                                                                                                                           |
+| `just export-diagrams`         | Draws the SVG diagrams in `assets/diagrams/`. It doesn't check anything, but CI runs `just check-diagrams`, which redraws them and fails if the committed SVGs differ                                                                                                                                                                                                                     |
+| `just links`                   | Every link in the repository resolves, with the settings in `lychee.toml`. CI runs it on every pull request and weekly                                                                                                                                                                                                                                                                    |
+| `just build-site`              | Stages the `/rust/` pages of awesome-humans.net in `<out>/rust/`, `target/site/` by default, to the [awesome-humans/website staging contract](https://github.com/awesome-humans/website#staging-contract)                                                                                                                                                                                 |
 
 Run them from the repository root, as CI does:
 
@@ -146,7 +156,7 @@ Run them from the repository root, as CI does:
 just validate-metadata
 ```
 
-`just verify` runs every offline check CI runs, in one command: `just check`, `just clippy`, `just test`, the skills check, the three validators, `check-diagrams`, and `build-site`. It redraws the diagrams, and fails until you commit any SVG it changes. The link check is left to CI, because lychee is a separate binary and depends on third-party hosts. Run `just links` to check links locally. `just` with no arguments lists every recipe.
+`just verify` runs every offline check CI runs, in one command: `just check`, `just clippy`, `just test`, the skills check, the four validators, `check-diagrams`, and `build-site`. It redraws the diagrams, and fails until you commit any SVG it changes. The link check is left to CI, because lychee is a separate binary and depends on third-party hosts. Run `just links` to check links locally. `just` with no arguments lists every recipe.
 
 Every check exits 0 when clean, 1 for findings, and 2 when it isn't run from the repository root. Until a later phase adds `opinions/` or `templates/`, the checks read the missing one as empty. Once it exists, an empty directory or a missing README section is a finding.
 
@@ -159,7 +169,7 @@ Four modules hold the code that more than one subcommand uses:
 
 ## Acknowledgement
 
-Agents build and maintain this project, but it wouldn't exist without the people whose writing it draws on. Every opinion cites their work. Thank you to all of these awesome humans, and to everyone who supports them.
+Agents build and maintain this project, so the [usual disclaimers](https://awesome-humans.net/credits/#disclaimer) apply, but it wouldn't exist without the people whose writing it draws on. Every opinion cites their work. Thank you to all of these awesome humans, and to everyone who supports them.
 
 ## Licence
 

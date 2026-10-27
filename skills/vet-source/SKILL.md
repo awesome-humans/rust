@@ -12,6 +12,8 @@ metadata:
 
 Apply the admission criteria in [AWESOME-HUMANS.md](../../AWESOME-HUMANS.md) to a candidate source, or re-evaluate an existing one. Every opinion cites only the roster, so when in doubt, decline.
 
+"This repository" in this skill means [awesome-humans/rust](https://github.com/awesome-humans/rust). Run the skill in a checkout, where each path in it, such as `opinions/` or `templates/Cargo.toml`, is relative to the repository's root.
+
 ## Orchestration
 
 As [AGENTS.md: Orchestration and model economy](../../AGENTS.md#orchestration-and-model-economy) describes, delegate the evidence gathering in step 3, such as searching archives and sampling posts, to worker agents. Only the editor weighs the evidence, decides, and edits the roster.
@@ -53,7 +55,7 @@ As [AGENTS.md: Orchestration and model economy](../../AGENTS.md#orchestration-an
    2. Add the source's section under `## Source notes`, also in ID order, with the evidence and any marking, in the verdict-then-labelled-bullets shape the section's introduction describes.
    3. Add the decision to the decision log, in two sentences: the decision and the fact behind it. Put the evidence for each criterion in the pull request. For a suggestion the source made of itself, say so in the log entry.
 7. **Open a pull request,** filling in the [`source.md`](https://github.com/awesome-humans/.github/blob/main/PULL_REQUEST_TEMPLATE/source.md) template, as [AGENTS.md](../../AGENTS.md) describes. It takes the decision, the evidence for each criterion, the decision log line, and, for a demotion, each claim re-sourced or dropped. A person approves it before the source can feed opinions.
-   - **From an issue:** Put `Closes #<number>` in the description, and comment the outcome on the issue: the decision, one line per criterion, and the pull request.
+   - **From an issue:** End the description with a `Closes: #<number>` trailer, and comment the outcome on the issue: the decision, one line per criterion, and the pull request.
    - **A decline from an issue** still gets a pull request, with only the decision log entry, because the form promises that the log records every outcome.
 
 ## Opt-outs
@@ -64,7 +66,7 @@ An opt-out removes citations, and the roster keeps only enough to turn away a la
 2. **Delete the source's section** under `## Source notes`. `just validate-sources` fails while it's there.
 3. **Log the decision:** the date, the source ID, and the link to the `awesome-humans/website` issue. Never quote the requester or name anyone beyond the source ID.
 4. **Re-source every citation.** `just validate-sources` lists each opinion and template that still cites the ID. Re-source each claim with `research-topic`, or cut it back to what other citable sources support. In the pull request, list each claim and what happened to it.
-5. **Open the pull request** with the [`source.md`](https://github.com/awesome-humans/.github/blob/main/PULL_REQUEST_TEMPLATE/source.md) template and `Closes #<number>`. Comment the pull request on the `awesome-humans/website` issue, which the owner closes once every ecosystem's pull request has merged. When step 2 sent the source here and there's no issue, leave out `Closes` and the comment, and link the other roster's entry in the description instead.
+5. **Open the pull request** with the [`source.md`](https://github.com/awesome-humans/.github/blob/main/PULL_REQUEST_TEMPLATE/source.md) template and a `Refs: awesome-humans/website#<number>` trailer, which doesn't close the issue. Comment the pull request on the `awesome-humans/website` issue, which the owner closes once every ecosystem's pull request has merged. When step 2 sent the source here and there's no issue, leave out the trailer and the comment, and link the other roster's entry in the description instead, with a reference-style link.
 
 Opting back in is a suggestion like any other. The source leaves `## Opted out` only on admission.
 

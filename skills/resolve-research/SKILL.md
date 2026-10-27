@@ -12,6 +12,8 @@ metadata:
 
 `research/` is a staging area, and this skill empties it. A research topic is evidence gathered at one point in time. Promotion makes it the repository's position. Discard is just as valid: the topic answered a question, and that was its job. Both end with the file deleted, except a partial promotion, which keeps the blocked part on disk. For details, see [Edge cases](#edge-cases).
 
+"This repository" in this skill means [awesome-humans/rust](https://github.com/awesome-humans/rust). Run the skill in a checkout, where each path in it, such as `opinions/` or `templates/Cargo.toml`, is relative to the repository's root.
+
 ## Orchestration
 
 This is **editor-only work, so don't fan it out**. The research did the sweeping. What remains is deciding what an opinion says, which [AGENTS.md](../../AGENTS.md#orchestration-and-model-economy) reserves for the strongest available model. To recheck a claim, run `research-topic` again instead of a worker sweep.
@@ -31,6 +33,7 @@ This is **editor-only work, so don't fan it out**. The research did the sweeping
 5. **Write it in.** Put the opinion first, the rationale after, and the sources last. Cut the survey and hedging. Give one recommendation, and an alternative at most one line on why it lost.
    - Never remove, weaken, or unmark a house block or region.
    - If the research contradicts a house opinion, [awesome-humans/website: House opinions](https://github.com/awesome-humans/website/blob/main/pages/conventions/house-opinions.md#how-this-works) applies: write the researched view into the sourced text as usual, and leave the house block beside it unchanged.
+   - Recompile every code example you carry over on the opinion's `targets` with `cargo check` and `cargo clippy -- -D warnings`, compiling a fragment inside the smallest complete example that hosts it, and recheck each recommended crate for advisories at the version the opinion names, because the toolchain and crates might have moved since the topic was written. Record the new dates, and say so in the opinion if an advisory is open.
 6. **Carry the change into `templates/`** wherever the opinion changes scaffolding, such as a `[workspace.lints]` entry, a `clippy.toml` or `deny.toml` setting, or a crate pin. `audit-freshness` reports an opinion whose template leaves out a setting it names, so land both together. Add the source IDs to the template's comment header.
 7. **Fix what the research found along the way,** such as a stale example, a colliding path, or a rule enforced with no opinion behind it, in the same pull request.
 8. **Update the metadata** on every file you change: an opinion's frontmatter, or a template's first-line header. Add the promoted source IDs to `sources:`. Update `last-reviewed` only after you verify the content, as [Rules](#rules) describes.
@@ -41,7 +44,7 @@ This is **editor-only work, so don't fan it out**. The research did the sweeping
 - **Only roster-sourced claims are promoted.** This gate lets research cite anyone while opinions cite only the roster.
 - **Promotion deletes the topic in the same pull request.** A promoted topic left on disk is a second, unapproved copy of the opinion, and the deletion is what marks it promoted. `audit-freshness` reports a topic that remains. Git history keeps the record.
 - **Promotion uses `docs:`, and discard uses `research:`.** A promotion edits opinions, like any other opinion change. A discard touches only the staging area. Neither uses the `research: <topic>` form that `research-topic` uses to save a topic.
-- **`last-reviewed` means verified against the sources.** If the research is within the freshness tolerance, its verification holds, and today's date is accurate. If not, verify it again first, as [Edge cases](#edge-cases) describes. Dating stale research records a verification that never happened.
+- **`last-reviewed` means verified against the sources.** If the research is within the freshness tolerance, its verification holds, and today's UTC date is accurate. If not, verify it again first, as [Edge cases](#edge-cases) describes. Dating stale research records a verification that never happened.
 - **Rewrite the topic; don't paste it.** A topic surveys and weighs. An opinion has to be applied mechanically.
 
 ## Edge cases

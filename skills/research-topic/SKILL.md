@@ -1,6 +1,6 @@
 ---
 name: research-topic
-description: Research a Rust topic conversationally using this repository's opinions and vetted sources, such as "research async closures", "what's the story on error-handling crates", "should we adopt cargo-nextest". Produces a cited research topic where every claim carries its source and that source's standing, labels nightly-only features as the freshness policy requires, and closes with what the research reveals about the repository (a missing opinion, a stale aside, or a feature that reached stable). Use whenever the user wants to understand, evaluate, or decide on a Rust subject rather than change the repository.
+description: Research a Rust topic conversationally using the opinions and vetted sources in awesome-humans/rust, such as "research async closures", "what's the story on error-handling crates", "should we adopt cargo-nextest". Produces a cited research topic where every claim cites its source, with that source's standing where it limits the claim, labels nightly-only features as the freshness policy requires, and closes with what the research reveals about the repository (a missing opinion, a stale aside, or a feature that reached stable). Use whenever the user wants to understand, evaluate, or decide on a Rust subject rather than change the repository.
 license: See repository LICENSE
 compatibility: Requires internet access for source reading; degrades to opinions-only offline
 metadata:
@@ -11,6 +11,10 @@ metadata:
 # Research a topic
 
 Answer "What should I know or do about X?" from this repository's opinions first, then its vetted roster. This skill writes one thing, on a research branch: the research topic. It changes `opinions/` and `templates/` only through the skills it recommends at the end.
+
+"This repository" in this skill means [awesome-humans/rust](https://github.com/awesome-humans/rust). Each path in it, such as `opinions/` or `templates/Cargo.toml`, is relative to the repository's root. Without a checkout, read a file at `https://raw.githubusercontent.com/awesome-humans/rust/main/<path>`, and find the opinions and templates in [llms.txt](https://awesome-humans.net/rust/llms.txt).
+
+**Outside a checkout of this repository, answer in the conversation.** A reader might run this skill from their own project, or with no checkout at all. Then skip the worktree in step 2 and [Persistence and lifecycle](#persistence-and-lifecycle): write no file, and open no pull request. In step 7, recommend no skill. Tell the reader what the research revealed about the repository, and that they can raise it in an [issue](https://github.com/awesome-humans/rust/issues).
 
 ## Orchestration
 
@@ -39,9 +43,11 @@ As [AGENTS.md: Orchestration and model economy](../../AGENTS.md#orchestration-an
 
 5. **Write the research topic:**
    - Put the recommendation or current state in the opening sentences, and the detail after.
-   - Cite a source ID for every claim. Note a source's standing when it limits the claim, such as `**Corroborate.**` or a limit in its notes. Date anything time-sensitive.
+   - Cite a source ID for every claim. Note a source's standing when it limits the claim, such as `**Corroborate.**` or a limit in its notes. Date anything time-sensitive. Mark a claim that rests only on a reference, or on your own reading, as unsupported, so `resolve-research` doesn't promote it.
    - **Label nightly-only features as the freshness policy requires:** "unstable on nightly as of `<date>`, not yet an opinion". Keep them separate from stable guidance.
    - Where sources disagree, say so, and weigh them. Don't blur them into a vague middle.
+   - **Compile every code example** on the declared `targets` before you save the topic, as [AGENTS.md: Writing style for opinions](../../AGENTS.md#writing-style-for-opinions) asks of an opinion: it passes `cargo check` and `cargo clippy -- -D warnings`. Under the example, record the toolchain, the crate versions, and the date you compiled it. For a fragment that can't compile alone, compile the smallest complete example that hosts it, and say so. CI doesn't compile research, so an example you didn't build reaches `resolve-research` unchecked.
+   - **Check every crate the topic recommends for security advisories** at the version it names: run `cargo deny check advisories` in a project whose `Cargo.lock` resolves the crate to that version, such as the one you compiled the examples in, or look the crate up in the [RustSec Advisory Database](https://rustsec.org/). Record the date, and say so in the topic if an advisory is open.
 6. **Answer follow-up questions** from what you've gathered. Sweep again, in the same order, only when a question goes beyond it.
 7. **Close the loop.** End with what the research revealed about the repository, and recommend the matching skill. Never run it unprompted.
 

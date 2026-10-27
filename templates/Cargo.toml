@@ -1,6 +1,8 @@
 # awesome-humans/rust template | targets: rust-1.99, edition-2024 | last-reviewed: 2026-10-19 | sources: corrode, rust-docs
 # The workspace root. Copy it to the repository root, and inherit its settings in each crate
 # with `edition.workspace = true` and `[lints] workspace = true` (opinions/rust.md).
+# For a single crate, put these settings in its own Cargo.toml instead: drop `[workspace]`, move
+# `edition` to `[package]`, and rename `[workspace.lints.clippy]` to `[lints.clippy]`.
 [workspace]
 # List each crate's directory, or a glob such as "crates/*" once the directory exists.
 members = []

@@ -12,6 +12,8 @@ metadata:
 
 Move every resource to the **latest stable** Rust release and the latest edition, and every crate pin in `templates/Cargo.toml` to its **latest stable** version.
 
+"This repository" in this skill means [awesome-humans/rust](https://github.com/awesome-humans/rust). Run the skill in a checkout, where each path in it, such as `opinions/` or `templates/Cargo.toml`, is relative to the repository's root.
+
 ## Trigger
 
 The `.github/workflows/rust-release-watch.yml` workflow checks the official stable channel manifest daily. When the stable release changes, it opens a **trigger pull request** labelled `rust-release` on the branch `automation/rust-release-watch`.
