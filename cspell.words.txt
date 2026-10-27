@@ -14,6 +14,7 @@ CISA
 Consolas
 dasharray
 DENV
+devex
 DHAT
 Dmitrii
 doctest
@@ -29,10 +30,12 @@ Gjengset
 Greptime
 Gruevski
 hyperbezier
+insta
 katex
 Kladov
 labelledby
 Levien
+libtest
 Linebender
 llms
 llmstxt
@@ -57,9 +60,11 @@ Pavex
 Polonius
 powerset
 Predrag
+proptest
 quot
 Raph
 rect
+Ronacher
 roundup
 roundups
 RPIT
