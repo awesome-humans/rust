@@ -53,7 +53,7 @@ As [AGENTS.md: Orchestration and model economy](../../AGENTS.md#orchestration-an
    - When a feature needs a new opinion, create a stub with a `TODO` and a source link, and add its `README.md` Scope bullet and Repository layout entry, which CI enforces.
    - Update `targets:` and `last-reviewed:` on every file you change **or verify as unchanged**.
    - **Never remove or weaken a house block or region** ([awesome-humans/website: House opinions](https://github.com/awesome-humans/website/blob/main/pages/conventions/house-opinions.md#how-this-works)). If a release makes one obsolete, note inside the block that the release supersedes it, and keep the marking. A template must still build with its house regions removed.
-6. **If a Rust toolchain is available, verify the code samples** against the new targets. Assemble the scratch workspace that [audit-freshness: Templates](../audit-freshness/SKILL.md#templates) describes, and run **`cargo build`, `cargo test`, `cargo clippy --all-targets -- -D warnings`, and `cargo fmt --check`**.
+6. **If a Rust toolchain is available, verify the code samples** against the new targets. Assemble the scratch workspace that [audit-freshness: Templates](../audit-freshness/SKILL.md#templates) describes, and run **`cargo build`, `cargo test`, `CARGO_BUILD_WARNINGS=deny cargo clippy --all-targets`, and `cargo fmt --check`**.
    - Clippy is the check a new release most often fails. A sample that still compiles can trip a lint the release added or moved into a default group.
    - Treat "running 0 tests" for a crate that has tests as a failure. It means a test target stopped being built, such as a `[[test]]` entry left behind by a rename.
    - Without a toolchain, flag the samples as unverified in the pull request.

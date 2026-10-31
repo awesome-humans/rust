@@ -29,7 +29,7 @@ House opinions are a house profile's preferences, such as the owner's `simon-mck
 ## Rules
 
 - **Never present a house opinion as sourced.** If a vetted source later publishes the same guidance, a harvest can add the citation inside the block, and the marking stays. Moving the guidance into the sourced text is a separate, sourced change.
-- **House opinions need no source, but they need the same quality.** Code must pass `cargo check` and `cargo clippy -- -D warnings` on the declared `targets`, and the opinion must give one recommendation.
+- **House opinions need no source, but they need the same quality.** Code must pass `CARGO_BUILD_WARNINGS=deny cargo check` and `CARGO_BUILD_WARNINGS=deny cargo clippy` on the declared `targets`, and the opinion must give one recommendation.
 - **Only a profile owner's opinions are written in directly.** Contributors propose opinions in a pull request, as the organisation's [opinion pull request template](https://github.com/awesome-humans/.github/blob/main/PULL_REQUEST_TEMPLATE/opinion.md) describes. Once a profile's owner accepts one, it becomes a house opinion in their profile, and the Woven table's Provenance column credits the contributor and the pull request.
 - **Harvest and refresh skills never remove or weaken a house block.** They update the sourced text around it.
 
