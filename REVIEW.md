@@ -13,7 +13,7 @@ Reserve Important for these. Everything else is Nit at most.
 - **Guidance from an unvetted source,** folded in instead of proposed through `vet-source`.
 - **A house opinion out of place.** A `**House:**` rule outside a `/// house | <profile>` block or a `house:<profile>` region, sourced text edited or deleted to make room for a house opinion, or a block whose profile isn't in `sources`.
 - **A downgrade.** An example, template pin, or `targets:` value that moves to an older toolchain, edition, or `rust-version` without saying why, or a nightly-only feature presented as the opinion instead of a "Coming next" note.
-- **An example that can't build.** A code block or template that wouldn't pass `cargo check` and `cargo clippy -- -D warnings` on the declared `targets`. Cite the line and the compiler or lint error you expect.
+- **An example that can't build.** A code block or template that wouldn't pass `cargo check` and `cargo clippy` with warnings denied, as `AGENTS.md` runs them, on the declared `targets`. Cite the line and the compiler or lint error you expect.
 - **A broken skill.** A `SKILL.md` step that names a recipe, script, template, branch prefix, or file that doesn't exist, or that contradicts `AGENTS.md`.
 - **A wrong check.** In `xtask/`, a check that passes on input it should reject, a change to the exit codes (0 clean, 1 findings, 2 wrong directory), or a new check without a `#[cfg(test)]` case for the failure it catches.
 - **An unsafe workflow.** A `pull_request_target` job that checks out or runs the pull request's code, a secret passed to a step that doesn't need it, or an action pinned to a tag instead of a commit SHA.
