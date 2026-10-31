@@ -17,6 +17,7 @@ Reserve Important for these. Everything else is Nit at most.
 - **A broken skill.** A `SKILL.md` step that names a recipe, script, template, branch prefix, or file that doesn't exist, or that contradicts `AGENTS.md`.
 - **A wrong check.** In `xtask/`, a check that passes on input it should reject, a change to the exit codes (0 clean, 1 findings, 2 wrong directory), or a new check without a `#[cfg(test)]` case for the failure it catches.
 - **An unsafe workflow.** A `pull_request_target` job that checks out or runs the pull request's code, a secret passed to a step that doesn't need it, or an action pinned to a tag instead of a commit SHA.
+- **A loosened review.** A change to `REVIEW.md` or `AGENTS.md` that drops an Important item, raises the nit cap, or skips a path or a class of finding, without saying why. The agent reviewer can read both files from the pull request itself, so the change would soften its own review.
 
 ## Cap the nits
 
