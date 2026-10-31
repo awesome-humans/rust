@@ -32,7 +32,7 @@ Report what's stale. This skill never edits content. Version drift goes to `refr
 | Inbound links to each `opinions/` and `templates/` file                        | Informational, never a finding. For details, see [Inbound links](#inbound-links)                        |
 | References cited in `opinions/` and `templates/`                               | Zero. For details, see [Cited references](#cited-references)                                            |
 | `templates/` still implement what `opinions/` require                          | Zero. For details, see [Templates](#templates)                                                          |
-| `templates/` build, test, and pass Clippy without errors                       | Zero. For details, see [Templates](#templates)                                                          |
+| `templates/` build, test, and pass Clippy and rustfmt without errors           | Zero. For details, see [Templates](#templates)                                                          |
 | Citation and roster URLs resolve                                               | Zero: a dead link is a content finding. Read the latest `Markdown` workflow run, not each URL           |
 
 ### Version lag
@@ -79,7 +79,7 @@ Report each file with no inbound links as a pruning candidate. Nothing on the we
 ### Templates
 
 - **Templates match the opinions.** If an opinion names a lint, key, crate, or setting, and its template leaves it out, that's a finding. People copy `templates/`, so a gap ships the advice without the setting.
-- **Templates build, test, and pass Clippy.** In `templates/`, run `cargo build`, `cargo test`, and `cargo clippy --all-targets -- -D warnings`. Lint and crate compatibility failures show up only this way.
+- **Templates build, test, and pass Clippy and rustfmt.** Templates have no crate of their own, so `cargo` run in `templates/` stops with "the workspace has no members". Copy `templates/` to a scratch directory, and add one member with `cargo new --lib crates/example`, which adds itself to `members` and inherits the edition and `[workspace.lints]`. Then run `cargo build`, `cargo test`, `cargo clippy --all-targets -- -D warnings`, and `cargo fmt --check`. Lint and crate compatibility failures show up only this way. The format check covers `rustfmt.toml`: a setting rustfmt rejects fails it.
 
 ## Steps
 
