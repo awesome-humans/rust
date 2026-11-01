@@ -1,5 +1,5 @@
 {
-  // Markdown linting for this repository. Run via `npm run check`, which uses the
+  // Markdown linting for this repository. Run via `just lint` or `just check`, which use the
   // versions pinned in package.json — never `npx markdownlint-cli2` (see AGENTS.md).
   // Formatting is prettier's job (--prose-wrap preserve); this file only turns
   // off the rule that conflicts with that.
