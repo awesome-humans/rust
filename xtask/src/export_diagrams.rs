@@ -100,6 +100,14 @@ const ROWS: &[Row] = &[
     },
     Row {
         lane: "reports",
+        picks_up: &["periodic cadence,", "or before an edition"],
+        skill: "review-opinions",
+        branch: None,
+        human_gate: "",
+        lands_in: "report",
+    },
+    Row {
+        lane: "reports",
         picks_up: &["a project path", "or repository URL"],
         skill: "review-project",
         branch: None,
@@ -125,9 +133,9 @@ fn rows_where(predicate: impl Fn(&Row) -> bool) -> Vec<usize> {
 )]
 fn pipeline() -> String {
     const TITLE: &str = "Maintenance pipeline";
-    const DESCRIPTION: &str = "Swimlane diagram of how this repository maintains itself: vet-source, research-topic, resolve-research, harvest-sources, refresh-rust-versions \
-        and weave-house-opinion each work on their own branch, pass CI and the owner's review, and land in the roster, research/ or the opinions and templates; \
-        audit-freshness and review-project only report. Their findings, the release watch and the harvest reminder start the next run.";
+    const DESCRIPTION: &str = "Swimlane diagram of how this repository maintains itself: vet-source, research-topic, resolve-research, harvest-sources, refresh-rust-versions, \
+        and weave-house-opinion each work on their own branch, pass the CI checks, get an agent review, pass the owner's review, and land in the roster, research, or the opinions and templates; \
+        audit-freshness, review-opinions, and review-project only report. Their findings, the release watch, and the harvest reminder start the next run.";
 
     // Columns, left to right, and the height of one row.
     const X_BAND: f64 = 12.0;
@@ -243,14 +251,14 @@ fn pipeline() -> String {
             s += &text(
                 X_AGENT_GATE + W_AGENT_GATE / 2.0,
                 cy - 3.0,
-                "CI: metadata,",
+                "CI checks,",
                 "check-t",
                 "middle",
             );
             s += &text(
                 X_AGENT_GATE + W_AGENT_GATE / 2.0,
                 cy + 13.0,
-                "sources, links",
+                "agent review",
                 "check-t",
                 "middle",
             );
