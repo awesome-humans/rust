@@ -30,6 +30,7 @@ Gjengset
 Greptime
 Gruevski
 hyperbezier
+impls
 insta
 katex
 Kladov
@@ -51,6 +52,7 @@ mckenna
 Miri
 Neue
 newtype
+newtypes
 nextest
 niko
 nnethercote
