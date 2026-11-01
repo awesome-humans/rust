@@ -1,7 +1,7 @@
 //! `build-site`: stages the Rust ecosystem's pages of awesome-humans.net, under `/rust/`.
 //! They're generated from this repository's own files, so the site never carries a second copy
-//! to drift: README.md up to its layout section becomes the overview, `opinions/` and
-//! `skills/` are copied in full, the roster is split into a page per section, and every file
+//! to drift: README.md up to its layout section becomes the overview, `opinions/`,
+//! `research/`, and `skills/` are copied in full, the roster is split into a page per section, and every file
 //! under `templates/` gets a page showing it. `llms.txt` points agents at the raw files.
 //! Relative links are rewritten to the page they now point at, or to GitHub for a file the
 //! site doesn't carry. The navigation is generated too: the opinions take their titles and
@@ -161,6 +161,7 @@ impl Site<'_> {
         };
 
         let opinions = self.repo.opinions();
+        let research = self.research_topics();
         let mut templates = self.repo.template_files();
         templates.sort_by_key(|path| path.to_lowercase());
         let diagrams = self.diagrams();
@@ -214,6 +215,9 @@ impl Site<'_> {
             self.page(repo::TEMPLATES, "templates/index.md");
             self.page("templates/projects", "templates/index.md");
         }
+        if !research.is_empty() {
+            self.page(repo::RESEARCH, "research/index.md");
+        }
         if !skills.is_empty() {
             self.page(repo::SKILLS, "skills/index.md");
         }
@@ -226,6 +230,10 @@ impl Site<'_> {
 
         for path in &opinions {
             self.page(path, &format!("opinions/{}", file_name(path)));
+        }
+
+        for (path, _) in &research {
+            self.page(path, &format!("research/{}", file_name(path)));
         }
 
         for template in &templates {
@@ -270,7 +278,7 @@ impl Site<'_> {
         }
 
         for path in &opinions {
-            self.stage_opinion(path);
+            self.stage_with_meta(path, true, "");
         }
 
         let scope: Vec<(String, String, String)> = SCOPE_BULLET
@@ -298,6 +306,10 @@ impl Site<'_> {
 
         if !templates.is_empty() {
             self.stage_templates(&templates);
+        }
+
+        if !research.is_empty() {
+            self.stage_research(&research);
         }
 
         if !skills.is_empty() {
@@ -330,6 +342,7 @@ impl Site<'_> {
             &scope,
             &opinions,
             &templates,
+            &research,
             &skills,
             roster_pages.as_ref(),
         );
@@ -402,7 +415,10 @@ impl Site<'_> {
 
         for section in &sections[1..] {
             let first_line = section.lines().next().unwrap_or_default();
-            if section.starts_with("## Admission criteria") || section.starts_with("## Opted out") {
+            if section.starts_with("## Admission criteria")
+                || section.starts_with("## Named references")
+                || section.starts_with("## Opted out")
+            {
                 append(&mut texts, &overview, section);
             } else if section.starts_with("## Citable") {
                 append(
@@ -504,11 +520,12 @@ impl Site<'_> {
         Some(roster_pages)
     }
 
-    // An opinion, with the design system's OpinionMeta strip under its title, from its
-    // frontmatter: a paragraph marked { .ah-meta }, as the staging contract defines. The
-    // freshness chip turns stale past audit-freshness's 180-day tolerance, counted from the
-    // day the site is staged, which the weekly rebuild keeps current.
-    fn stage_opinion(&mut self, path: &str) {
+    // An opinion or research topic, with the design system's OpinionMeta strip under its
+    // title, from its frontmatter: a paragraph marked { .ah-meta }, as the staging contract
+    // defines, then the lead, if any. An opinion's freshness chip turns stale past
+    // audit-freshness's 180-day tolerance, counted from the day the site is staged, which the
+    // weekly rebuild keeps current.
+    fn stage_with_meta(&mut self, path: &str, freshness: bool, lead: &str) {
         let Some(text) = self.read(path) else { return };
         let meta = match frontmatter::parse(&text) {
             Ok(meta) => meta,
@@ -530,10 +547,15 @@ impl Site<'_> {
 
         let today = Timestamp::now().to_zoned(TimeZone::UTC).date();
         let age = reviewed.until(today).map_or(0, |span| span.get_days());
-        let freshness = if age > OPINION_TOLERANCE {
+        let state = if age > OPINION_TOLERANCE {
             "stale"
         } else {
             "fresh"
+        };
+        let chip = if freshness {
+            format!(" <span class=\"ah-chip ah-chip--{state} ah-chip--dot\">{state}</span>")
+        } else {
+            String::new()
         };
 
         let targets = values(meta.get("targets"))
@@ -555,12 +577,7 @@ impl Site<'_> {
         let strip = format!(
             "{}{}{}\n{{ .ah-meta }}",
             meta_item("Targets", &targets),
-            meta_item(
-                "Last reviewed",
-                &format!(
-                    "{reviewed} <span class=\"ah-chip ah-chip--{freshness} ah-chip--dot\">{freshness}</span>"
-                )
-            ),
+            meta_item("Last reviewed", &format!("{reviewed}{chip}")),
             meta_item("Sources", &sources)
         );
 
@@ -574,15 +591,76 @@ impl Site<'_> {
         let title_end = staged[title + 1..]
             .find('\n')
             .map_or(staged.len(), |offset| title + 1 + offset);
+        let lead = if lead.is_empty() {
+            String::new()
+        } else {
+            format!("\n\n{}", lead.trim_end_matches('\n'))
+        };
         let page = self.pages[path].clone();
         self.write(
             &page,
             &format!(
-                "{}\n\n{strip}{}",
+                "{}\n\n{strip}{lead}{}",
                 &staged[..title_end],
                 &staged[title_end..]
             ),
         );
+    }
+
+    // The unresolved research topics, with their titles, ordered by title. resolve-research
+    // deletes a topic once it's resolved, so every file here is open.
+    fn research_topics(&mut self) -> Vec<(String, String)> {
+        let mut topics = Vec::new();
+        for path in self.repo.markdown_in(repo::RESEARCH) {
+            // research/index.md would land on the research overview's page.
+            if file_name(&path) == "index.md" {
+                self.errors.push(format!(
+                    "{path}: the research overview takes this page; rename the topic"
+                ));
+                continue;
+            }
+            let Some(text) = self.read(&path) else {
+                continue;
+            };
+            match HEADING.captures_iter(&text).find(|heading| {
+                heading
+                    .name("hashes")
+                    .is_some_and(|hashes| hashes.len() == 1)
+            }) {
+                Some(title) => topics.push((path, title["text"].to_string())),
+                None => self.errors.push(format!("{path}: no '# ' title")),
+            }
+        }
+        topics.sort_by_key(|(_, title)| title.to_lowercase());
+        topics
+    }
+
+    // A page per research topic, with the same strip as an opinion but no freshness chip,
+    // since a topic is evidence waiting on resolve-research rather than guidance to keep
+    // current. An index lists them. llms.txt leaves them out, so agents follow only the
+    // opinions.
+    fn stage_research(&mut self, research: &[(String, String)]) {
+        // Before the first opinion, there's no opinions page to point at.
+        let follow = if self.pages.contains_key(repo::OPINIONS) {
+            " Follow the [opinions](../opinions/index.md) instead."
+        } else {
+            ""
+        };
+        let lead = format!(
+            "**Unresolved research.** This topic is evidence that `research-topic` gathered, waiting on `resolve-research`. It isn't an opinion, and it can cite unvetted material.{follow}"
+        );
+        for (path, _) in research {
+            self.stage_with_meta(path, false, &lead);
+        }
+
+        let mut index = String::from(
+            "# Research\n\nTopics under research: the evidence `research-topic` gathered, before `resolve-research` decides what becomes an opinion. Resolving a topic deletes it, so every topic here is still open. None of it is guidance yet.\n\n",
+        );
+        for (path, title) in research {
+            let _ = writeln!(index, "- [{title}]({})", file_name(path));
+        }
+        let page = self.pages[repo::RESEARCH].clone();
+        self.write(&page, &index);
     }
 
     // A page per template file, and an index of them.
@@ -750,15 +828,7 @@ impl Site<'_> {
                 .join("\n");
 
             let house = match profile {
-                None if profiles.is_empty() => "These files carry no house opinions.".to_string(),
-                None => format!(
-                    "These files carry no house opinions. For a house profile's, read its llms-<profile>.txt beside this file instead: {}.",
-                    profiles
-                        .iter()
-                        .map(|other| format!("[{other}]({SITE_URL}{ECOSYSTEM}/llms-{other}.txt)"))
-                        .collect::<Vec<_>>()
-                        .join(", ")
-                ),
+                None => "These files carry no house opinions.".to_string(),
                 Some(profile) => format!(
                     "These files carry the {profile} house profile's opinions. Each is a block that opens with `/// house | {profile}`, starts with `**House:**`, and closes with `///`, or a template region between `house:{profile} begin` and `house:{profile} end` comments. A house opinion is its owner's preference from experience, not sourced community practice. Where it conflicts with the sourced text beside it, follow the house opinion. For the default, which carries no house opinions, read [llms.txt]({SITE_URL}{ECOSYSTEM}/llms.txt)."
                 ),
@@ -809,6 +879,10 @@ impl Site<'_> {
                 raw(HOUSE_OPINIONS)
             );
 
+            if profile.is_none() {
+                llms += &profile_links(profiles);
+            }
+
             let name = profile.map_or_else(
                 || "llms.txt".to_string(),
                 |profile| format!("llms-{profile}.txt"),
@@ -824,6 +898,7 @@ impl Site<'_> {
         scope: &[(String, String, String)],
         opinions: &[String],
         templates: &[String],
+        research: &[(String, String)],
         skills: &[Skill],
         roster_pages: Option<&BTreeMap<&'static str, String>>,
     ) {
@@ -846,6 +921,17 @@ impl Site<'_> {
         }
 
         let mut nav = vec![entry("Overview", &self.pages[README])];
+        if let Some(roster_pages) = roster_pages {
+            nav.push(section(
+                "Awesome humans",
+                vec![
+                    entry("Overview", &self.pages[ROSTER]),
+                    entry("Citable", &roster_pages["citable"]),
+                    entry("Watch list", &roster_pages["watch-list"]),
+                    entry("Decision log", &roster_pages["decision-log"]),
+                ],
+            ));
+        }
         if !opinions.is_empty() {
             let mut items = vec![entry("Overview", &self.pages[repo::OPINIONS])];
             items.extend(opinion_entries);
@@ -860,6 +946,15 @@ impl Site<'_> {
             );
             nav.push(section("Templates", items));
         }
+        if !research.is_empty() {
+            let mut items = vec![entry("Overview", &self.pages[repo::RESEARCH])];
+            items.extend(
+                research
+                    .iter()
+                    .map(|(path, title)| entry(&nav_title(title), &self.pages[path])),
+            );
+            nav.push(section("Research", items));
+        }
         if !skills.is_empty() {
             let mut items = vec![entry("Overview", &self.pages[repo::SKILLS])];
             items.extend(skills.iter().filter_map(|skill| {
@@ -868,17 +963,6 @@ impl Site<'_> {
                     .map(|page| entry(&skill.name, page))
             }));
             nav.push(section("Skills", items));
-        }
-        if let Some(roster_pages) = roster_pages {
-            nav.push(section(
-                "Awesome humans",
-                vec![
-                    entry("Overview", &self.pages[ROSTER]),
-                    entry("Citable", &roster_pages["citable"]),
-                    entry("Watch list", &roster_pages["watch-list"]),
-                    entry("Decision log", &roster_pages["decision-log"]),
-                ],
-            ));
         }
         nav.push(entry("House opinions", &self.pages[HOUSE_OPINIONS]));
 
@@ -1231,6 +1315,20 @@ fn section(title: &str, items: Vec<Value>) -> Value {
     Value::Object(item)
 }
 
+// A research topic's sidebar label: its title up to any ": ", which names the topic, without
+// the ecosystem the section already sets, such as "in Rust code", or the backticks a label
+// can't render.
+fn nav_title(title: &str) -> String {
+    let mut topic = title.split(": ").next().unwrap_or(title);
+    for context in [
+        format!(" in {ECOSYSTEM_NAME}"),
+        format!(" for {ECOSYSTEM_NAME}"),
+    ] {
+        topic = topic.split(context.as_str()).next().unwrap_or(topic);
+    }
+    topic.replace('`', "")
+}
+
 // One labelled group in an opinion's metadata strip. Markdown inside the span still renders.
 fn meta_item(label: &str, values: &str) -> String {
     format!("<span class=\"ah-meta__item\"><span class=\"ah-label\">{label}</span> {values}</span>")
@@ -1397,6 +1495,22 @@ fn relative(from: &str, to: &str) -> String {
     }
 }
 
+// The default llms.txt lists each profile's file as a link of its own, because a fetch tool
+// that summarises a page paraphrases prose and drops the URLs in it.
+fn profile_links(profiles: &[String]) -> String {
+    if profiles.is_empty() {
+        return String::new();
+    }
+    let mut section = "\n## House profiles\n\nFollow a profile only when the user chooses one, by reading its file instead of this one.\n\n".to_string();
+    for other in profiles {
+        let _ = writeln!(
+            section,
+            "- [{other}]({SITE_URL}{ECOSYSTEM}/llms-{other}.txt): these opinions and templates, with that profile's house opinions"
+        );
+    }
+    section
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1404,7 +1518,7 @@ mod tests {
 
     const README_TEXT: &str = "# Awesome Humans of Rust\n\nSee [house opinions](HOUSE-OPINIONS.md), [metadata](AGENTS.md#metadata), and [scope](#scope).\n\n## Scope\n\n- **[Rust](opinions/rust.md):** the language\n\n## Repository layout\n\n[Licence](LICENSE)\n\n## Maintenance via skills\n\n| Skill | Purpose |\n| --- | --- |\n| [`vet-source`](skills/vet-source/SKILL.md) | Vet a source |\n";
 
-    const ROSTER_TEXT: &str = "# Awesome humans\n\n## Admission criteria\n\nTwo years.\n\n## Citable: quotable in opinions and templates\n\nThe table lists 2 sources: 1 people and 1 publications.\n\n| ID | Kind | Source | Focus | Since |\n| --- | --- | --- | --- | --- |\n| `matklad` | person | [Alex Kladov: Blog](https://matklad.github.io/) | Tooling | 2017 |\n| `rust-docs` | publication | [The Rust Programming Language](https://doc.rust-lang.org/) | Language | ~2015 (book) |\n\n## Watch list\n\n| ID | Kind | Source | Focus | Since |\n| --- | --- | --- | --- | --- |\n\n## Opted out\n\n| ID | Kind | Source | Focus | Since |\n| --- | --- | --- | --- | --- |\n\n## Source notes\n\nEach source's notes.\n\n### `matklad`: Citable, **Corroborate.**\n\nWrites about tooling.\n\n## Decision log\n\n- 2026-10-18: admitted both.\n";
+    const ROSTER_TEXT: &str = "# Awesome humans\n\n## Admission criteria\n\nTwo years.\n\n## Citable: quotable in opinions and templates\n\nThe table lists 2 sources: 1 people and 1 publications.\n\n| ID | Kind | Source | Focus | Since |\n| --- | --- | --- | --- | --- |\n| `matklad` | person | [Alex Kladov: Blog](https://matklad.github.io/) | Tooling | 2017 |\n| `rust-docs` | publication | [The Rust Programming Language](https://doc.rust-lang.org/) | Language | ~2015 (book) |\n\n## Watch list\n\n| ID | Kind | Source | Focus | Since |\n| --- | --- | --- | --- | --- |\n\n## Named references\n\nRFCs.\n\n## Opted out\n\n| ID | Kind | Source | Focus | Since |\n| --- | --- | --- | --- | --- |\n\n## Source notes\n\nEach source's notes.\n\n### `matklad`: Citable, **Corroborate.**\n\nWrites about tooling.\n\n## Decision log\n\n- 2026-10-18: admitted both.\n";
 
     const OPINION: &str = "---\ntargets: [rust-1.99, edition-2024]\nlast-reviewed: 2026-10-14\nsources: [house:simon-mckenna, matklad, rust-docs]\n---\n\n# Rust\n\nUse edition 2024 ([matklad](../AWESOME-HUMANS.md#matklad-citable-corroborate)), and start from [the config](../templates/.cargo/config.toml).\n\n/// house | simon-mckenna\n\n**House:** Deny warnings.\n\n///\n\nMore.\n";
 
@@ -1443,6 +1557,7 @@ mod tests {
             .file("HOUSE-OPINIONS.md", "# House opinions\n")
             .file(ROSTER, ROSTER_TEXT)
             .file("opinions/rust.md", OPINION)
+            .file("research/unsafe.md", "---\ntargets: [rust-1.99]\nlast-reviewed: 2026-10-19\nsources: [matklad]\n---\n\n# `unsafe` code in Rust: when and how\n\nSee [the opinion](../opinions/rust.md).\n")
             .file("skills/vet-source/SKILL.md", "---\nname: vet-source\n---\n\n# Vet a source\n\nSee [the roster](../../AWESOME-HUMANS.md).\n")
             .file(
                 "templates/.cargo/config.toml",
@@ -1466,6 +1581,24 @@ mod tests {
             "{overview}"
         );
         assert!(!overview.contains("Licence"), "{overview}");
+
+        let research = staged(&fixture, "rust/research/unsafe.md");
+        assert!(
+            research.contains("<span class=\"ah-label\">Last reviewed</span> 2026-10-19</span>"),
+            "{research}"
+        );
+        assert!(
+            research.contains("{ .ah-meta }\n\n**Unresolved research.**"),
+            "{research}"
+        );
+        assert!(
+            research.contains("[the opinion](../opinions/rust.md)"),
+            "{research}"
+        );
+        assert!(
+            staged(&fixture, "rust/research/index.md")
+                .contains("- [`unsafe` code in Rust: when and how](unsafe.md)\n")
+        );
 
         let opinion = staged(&fixture, "rust/opinions/rust.md");
         assert!(opinion.contains("# Rust\n\n<span class=\"ah-meta__item\"><span class=\"ah-label\">Targets</span> `rust-1.99` `edition-2024`</span>"), "{opinion}");
@@ -1497,7 +1630,9 @@ mod tests {
             "{citable}"
         );
         assert!(citable.contains("<details id=\"matklad-citable-corroborate\" markdown=\"1\">\n<summary><code>matklad</code>: Citable, <strong>Corroborate.</strong></summary>"), "{citable}");
-        assert!(staged(&fixture, "rust/awesome-humans/index.md").contains("## Admission criteria"));
+        let overview = staged(&fixture, "rust/awesome-humans/index.md");
+        assert!(overview.contains("## Admission criteria"), "{overview}");
+        assert!(overview.contains("## Named references"), "{overview}");
         assert!(
             staged(&fixture, "rust/awesome-humans/decision-log.md").starts_with("# Decision log\n")
         );
@@ -1552,7 +1687,7 @@ mod tests {
         assert!(llms.contains("- [Cargo.toml](https://raw.githubusercontent.com/awesome-humans/rust/main/templates/Cargo.toml)"), "{llms}");
         assert!(
             llms.contains(
-                "[simon-mckenna](https://awesome-humans.net/rust/llms-simon-mckenna.txt)"
+                "\n## House profiles\n\nFollow a profile only when the user chooses one, by reading its file instead of this one.\n\n- [simon-mckenna](https://awesome-humans.net/rust/llms-simon-mckenna.txt): these opinions and templates, with that profile's house opinions\n"
             ),
             "{llms}"
         );
@@ -1566,15 +1701,16 @@ mod tests {
             nav["nav"],
             json!([
                 {"Overview": "index.md"},
-                {"Opinions": [{"Overview": "opinions/index.md"}, {"Rust": "opinions/rust.md"}]},
-                {"Templates": [{"Overview": "templates/index.md"}, {"config.toml": "templates/cargo/config.toml.md"}, {"Cargo.toml": "templates/Cargo.toml.md"}]},
-                {"Skills": [{"Overview": "skills/index.md"}, {"vet-source": "skills/vet-source.md"}]},
                 {"Awesome humans": [
                     {"Overview": "awesome-humans/index.md"},
                     {"Citable": "awesome-humans/citable.md"},
                     {"Watch list": "awesome-humans/watch-list.md"},
                     {"Decision log": "awesome-humans/decision-log.md"}
                 ]},
+                {"Opinions": [{"Overview": "opinions/index.md"}, {"Rust": "opinions/rust.md"}]},
+                {"Templates": [{"Overview": "templates/index.md"}, {"config.toml": "templates/cargo/config.toml.md"}, {"Cargo.toml": "templates/Cargo.toml.md"}]},
+                {"Research": [{"Overview": "research/index.md"}, {"unsafe code": "research/unsafe.md"}]},
+                {"Skills": [{"Overview": "skills/index.md"}, {"vet-source": "skills/vet-source.md"}]},
                 {"House opinions": "house-opinions.md"}
             ])
         );
@@ -1626,6 +1762,19 @@ mod tests {
     }
 
     #[test]
+    fn a_research_topic_named_index_is_an_error() {
+        let readme = "# Rust\n\n## Repository layout\n";
+        let fixture = Fixture::new()
+            .file("README.md", readme)
+            .file("HOUSE-OPINIONS.md", "# House opinions\n")
+            .file("research/index.md", "# Index\n");
+        assert_eq!(
+            run(&fixture.repo(), &fixture.path().join("out")),
+            ["research/index.md: the research overview takes this page; rename the topic"]
+        );
+    }
+
+    #[test]
     fn relative_paths_climb_and_descend() {
         assert_eq!(
             relative("rust/opinions", "rust/house-opinions.md"),
@@ -1636,6 +1785,16 @@ mod tests {
         assert_eq!(
             combine("skills/vet-source", "../../AWESOME-HUMANS.md"),
             "AWESOME-HUMANS.md"
+        );
+    }
+
+    #[test]
+    fn a_research_label_names_the_topic() {
+        assert_eq!(nav_title("Unsafe: soundness and Miri"), "Unsafe");
+        assert_eq!(nav_title("`unsafe` code in Rust"), "unsafe code");
+        assert_eq!(
+            nav_title("`std::sync::Mutex` in Rust: lock poisoning"),
+            "std::sync::Mutex"
         );
     }
 
