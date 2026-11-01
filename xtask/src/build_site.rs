@@ -145,7 +145,7 @@ impl Site<'_> {
         reason = "a straight port of the .NET script's one function, kept in its order so the two can be compared"
     )]
     fn stage(&mut self) {
-        // Other ecosystems may already have staged beside this one, so only this ecosystem's
+        // Other ecosystems might already have staged beside this one, so only this ecosystem's
         // directory is cleared.
         let cleared = self.out.join(ECOSYSTEM);
         if cleared.exists()

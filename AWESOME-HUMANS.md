@@ -265,7 +265,7 @@ Citable on performance, with measurements in both the book and the blog.
 - **Scope:** Covers The Rust Performance Book, first published in 2020-11, and Nicholas Nethercote's blog.
 - **Longevity:** The book has updates through 2026-04-23, and the blog runs from 2021 to 2026-09-30.
   The longest gap in the last three years is about nine months, from 2024-03-06 to 2024-12-19.
-- **Depth:** The [Heap Allocations](https://nnethercote.github.io/perf-book/heap-allocations.html) chapter works from DHAT output to a rule of thumb.
+- **Depth:** The [Heap Allocations](https://nnethercote.github.io/perf-book/heap-allocations.html) chapter works from DHAT output to a general rule.
   ["How much code does that proc macro generate?"](https://nnethercote.github.io/2025/06/26/how-much-code-does-that-proc-macro-generate.html) measures the code `serde`'s derive generates.
 
 ### `predrag`: Citable
