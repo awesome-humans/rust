@@ -64,10 +64,10 @@ jobs:
     runs-on: ubuntu-latest
     # Blocking everywhere, PRs included: the citations in opinions/ and the
     # roster are the substance of this repository, so a dead link is a content
-    # defect that should not merge. The cost is that a third-party host being
-    # down fails an otherwise good PR — lychee.toml keeps that rare (retries,
-    # browser user agent, 403/429 accepted), and an unrelated outage is
-    # a re-run once the host recovers, not a reason to merge past the signal.
+    # defect that shouldn't merge. A third-party host that's down fails an
+    # otherwise good PR. lychee.toml keeps that rare with retries, a browser
+    # user agent, and 403 and 429 accepted. Re-run the job once the host
+    # recovers, instead of merging past it.
     # audit-freshness reads this workflow's result as its link-health signal.
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7

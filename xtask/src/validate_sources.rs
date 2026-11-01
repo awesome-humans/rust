@@ -70,7 +70,7 @@ pub fn run(repo: &Repo) -> Report {
     let mut errors = Vec::new();
     let citing = citing(repo, &mut errors);
 
-    // The roster arrives in phase 3 of PLAN.md. Until then, nothing may cite a source.
+    // Without a roster, nothing may cite a source.
     let Ok(text) = repo.read(ROSTER) else {
         if citing.is_empty() {
             return Report {

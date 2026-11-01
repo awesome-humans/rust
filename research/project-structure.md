@@ -193,5 +193,5 @@ These are unstable on nightly as of 2026-10-19, so they're not yet an opinion:
   - `templates/rust-toolchain.toml` and `templates/.cargo/config.toml`, which PLAN.md plans: `channel = "1.99"` with `clippy` and `rustfmt`, and the `xtask` alias. This settles the deferred decision PLAN.md records for `refresh-rust-versions`: the templates pin the minor release.
 - **The planned `justfile` template has no citable source.** `resolve-research` should either drop it from the template set, reduce it to recipes that only call `cargo` and `cargo xtask`, or record it as a house opinion through `weave-house-opinion`.
 - **Hand off what other topics own:** integration-test layout and doctests to `testing.md`, `[profile.release]` to `runtime-performance.md`, MSRV checks in CI and `build.warnings = "deny"` to `ci.md`, and which lints to set to `rust.md` and `ci.md`.
-- **Rust 1.100, due 2026-11-12,** may stabilise Cargo's lints. That's `refresh-rust-versions`, which would then add `missing_lints_inheritance` to the opinion.
+- **Rust 1.100, due 2026-11-12,** might stabilise Cargo's lints. That's `refresh-rust-versions`, which would then add `missing_lints_inheritance` to the opinion.
 - **No `vet-source` candidate.** The roster carried every recommendation. The Microsoft guidelines agree throughout, but they're already on the watch list until 2027-08-11.
