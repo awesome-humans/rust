@@ -31,7 +31,5 @@ accept = ["200", "203", "206", "403", "429"]
 # package-lock.json needs no entry: lychee extracts no URLs from it.
 exclude_path = ["node_modules", "target", "templates/target"]
 
-# Example URLs that are illustrative and not meant to resolve, and README.md's
-# link to the /rust/ section of awesome-humans.net, which 404s until rust is live in
-# website's ecosystems.toml. Remove the second entry when it goes live.
-exclude = ["^https://example\\.", "^https://awesome-humans\\.net/rust/$"]
+# Example URLs, which are placeholders, not real links.
+exclude = ["^https://example\\."]
