@@ -16,8 +16,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        # Nothing here pushes, so the job token stays out of .git/config, where a dependency's
-        # install script could read it.
         with:
           persist-credentials: false
 
