@@ -1,6 +1,6 @@
 ---
 name: review-project
-description: Check an external Rust crate or workspace, given a local path or a repository URL and optionally a house profile, against this repository's opinions and templates, and report deviations with severity and suggested fixes. Use when asked to verify, audit, review, or grade a Rust codebase against Awesome Humans of Rust conventions, or to check whether a project "does what good looks like".
+description: Check an external Rust crate or workspace, given a local path or a repository URL and optionally a house profile, against the opinions and templates in awesome-humans/rust, and report deviations with severity and suggested fixes. Use when asked to verify, audit, review, or grade a Rust codebase against Awesome Humans of Rust conventions, or to check whether a project "does what good looks like".
 license: See repository LICENSE
 compatibility: Requires read access to the target project; git and internet access for URL targets; a Rust toolchain with cargo-deny helpful but optional
 metadata:
@@ -13,6 +13,8 @@ metadata:
 Compare a target Rust crate or workspace with this repository's opinions and templates, and report where it deviates. This skill **only reports** unless the user asks for fixes.
 
 By default, it checks sourced community practice only. If the user names a house profile, such as `simon-mckenna`, it checks that profile's house opinions too ([HOUSE-OPINIONS.md](../../HOUSE-OPINIONS.md)).
+
+"This repository" in this skill means [awesome-humans/rust](https://github.com/awesome-humans/rust). Each path in it, such as `opinions/` or `templates/Cargo.toml`, is relative to the repository's root. Without a checkout, read a file at `https://raw.githubusercontent.com/awesome-humans/rust/main/<path>`, and find the opinions and templates in [llms.txt](https://awesome-humans.net/rust/llms.txt).
 
 ## Steps
 
@@ -27,7 +29,7 @@ By default, it checks sourced community practice only. If the user names a house
 2. **Inventory the target:** `Cargo.toml` and whether it's a workspace, `Cargo.lock`, `rust-toolchain.toml`, `.cargo/config.toml`, `rustfmt.toml`, `clippy.toml`, `deny.toml`, `.editorconfig`, the build entry points such as a `justfile` or an `xtask` crate, the CI workflows, and the mix of library and binary crates.
 3. **If a Rust toolchain is present, run the tools,** and read the files alone otherwise:
    - `cargo metadata --format-version 1 --no-deps` lists the workspace members, their `edition` and `rust-version`, and their features.
-   - `cargo clippy --workspace --all-targets --locked -- -D warnings`, with the lint configuration the target sets. If the target commits no `Cargo.lock`, `--locked` fails, and dropping it makes Cargo write one into the target. Run Clippy in a scratch copy without `--locked` instead, and say the versions were resolved on the day.
+   - Run `CARGO_BUILD_WARNINGS=deny cargo clippy --workspace --all-targets --locked` with the lint configuration the target sets. On a toolchain older than 1.97, which has no `build.warnings`, pass `-- -D warnings` instead, so a warning still fails the run. If the target commits no `Cargo.lock`, `--locked` fails, and dropping it makes Cargo write one into the target. Run Clippy in a scratch copy without `--locked` instead, and say the versions were resolved on the day.
    - `cargo deny check`, if the target has a `deny.toml`. A missing one is a gap for step 4.
    - Set `CARGO_TARGET_DIR` to a scratch directory, so the build output stays out of the target.
    - **Clippy runs the target's build scripts and procedural macros,** which can run any code. Run it only on a local target the user owns, or a URL target in a sandbox. Otherwise skip it, and say so in the report.
