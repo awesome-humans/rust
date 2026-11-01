@@ -3,6 +3,7 @@
 # Never add an American spelling. For a quoted title, see AGENTS.md: Spelling.
 agentskills
 Aleksandrov
+ANSSI
 anssi
 axum
 backpressure
@@ -81,6 +82,7 @@ Swatinem
 thiserror
 timezone
 tomllib
+tweede
 unparseable
 unpushed
 unvetted
