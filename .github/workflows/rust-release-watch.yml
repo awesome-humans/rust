@@ -1,10 +1,9 @@
 # Watches the official stable channel manifest for a new Rust release (the compiler, Cargo,
 # Clippy, and rustfmt ship together) and opens a pull request when the known state changes.
 #
-# The PR is a TRIGGER, not the update: it refreshes only .github/state/rust-releases.json.
-# Folding the release into opinions/ and templates/ is done by running the
-# skills/refresh-rust-versions skill against the PR's branch (manually or, later, by a
-# follow-on automation).
+# The pull request is a TRIGGER, not the update: it refreshes only
+# .github/state/rust-releases.json. To fold the release into opinions/ and templates/,
+# run the refresh-rust-versions skill against the pull request's branch.
 #
 # Note: for the create-pull-request step to work, the repository setting
 # "Allow GitHub Actions to create and approve pull requests" must be enabled
@@ -72,7 +71,7 @@ jobs:
 
           # Guard against a fetch that succeeds but returns something unexpected: replace the
           # checked-in file only once the new one parses and carries a version. An empty or
-          # unparseable snapshot fails the run loudly instead of opening a PR.
+          # unparseable snapshot fails the run loudly instead of opening a pull request.
           version="$(jq -r '.version // empty' "$snapshot" 2>/dev/null || true)"
           if [ -z "$version" ]; then
             echo "Stable manifest produced no usable version — leaving the snapshot untouched." >&2
