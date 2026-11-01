@@ -4,6 +4,7 @@
 agentskills
 Aleksandrov
 anssi
+ANSSI's
 axum
 backpressure
 binstall
@@ -11,7 +12,9 @@ bors
 burntsushi
 Cascadia
 CISA
+CKNONROBUST
 Consolas
+CTYPE
 dasharray
 DENV
 devex
@@ -20,6 +23,7 @@ Dmitrii
 doctest
 doctests
 Dwarnings
+ENCP
 endler
 feff
 fieldless
@@ -31,6 +35,8 @@ Greptime
 Gruevski
 hyperbezier
 insta
+interleavings
+Kani
 katex
 Kladov
 labelledby
@@ -54,10 +60,16 @@ newtype
 nextest
 niko
 nnethercote
+NODROP
+NOENUM
+NOPANIC
 Noto
 Palmieri
 Pavex
+PFTYPE
+PLDI
 Polonius
+POPL
 powerset
 Predrag
 proptest
@@ -70,8 +82,10 @@ roundups
 RPIT
 rsplit
 rumdl
+Rustaceans
 rustflags
 Rustonomicon
+SAFEWRAPPING
 scannable
 Segoe
 smol
@@ -81,6 +95,7 @@ Swatinem
 thiserror
 timezone
 tomllib
+tweede
 unparseable
 unpushed
 unvetted
