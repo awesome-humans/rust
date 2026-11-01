@@ -12,6 +12,8 @@ metadata:
 
 House opinions are a house profile's preferences, such as the owner's `simon-mckenna`. They're always marked, and they sit beside the sourced text, never in it, so nobody mistakes them for community best practice. A reader or agent sees them only after choosing the profile.
 
+"This repository" in this skill means [awesome-humans/rust](https://github.com/awesome-humans/rust). Run the skill in a checkout, where each path in it, such as `opinions/` or `templates/Cargo.toml`, is relative to the repository's root.
+
 ## Steps
 
 1. **Take the entry** from the HOUSE-OPINIONS.md inbox, with its profile. If the owner asks directly, add the entry to the inbox first, so the record starts there. The profile must be in HOUSE-OPINIONS.md's Profiles table and registered for this ecosystem in [awesome-humans/website: `houses.toml`](https://github.com/awesome-humans/website/blob/main/houses.toml). If it isn't, stop and ask the owner: a new profile needs their approval.
@@ -27,7 +29,7 @@ House opinions are a house profile's preferences, such as the owner's `simon-mck
 ## Rules
 
 - **Never present a house opinion as sourced.** If a vetted source later publishes the same guidance, a harvest can add the citation inside the block, and the marking stays. Moving the guidance into the sourced text is a separate, sourced change.
-- **House opinions need no source, but they need the same quality.** Code must pass `cargo check` and `cargo clippy -- -D warnings` on the declared `targets`, and the opinion must give one recommendation.
+- **House opinions need no source, but they need the same quality.** Code must pass `CARGO_BUILD_WARNINGS=deny cargo check` and `CARGO_BUILD_WARNINGS=deny cargo clippy` on the declared `targets`, and the opinion must give one recommendation.
 - **Only a profile owner's opinions are written in directly.** Contributors propose opinions in a pull request, as the organisation's [opinion pull request template](https://github.com/awesome-humans/.github/blob/main/PULL_REQUEST_TEMPLATE/opinion.md) describes. Once a profile's owner accepts one, it becomes a house opinion in their profile, and the Woven table's Provenance column credits the contributor and the pull request.
 - **Harvest and refresh skills never remove or weaken a house block.** They update the sourced text around it.
 

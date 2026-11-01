@@ -5,7 +5,7 @@ name: Attribution
 # runs the base branch's copy of this file, so a pull request can't edit the check
 # it's held to. The shared job never checks out or runs the pull request's code.
 on:
-  pull_request_target:
+  pull_request_target: # zizmor: ignore[dangerous-triggers] the job never checks out the pull request
     types: [opened, edited, reopened, synchronize]
 
 permissions:
@@ -14,4 +14,4 @@ permissions:
 
 jobs:
   attribution:
-    uses: awesome-humans/.github/.github/workflows/attribution.yml@e5c45b2f8b26dae7dd1472d603cf699a73f98be2 # main
+    uses: awesome-humans/.github/.github/workflows/attribution.yml@b3a2dbe9f9daffa607525d51fb9d115baaffaa76 # main

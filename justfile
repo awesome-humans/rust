@@ -16,16 +16,17 @@ format:
     npm run format
     cargo fmt --all
 
-# Check formatting, Markdown lint, and spelling, for prose and Rust together
+# Check formatting, lint, and spelling, for prose and Rust together
 check: format-check lint spell fmt-check
 
 # Check that Prettier leaves Markdown, JSON, JSONC, and YAML unchanged
 format-check:
     npm run format:check
 
-# Lint Markdown with markdownlint
+# Lint Markdown with markdownlint, and audit the workflows with zizmor (needs uv)
 lint:
     npm run lint
+    uvx --with-requirements .github/requirements.txt zizmor .github/workflows
 
 # Check spelling with cspell
 spell:
@@ -37,7 +38,7 @@ fmt-check:
 
 # Lint the xtask crate, denying every warning, as CI does
 clippy:
-    cargo clippy --workspace --all-targets --locked -- -D warnings
+    CARGO_BUILD_WARNINGS=deny cargo clippy --workspace --all-targets --locked
 
 # Run the xtask tests (needs cargo-nextest)
 test:
@@ -80,6 +81,10 @@ validate-sources:
 validate-readme-index:
     cargo xtask validate-readme-index
 
+# Check that each template's dependency and lint keys are sorted within their group
+validate-template-order:
+    cargo xtask validate-template-order
+
 # Draw the SVG diagrams in assets/diagrams/
 export-diagrams:
     cargo xtask export-diagrams
@@ -103,4 +108,4 @@ build-site out="target/site":
     cargo xtask build-site --out "{{ out }}"
 
 # Run every offline check CI runs. It redraws the diagrams, and fails until you commit any SVG it changes
-verify: check clippy test validate-skills validate-metadata validate-sources validate-readme-index check-diagrams build-site
+verify: check clippy test validate-skills validate-metadata validate-sources validate-readme-index validate-template-order check-diagrams build-site
