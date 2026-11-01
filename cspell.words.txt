@@ -94,3 +94,4 @@ Wuyts
 Xilem
 xtask
 Yoshua
+zizmor
