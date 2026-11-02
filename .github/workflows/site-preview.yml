@@ -5,7 +5,6 @@ name: Site preview
 # own URL. awesome-humans/website owns the build and the deploy; this repository only
 # stages its pages, as AGENTS.md: Site describes. A pull request from a fork builds
 # without deploying, because it gets no secrets.
-# The preview builds /rust/ even while rust is soon in website's ecosystems.toml.
 on:
   pull_request:
 
@@ -29,7 +28,7 @@ jobs:
     uses: awesome-humans/website/.github/workflows/deploy.yml@1ef5d3d11f3077d70b398cc5f8729ea164758bfc # main
     with:
       preview-alias: pr-rust-${{ github.event.pull_request.number }}
-    # Only the two secrets deploy.yml declares, not every secret this repository holds.
+    # Pass only the secrets deploy.yml needs, not `secrets: inherit`.
     secrets:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

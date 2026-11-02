@@ -11,13 +11,13 @@
   "labels": ["dependencies"],
   "packageRules": [
     {
-      "description": "Markdown tooling moves together — prettier, markdownlint, and cspell gate the same checks, so review them in one PR.",
+      "description": "Markdown tooling moves together: prettier, markdownlint, and cspell gate the same checks, so review them in one PR.",
       "matchManagers": ["npm"],
       "matchDepTypes": ["devDependencies"],
       "groupName": "markdown tooling"
     },
     {
-      "description": "Action digest bumps are mechanical and the workflows re-run on the PR, so they need no staged rollout.",
+      "description": "Bump every action in one pull request. The bumps are mechanical, and CI runs the workflows on that pull request.",
       "matchManagers": ["github-actions"],
       "groupName": "github actions"
     },
