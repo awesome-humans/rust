@@ -26,7 +26,7 @@ Write every crate on edition 2024 with Rust 1.99, and use the features that rele
 - **Set `resolver = "3"` in a virtual workspace's `[workspace]`.** Edition 2024 implies it in a package, but a virtual manifest has no edition to imply it from. Resolver 3 prefers dependency versions whose `rust-version` your toolchain meets ([The Cargo Book: Resolver versions](https://doc.rust-lang.org/cargo/reference/resolver.html#resolver-versions)).
 - **Set `edition = "2024"` and `style_edition = "2024"` in `rustfmt.toml`.** `cargo fmt` reads the edition from the manifest, but an editor that runs bare `rustfmt` defaults to 2015 for both. Without `edition`, it can't parse a let chain.
 
-To migrate a crate, follow the Edition Guide's steps ([Rust Edition Guide: Transitioning an existing project to a new edition](https://doc.rust-lang.org/edition-guide/editions/transitioning-an-existing-project-to-a-new-edition.html)):
+To migrate a crate, follow the Edition Guide's steps:
 
 1. Run `cargo update`, and commit it on its own.
 2. Run `cargo fix --edition --all-features`, once for each `--target` you ship. Otherwise cfg-gated code isn't migrated.
@@ -34,7 +34,9 @@ To migrate a crate, follow the Edition Guide's steps ([Rust Edition Guide: Trans
 4. Run `cargo build` and `cargo test`.
 5. Run `cargo fmt`, and commit the formatting on its own.
 
-`cargo fix` doesn't touch doctests or code that macros and build scripts generate. Review these changes by hand, because it either can't make them or makes them too broadly ([Rust Edition Guide: Rust 2024](https://doc.rust-lang.org/edition-guide/rust-2024/index.html)):
+([Rust Edition Guide: Transitioning an existing project to a new edition](https://doc.rust-lang.org/edition-guide/editions/transitioning-an-existing-project-to-a-new-edition.html), [Advanced migrations](https://doc.rust-lang.org/edition-guide/editions/advanced-migrations.html))
+
+`cargo fix` doesn't touch doctests or code that macros and build scripts generate ([Rust Edition Guide: Transitioning an existing project to a new edition](https://doc.rust-lang.org/edition-guide/editions/transitioning-an-existing-project-to-a-new-edition.html)). Review these changes by hand, because it either can't make them or makes them too broadly:
 
 | Change                      | Lint                                     | What you do                                                                                           |
 | --------------------------- | ---------------------------------------- | ----------------------------------------------------------------------------------------------------- |
@@ -47,6 +49,8 @@ To migrate a crate, follow the Edition Guide's steps ([Rust Edition Guide: Trans
 | `set_var` and `remove_var`  | `deprecated_safe_2024`                   | Remove the call, or prove no other thread is running, and delete the TODO comment                     |
 | `expr` fragment specifier   | `edition_2024_expr_fragment_specifier`   | Revert `expr_2021` to `expr` in most macros                                                           |
 | Combined doctests           | none                                     | Mark a doctest that depends on `Location`, `type_name`, or line numbers as `standalone_crate`         |
+
+([Rust Edition Guide: Tail expression temporary scope](https://doc.rust-lang.org/edition-guide/rust-2024/temporary-tail-expr-scope.html), [`if let` temporary scope](https://doc.rust-lang.org/edition-guide/rust-2024/temporary-if-let-scope.html), [Disallow references to `static mut`](https://doc.rust-lang.org/edition-guide/rust-2024/static-mut-references.html), [Never type fallback change](https://doc.rust-lang.org/edition-guide/rust-2024/never-type-fallback.html), [RPIT lifetime capture rules](https://doc.rust-lang.org/edition-guide/rust-2024/rpit-lifetime-capture.html), [Unsafe attributes](https://doc.rust-lang.org/edition-guide/rust-2024/unsafe-attributes.html), [Newly unsafe functions](https://doc.rust-lang.org/edition-guide/rust-2024/newly-unsafe-functions.html), [Macro fragment specifiers](https://doc.rust-lang.org/edition-guide/rust-2024/macro-fragment-specifiers.html), [Rustdoc combined tests](https://doc.rust-lang.org/edition-guide/rust-2024/rustdoc-doctests.html))
 
 ### Lints
 
@@ -164,11 +168,13 @@ Use `thread::scope` for threads that borrow local data, instead of `thread::spaw
 **Return `Result` for every failure a caller can cause, and panic only on a bug.** `unwrap()` and `expect()` are fine in tests, in examples, and where a panic means an invariant broke ([Andrew Gallant: Using unwrap() in Rust is Okay](https://burntsushi.net/unwrap/)). Outside those, use `ok_or_else` to turn an `Option` into an error ([Matthias Endler: Don't Unwrap Options: There Are Better Ways](https://corrode.dev/blog/rust-option-handling-best-practices/)).
 
 - **Use `assert!`, not `debug_assert!`, for an invariant that guards production behaviour.** `debug_assert!` compiles out of release builds ([Matthias Endler: Hardening Rust Code For Production](https://corrode.dev/blog/hardening-rust/)).
-- **Avoid the safe operations that fail silently or panic** ([Matthias Endler: Pitfalls of Safe Rust](https://corrode.dev/blog/pitfalls-of-safe-rust/)):
+- **Avoid the safe operations that fail silently or panic:**
   - Use `checked_*` or `saturating_*` on arithmetic over input values. Plain arithmetic wraps in release builds.
   - Use `From` or `TryFrom` instead of `as` between integer types. `as` truncates.
   - Use `.get()` instead of indexing with an index from input.
   - Write `Debug` by hand for a type that holds a secret, so it can't print the secret.
+
+  ([Matthias Endler: Pitfalls of Safe Rust](https://corrode.dev/blog/pitfalls-of-safe-rust/))
 
 For error types, see `error-handling.md`, which isn't written yet.
 
@@ -184,7 +190,7 @@ For public API shape, see `api-design.md`, which isn't written yet.
 
 ## Coming next
 
-**Review by 2026-11-26.** The never type `!` reaches stable in Rust 1.100, due 2026-11-12 ([rust-lang/rust#155499](https://github.com/rust-lang/rust/pull/155499)). It makes `Infallible` an alias of `!`, makes `!` the fallback in every edition, and removes `dependency_on_unit_never_type_fallback`. When `refresh-rust-versions` moves the targets to 1.100, drop this note and the lint's row from the migration table.
+**Review by 2026-11-26.** The never type `!` reaches stable in Rust 1.100, due 2026-11-12. It makes `Infallible` an alias of `!`, makes `!` the fallback in every edition, and removes `dependency_on_unit_never_type_fallback` ([rust-lang/rust#155499](https://github.com/rust-lang/rust/pull/155499)). When `refresh-rust-versions` moves the targets to 1.100, drop this note and the lint's row from the migration table.
 
 These are unstable on nightly as of 2026-10-19, so don't use them yet:
 
