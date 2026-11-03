@@ -28,7 +28,7 @@ Report what's stale. This skill never edits content. Version drift goes to `refr
 | The `Versions verified against crates.io … on <date>` comment in the same file | 90 days, because the pins change faster than the prose                                                  |
 | `research/` topics                                                             | 90 days, then reported for `resolve-research`. For details, see [Research](#research)                   |
 | `sources:` IDs                                                                 | For the rules, see [Sources](#sources)                                                                  |
-| `**Review by YYYY-MM-DD.**` markings in `opinions/` and `templates/`           | Zero past the date. Report each for drop-or-re-date triage                                              |
+| `Review by YYYY-MM-DD` markings in every tracked file                          | Zero past the date. Report each for drop-or-re-date triage                                              |
 | Inbound links to each `opinions/` and `templates/` file                        | Informational, never a finding. For details, see [Inbound links](#inbound-links)                        |
 | References cited in `opinions/` and `templates/`                               | Zero. For details, see [Cited references](#cited-references)                                            |
 | `templates/` still implement what `opinions/` require                          | Zero. For details, see [Templates](#templates)                                                          |
@@ -87,7 +87,10 @@ Report each file with no inbound links as a pruning candidate. Nothing on the we
 2. **Find the latest released versions** of Rust and the edition, from the same sources as `refresh-rust-versions` step 1. Find the latest stable version of every crate in `templates/Cargo.toml`, with the lookup in `refresh-rust-versions` step 4b.
    - Read the release announcements between each file's target and the latest release, to find the stabilisations [Version lag](#version-lag) reports early.
    - If you're offline, skip the checks you can't run, and say so in the report. Report an unchecked pin as "not verified", never as fresh.
-3. **Evaluate each resource** against the tolerances, including any `**Review by YYYY-MM-DD.**` marking in its body ([AGENTS.md: Writing style for opinions](../../AGENTS.md#writing-style-for-opinions)). Missing or malformed metadata is a high-severity finding.
+3. **Evaluate each resource** against the tolerances. Missing or malformed metadata is a high-severity finding.
+
+   Then find every `Review by` marking, as [awesome-humans/website: Writing style: Content](https://github.com/awesome-humans/website/blob/main/pages/conventions/writing-style.md#content) defines it, with `git grep -nE 'Review by [0-9]{4}-[0-9]{2}-[0-9]{2}'`. It searches every tracked file, so it also finds a marking in a root document, a research topic, or a configuration comment. Skip a line that only mentions a marking in another file.
+
 4. **Check the roster.** Flag sources in `AWESOME-HUMANS.md` with no _published writing_ in over a year for `vet-source` re-evaluation. Repository activity doesn't count, because opinions don't cite it.
 5. **Write the report,** most stale first:
    - For each resource: the path, the findings, the days or releases over tolerance, and the skill that fixes it.
