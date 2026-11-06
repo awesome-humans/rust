@@ -19,8 +19,9 @@ jobs:
         with:
           persist-credentials: false
 
-      # Pinned to a release at least two weeks old when chosen. The justfile is every entry
-      # point, so the steps below call its recipes, never agentskills directly.
+      # Pin just to a release that was at least two weeks old when picked. The steps below
+      # call its recipes, never agentskills directly, because the justfile holds every entry
+      # point.
       - uses: taiki-e/install-action@cfdb7ed4ccc7c7dce37759eae89dc5674b469b39 # v2.90.3
         with:
           tool: just@1.58.0

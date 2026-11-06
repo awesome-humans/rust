@@ -24,8 +24,8 @@ jobs:
 
       - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
 
-      # Pinned releases, each at least two weeks old when chosen. The justfile is every
-      # entry point, so the steps below call its recipes, never cargo.
+      # Pin each tool to a release that was at least two weeks old when picked. The steps
+      # below call the justfile's recipes, never cargo, because it holds every entry point.
       - uses: taiki-e/install-action@cfdb7ed4ccc7c7dce37759eae89dc5674b469b39 # v2.90.3
         with:
           tool: just@1.58.0,cargo-nextest@0.9.146
@@ -51,9 +51,8 @@ jobs:
       - name: Verify template dependency and lint keys are sorted
         run: just validate-template-order
 
-      # The SVGs are committed so the README can show them, which leaves them free to drift
-      # from the code that draws them. Redraw and fail on any difference, including a
-      # diagram that was never committed.
+      # The README shows the committed SVGs, so they can drift from the code that draws
+      # them. Redraw every diagram, and fail on any difference, including one never committed.
       - name: Verify the diagrams match the code that draws them
         run: just check-diagrams
 
