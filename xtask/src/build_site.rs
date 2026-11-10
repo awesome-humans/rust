@@ -56,7 +56,7 @@ const OPINION_TOLERANCE: i32 = 180;
 // The anchor of the Citable table's heading, for a source with no notes section to link to.
 const CITABLE_ANCHOR: &str = "citable-quotable-in-opinions-and-templates";
 
-const LLMS_SUMMARY: &str = "Opinionated best practices for building with Rust, distilled from the published writing of people and publications with a proven, multi-year track record. Each opinion states its recommendation first, then the rationale, then its sources, and targets the latest stable release.";
+const LLMS_SUMMARY: &str = "Opinionated best practices for building with Rust, distilled from the published writing of vetted people and publications with a multi-year track record. Each opinion states its recommendation first, then the rationale, then its sources, and targets the latest stable release.";
 
 // A bullet in README.md's Scope list: - **[Title](opinions/file.md):** what it covers.
 static SCOPE_BULLET: LazyLock<Regex> = LazyLock::new(|| {
