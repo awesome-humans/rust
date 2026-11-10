@@ -1,6 +1,6 @@
 # Awesome Humans of Rust
 
-An agentic take on [awesome-rust](https://github.com/rust-unofficial/awesome-rust): distilled, opinionated guidance, thanks to awesome humans. Instead of links, it distils what proven Rust writers recommend into guidance your agent can follow, each opinion citing its sources. It documents current best practice in Rust code, and updates it as Rust evolves.
+An agentic take on [awesome-rust](https://github.com/rust-unofficial/awesome-rust): distilled, opinionated guidance, thanks to awesome humans. Instead of links, it distils what vetted Rust writers recommend into guidance your agent can follow, each opinion citing its sources. It documents current best practice in Rust code, and updates it as Rust evolves.
 
 The writers are listed in [AWESOME-HUMANS.md](AWESOME-HUMANS.md): people and publications with at least two years of accurate, independent writing on Rust.
 
