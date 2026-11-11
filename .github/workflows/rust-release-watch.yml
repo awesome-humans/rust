@@ -74,7 +74,7 @@ jobs:
           # unparseable snapshot fails the run loudly instead of opening a pull request.
           version="$(jq -r '.version // empty' "$snapshot" 2>/dev/null || true)"
           if [ -z "$version" ]; then
-            echo "Stable manifest produced no usable version — leaving the snapshot untouched." >&2
+            echo "Stable manifest produced no usable version. Leaving the snapshot untouched." >&2
             exit 1
           fi
 

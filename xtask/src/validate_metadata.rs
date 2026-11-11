@@ -125,7 +125,7 @@ fn check(resource: &Resource, errors: &mut Vec<String>) {
 
     for field in resource.forbidden {
         if fields.contains_key(field) {
-            errors.push(format!("{path}: field '{field}' is not allowed here"));
+            errors.push(format!("{path}: field '{field}' isn't allowed here"));
         }
     }
 
@@ -140,7 +140,7 @@ fn check(resource: &Resource, errors: &mut Vec<String>) {
                 "{path}: '{field}' is '{text}', not an ISO 8601 date (YYYY-MM-DD)"
             )),
             None => errors.push(format!(
-                "{path}: '{field}' is not a single ISO 8601 date (YYYY-MM-DD)"
+                "{path}: '{field}' isn't a single ISO 8601 date (YYYY-MM-DD)"
             )),
         }
     }
@@ -153,7 +153,7 @@ fn check(resource: &Resource, errors: &mut Vec<String>) {
         sorted.sort();
         if ids != sorted {
             errors.push(format!(
-                "{path}: 'sources' is not sorted; expected [{}]",
+                "{path}: 'sources' isn't sorted; expected [{}]",
                 sorted.join(", ")
             ));
         }
@@ -282,7 +282,7 @@ mod tests {
         assert_eq!(
             run(&fixture.repo()).errors,
             [
-                "opinions/rust.md: 'sources' is not sorted; expected [house:simon-mckenna, matklad, rust-docs]"
+                "opinions/rust.md: 'sources' isn't sorted; expected [house:simon-mckenna, matklad, rust-docs]"
             ]
         );
     }
@@ -301,8 +301,8 @@ mod tests {
         assert_eq!(
             run(&fixture.repo()).errors,
             [
-                "opinions/rust.md: field 'last-used' is not allowed here",
-                "templates/Cargo.toml: field 'last-used' is not allowed here",
+                "opinions/rust.md: field 'last-used' isn't allowed here",
+                "templates/Cargo.toml: field 'last-used' isn't allowed here",
             ]
         );
     }
@@ -319,8 +319,8 @@ mod tests {
         assert_eq!(
             run(&fixture.repo()).errors,
             [
-                "research/async.md: field 'last-used' is not allowed here",
-                "research/async.md: field 'status' is not allowed here",
+                "research/async.md: field 'last-used' isn't allowed here",
+                "research/async.md: field 'status' isn't allowed here",
             ]
         );
     }

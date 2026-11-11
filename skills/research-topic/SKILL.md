@@ -35,7 +35,7 @@ Before you use an excerpt to support a claim, match it as a string against the p
 
 ## Steps
 
-1. **If the request could go more than one way, ask one question** to settle the intent:
+1. **If the request could mean more than one thing, ask one question** to settle the intent:
    - _Learning_ it: an explanation and idioms.
    - _Deciding_ on it: trade-offs and maturity.
    - _Migrating_ to it: differences from the old way, and breaking changes.
@@ -58,11 +58,11 @@ Before you use an excerpt to support a claim, match it as a string against the p
    - Put the recommendation or current state in the opening sentences, and the detail after.
    - Cite a source ID for every claim. Note a source's standing when it limits the claim, such as `**Corroborate.**` or a limit in its notes. Date anything time-sensitive. Mark a claim that rests only on a reference, or on your own reading, as unsupported, so `resolve-research` doesn't promote it.
    - **Label nightly-only features as the freshness policy requires:** "unstable on nightly as of `<date>`, not yet an opinion". Keep them separate from stable guidance.
-   - Where sources disagree, say so, and weigh them. Don't blur them into a vague middle.
+   - Where sources disagree, say so, and weigh them. Don't merge them into a position that neither source holds.
    - **Compile every code example** on the declared `targets` before you save the topic, as [AGENTS.md: Writing style for opinions](../../AGENTS.md#writing-style-for-opinions) asks of an opinion: it passes `CARGO_BUILD_WARNINGS=deny cargo check` and `CARGO_BUILD_WARNINGS=deny cargo clippy`. Under the example, record the toolchain, the crate versions, and the date you compiled it. For a fragment that can't compile alone, compile the smallest complete example that hosts it, and say so. CI doesn't compile research, so an example you didn't build reaches `resolve-research` unchecked.
    - **Check every crate the topic recommends for security advisories** at the version it names. Run `cargo deny check advisories` in a project whose `Cargo.lock` resolves the crate to that version, such as the one you compiled the examples in, or look the crate up in the [RustSec Advisory Database](https://rustsec.org/). Record the date, and if an advisory is open, say so in the topic.
 6. **Answer follow-up questions** from what you've gathered. Sweep again, in the same order, only when a question goes beyond it.
-7. **Close the loop.** End with what the research revealed about the repository, and recommend the matching skill. Never run it unprompted.
+7. **Recommend what happens next.** End with what the research revealed about the repository, and recommend the matching skill. Never run it unprompted.
 
    | Finding                                                                   | Recommendation                                                           |
    | ------------------------------------------------------------------------- | ------------------------------------------------------------------------ |

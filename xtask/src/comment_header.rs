@@ -35,7 +35,7 @@ pub fn parse(text: &str) -> Result<Mapping, String> {
     };
 
     let Some(segments) = body.strip_prefix(MARKER) else {
-        return Err(format!("header does not open with '{MARKER}'"));
+        return Err(format!("header doesn't open with '{MARKER}'"));
     };
 
     let mut fields = Mapping::new();
@@ -47,7 +47,7 @@ pub fn parse(text: &str) -> Result<Mapping, String> {
         // Split on the first colon only: `targets: rust-1.99, edition-2024` is one field
         // whose value happens to be a list.
         let Some((key, value)) = segment.split_once(':') else {
-            return Err(format!("header segment '{segment}' is not 'key: value'"));
+            return Err(format!("header segment '{segment}' isn't 'key: value'"));
         };
 
         let key = key.trim();
@@ -94,7 +94,7 @@ mod tests {
     fn parse_rejects_another_marker() {
         assert_eq!(
             parse("# awesome-humans/dotnet template | targets: net10.0\n"),
-            Err(format!("header does not open with '{MARKER}'"))
+            Err(format!("header doesn't open with '{MARKER}'"))
         );
     }
 
@@ -102,7 +102,7 @@ mod tests {
     fn parse_rejects_a_segment_without_a_colon() {
         assert_eq!(
             parse(&format!("# {MARKER} | targets\n")),
-            Err("header segment 'targets' is not 'key: value'".to_string())
+            Err("header segment 'targets' isn't 'key: value'".to_string())
         );
     }
 

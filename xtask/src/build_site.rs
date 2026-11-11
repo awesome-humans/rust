@@ -733,7 +733,7 @@ impl Site<'_> {
             let path = skill_path(&skill.name);
             if !self.repo.is_file(&path) {
                 self.errors.push(format!(
-                    "{README}: the skills table lists {}, but {path} does not exist",
+                    "{README}: the skills table lists {}, but {path} doesn't exist",
                     skill.name
                 ));
                 continue;
@@ -1204,7 +1204,7 @@ impl Site<'_> {
         }
 
         self.errors.push(format!(
-            "{source}: link to {target} resolves to {resolved}, which does not exist"
+            "{source}: link to {target} resolves to {resolved}, which doesn't exist"
         ));
         target.to_string()
     }
@@ -1757,7 +1757,7 @@ mod tests {
             .file("HOUSE-OPINIONS.md", "# House opinions\n");
         assert_eq!(
             run(&fixture.repo(), &fixture.path().join("out")),
-            ["README.md: link to missing.md resolves to missing.md, which does not exist"]
+            ["README.md: link to missing.md resolves to missing.md, which doesn't exist"]
         );
     }
 

@@ -17,7 +17,7 @@ pub fn parse(text: &str) -> Result<Mapping, String> {
 
     match serde_yaml_ng::from_str::<Value>(&rest[..end]) {
         Ok(Value::Mapping(mapping)) => Ok(mapping),
-        Ok(_) => Err("frontmatter is not a YAML mapping".into()),
+        Ok(_) => Err("frontmatter isn't a YAML mapping".into()),
         Err(error) => {
             // The parser counts lines from the frontmatter body, which starts on line 2 of
             // the file, so offset them to point at the real line.
@@ -30,9 +30,7 @@ pub fn parse(text: &str) -> Result<Mapping, String> {
             });
             let message = error.to_string();
             let message = message.split(" at line ").next().unwrap_or(&message);
-            Err(format!(
-                "frontmatter is not valid YAML: {message}{location}"
-            ))
+            Err(format!("frontmatter isn't valid YAML: {message}{location}"))
         }
     }
 }
@@ -102,7 +100,7 @@ mod tests {
     fn parse_points_at_the_file_line_of_a_yaml_error() {
         let error = parse("---\ntargets: [rust-1.99\n---\n").expect_err("invalid YAML");
         assert!(
-            error.starts_with("frontmatter is not valid YAML: "),
+            error.starts_with("frontmatter isn't valid YAML: "),
             "{error}"
         );
         assert!(error.contains("(line "), "{error}");
@@ -112,7 +110,7 @@ mod tests {
     fn parse_rejects_a_scalar() {
         assert_eq!(
             parse("---\njust text\n---\n"),
-            Err("frontmatter is not a YAML mapping".to_string())
+            Err("frontmatter isn't a YAML mapping".to_string())
         );
     }
 

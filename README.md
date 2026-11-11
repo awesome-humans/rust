@@ -1,6 +1,6 @@
 # Awesome Humans of Rust
 
-An agentic take on [awesome-rust](https://github.com/rust-unofficial/awesome-rust): distilled, opinionated guidance, thanks to awesome humans. Instead of links, it gives your agent guidance from vetted Rust writers, and each opinion cites its sources. It documents current best practice in Rust code, and updates it as Rust evolves.
+An agentic take on [awesome-rust](https://github.com/rust-unofficial/awesome-rust): opinionated guidance for your coding agent, distilled from the writing of awesome humans. Instead of a list of links, it gives one recommendation per question, and each opinion cites its sources. It documents current best practice in Rust code, and changes as Rust evolves.
 
 The writers are listed in [AWESOME-HUMANS.md](AWESOME-HUMANS.md): people and publications with at least two years of accurate, independent writing on Rust.
 
@@ -65,7 +65,9 @@ Any other limit, such as a concern about independence or an outdated back catalo
 
 ## House opinions
 
-House opinions are preferences from experience rather than from a vetted source. Each belongs to a house profile, named for the person or organisation that owns it, such as `simon-mckenna`. On awesome-humans.net, every page shows sourced community practice only, until you choose a profile in the header. Agents read `llms-<profile>.txt` instead of `llms.txt`. In this repository, each house opinion is a marked block beside the sourced text it changes, and [HOUSE-OPINIONS.md](HOUSE-OPINIONS.md) defines the format and records each one. Other contributors can propose sourced or experience-based opinions through the organisation's [opinion pull request template](https://github.com/awesome-humans/.github/blob/main/PULL_REQUEST_TEMPLATE/opinion.md).
+A house opinion is a preference from experience, not from a vetted source. Each belongs to a house profile, named for the person or organisation that owns it, such as `simon-mckenna`. On awesome-humans.net, every page shows only sourced community practice until you choose a profile in the header. An agent that follows a profile reads `llms-<profile>.txt` instead of `llms.txt`.
+
+In this repository, each house opinion is a marked block beside the sourced text it changes, and [HOUSE-OPINIONS.md](HOUSE-OPINIONS.md) defines the format and records each one. Other contributors can propose sourced or experience-based opinions through the organisation's [opinion pull request template](https://github.com/awesome-humans/.github/blob/main/PULL_REQUEST_TEMPLATE/opinion.md).
 
 ## Repository layout
 
@@ -104,7 +106,7 @@ House opinions are preferences from experience rather than from a vetted source.
 
 Agent skills maintain the repository. They follow the [Agent Skills specification](https://agentskills.io/specification), so any compliant agent can run them. Each skill is a directory under [`skills/`](skills) with a `SKILL.md` file.
 
-The skills split work by cost. Cheaper worker agents run the web searches and source sweeps in parallel. The strongest available model is the editor, and only the editor writes to the opinions and templates.
+The skills split work by cost. Lower-cost worker agents run the web searches and source sweeps in parallel. The strongest available model is the editor, and only the editor writes to the opinions and templates.
 
 Every skill except the three report-only ones works on its own branch, and its changes land through a pull request that passes CI, gets an agent review, and passes the owner's review. Each `SKILL.md` is canonical over this diagram.
 
@@ -170,7 +172,7 @@ Four modules hold the code that more than one subcommand uses:
 
 ## Acknowledgement
 
-Agents build and maintain this project, so the [usual disclaimers](https://awesome-humans.net/credits/#disclaimer) apply, but it wouldn't exist without the people whose writing it draws on. Every opinion cites their work. Thank you to all of these awesome humans, and to everyone who supports them.
+Agents build and maintain this project, so the [usual disclaimers](https://awesome-humans.net/credits/#disclaimer) apply. It wouldn't exist without the people whose writing it draws on, and every opinion cites their work. Thank you to all of these awesome humans, and to everyone who supports them.
 
 ## Licence
 

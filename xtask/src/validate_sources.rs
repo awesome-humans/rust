@@ -287,7 +287,7 @@ impl Roster {
 
             match entries.entry(id) {
                 Slot::Occupied(slot) => errors.push(format!(
-                    "{ROSTER}: source id '{}' appears on more than one row — ids are unique",
+                    "{ROSTER}: source id '{}' appears on more than one row: ids are unique",
                     slot.key()
                 )),
                 Slot::Vacant(slot) => {
@@ -319,7 +319,7 @@ impl Roster {
 
         if entries.is_empty() {
             errors.push(format!(
-                "{ROSTER}: no source rows parsed — roster tables may have changed shape"
+                "{ROSTER}: no source rows parsed: roster tables may have changed shape"
             ));
         }
 
@@ -329,7 +329,7 @@ impl Roster {
             for pair in ids.windows(2) {
                 if pair[0] > pair[1] {
                     errors.push(format!(
-                        "{ROSTER}: '{heading}' is not sorted by id — '{}' follows '{}'",
+                        "{ROSTER}: '{heading}' isn't sorted by id: '{}' follows '{}'",
                         pair[1], pair[0]
                     ));
                 }
@@ -346,7 +346,7 @@ impl Roster {
                 // An opted-out source's notes go with it: the evidence was about work it asked
                 // us to stop citing, and its row and the decision log are all the roster keeps.
                 Some(entry) if entry.bucket == Bucket::OptedOut => errors.push(format!(
-                    "{ROSTER}: '{NOTES_HEADING}' has a section for '{id}', which has opted out — delete the section"
+                    "{ROSTER}: '{NOTES_HEADING}' has a section for '{id}', which has opted out: delete the section"
                 )),
                 Some(_) => {}
             }
@@ -355,7 +355,7 @@ impl Roster {
         for pair in note_ids.windows(2) {
             if pair[0] > pair[1] {
                 errors.push(format!(
-                    "{ROSTER}: '{NOTES_HEADING}' is not sorted by id — '{}' follows '{}'",
+                    "{ROSTER}: '{NOTES_HEADING}' isn't sorted by id: '{}' follows '{}'",
                     pair[1], pair[0]
                 ));
             }
@@ -399,7 +399,7 @@ fn check_citations(path: &str, ids: &[String], roster: &Roster, errors: &mut Vec
 
         if id == "house" {
             errors.push(format!(
-                "{path}: 'house' names no profile — write {}<profile>, such as {}simon-mckenna",
+                "{path}: 'house' names no profile: write {}<profile>, such as {}simon-mckenna",
                 house::PREFIX,
                 house::PREFIX
             ));
@@ -408,20 +408,20 @@ fn check_citations(path: &str, ids: &[String], roster: &Roster, errors: &mut Vec
 
         let Some(entry) = roster.entries.get(id) else {
             errors.push(format!(
-                "{path}: source '{id}' is not on the roster in {ROSTER}"
+                "{path}: source '{id}' isn't on the roster in {ROSTER}"
             ));
             continue;
         };
 
         match entry.bucket {
             Bucket::Watch => errors.push(format!(
-                "{path}: source '{id}' is on the watch list and may not feed opinions or templates — corroborate with a citable source or admit it via vet-source"
+                "{path}: source '{id}' is on the watch list and may not feed opinions or templates: corroborate with a citable source or admit it via vet-source"
             )),
             Bucket::OptedOut => errors.push(format!(
-                "{path}: source '{id}' has opted out and may not feed opinions or templates — re-source the claim with research-topic, or cut it back to what other citable sources support"
+                "{path}: source '{id}' has opted out and may not feed opinions or templates: re-source the claim with research-topic, or cut it back to what other citable sources support"
             )),
             Bucket::Citable if roster.discovery.contains(id) => errors.push(format!(
-                "{path}: source '{id}' is marked discovery-only and never appears in 'sources:' — cite the primary source it led you to"
+                "{path}: source '{id}' is marked discovery-only and never appears in 'sources:': cite the primary source it led you to"
             )),
             Bucket::Citable => {}
         }
@@ -438,7 +438,7 @@ fn check_citations(path: &str, ids: &[String], roster: &Roster, errors: &mut Vec
     });
     if marked && !unmarked {
         errors.push(format!(
-            "{path}: every citable source here is marked '{CORROBORATE_MARKER}' — add a citable source that is not, or drop the claim"
+            "{path}: every citable source here is marked '{CORROBORATE_MARKER}': add a citable source that isn't, or drop the claim"
         ));
     }
 }
@@ -555,9 +555,7 @@ mod tests {
         let fixture = Fixture::new().file(ROSTER, &duplicate);
         assert_eq!(
             run(&fixture.repo()).errors,
-            [
-                "AWESOME-HUMANS.md: source id 'matklad' appears on more than one row — ids are unique"
-            ]
+            ["AWESOME-HUMANS.md: source id 'matklad' appears on more than one row: ids are unique"]
         );
     }
 
@@ -568,7 +566,7 @@ mod tests {
         assert_eq!(
             run(&fixture.repo()).errors,
             [
-                "AWESOME-HUMANS.md: 'Citable: quotable in opinions and templates' is not sorted by id — 'matklad' follows 'zz-top'"
+                "AWESOME-HUMANS.md: 'Citable: quotable in opinions and templates' isn't sorted by id: 'matklad' follows 'zz-top'"
             ]
         );
     }
@@ -595,10 +593,10 @@ mod tests {
         assert_eq!(
             run(&fixture.repo()).errors,
             [
-                "opinions/a.md: source 'newcomer' is on the watch list and may not feed opinions or templates — corroborate with a citable source or admit it via vet-source",
-                "opinions/b.md: every citable source here is marked '**Corroborate.**' — add a citable source that is not, or drop the claim",
-                "opinions/c.md: 'house' names no profile — write house:<profile>, such as house:simon-mckenna",
-                "opinions/c.md: source 'unknown' is not on the roster in AWESOME-HUMANS.md",
+                "opinions/a.md: source 'newcomer' is on the watch list and may not feed opinions or templates: corroborate with a citable source or admit it via vet-source",
+                "opinions/b.md: every citable source here is marked '**Corroborate.**': add a citable source that isn't, or drop the claim",
+                "opinions/c.md: 'house' names no profile: write house:<profile>, such as house:simon-mckenna",
+                "opinions/c.md: source 'unknown' isn't on the roster in AWESOME-HUMANS.md",
             ]
         );
     }
