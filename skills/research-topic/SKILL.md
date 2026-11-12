@@ -44,7 +44,7 @@ Before you use an excerpt to support a claim, match it as a string against the p
 
 2. **Start a worktree** on the branch `research/<topic-slug>`, such as `research/async-closures`, following [AGENTS.md](../../AGENTS.md). Create it before the first write. Use the repository's existing kebab-case name for the topic (`error-handling`, not `errors`), so the branch, topic, and opinions share one search term.
 3. **Start with the repository.** Read the matching `opinions/` files, which might already answer the question or have a "Coming next" note. Skip house blocks unless the user named a house profile. Present that profile's blocks as "its owner's convention, not community consensus".
-4. **Sweep the roster in this order:**
+4. **Scan the roster in this order:**
    1. **Citable sources,** weighted by how well their Focus column matches. You can quote these.
    2. **Watch-list sources,** for discovery and cross-checking. Label them as watch-list.
    3. **Material from outside the roster.** Unvetted sources often cover new topics first, so use them.
@@ -61,7 +61,7 @@ Before you use an excerpt to support a claim, match it as a string against the p
    - Where sources disagree, say so, and weigh them. Don't merge them into a position neither source takes.
    - **Compile every code example** on the declared `targets` before you save the topic, as [AGENTS.md: Writing style for opinions](../../AGENTS.md#writing-style-for-opinions) asks of an opinion: it passes `CARGO_BUILD_WARNINGS=deny cargo check` and `CARGO_BUILD_WARNINGS=deny cargo clippy`. Under the example, record the toolchain, the crate versions, and the date you compiled it. For a fragment that can't compile alone, compile the smallest complete example that hosts it, and say so. CI doesn't compile research, so an example you didn't build reaches `resolve-research` unchecked.
    - **Check every crate the topic recommends for security advisories** at the version it names. Run `cargo deny check advisories` in a project whose `Cargo.lock` resolves the crate to that version, such as the one you compiled the examples in, or look the crate up in the [RustSec Advisory Database](https://rustsec.org/). Record the date, and if an advisory is open, say so in the topic.
-6. **Answer follow-up questions** from what you've gathered. Sweep again, in the same order, only when a question goes beyond it.
+6. **Answer follow-up questions** from what you've gathered. Scan again, in the same order, only when a question goes beyond it.
 7. **Recommend what happens next.** End with what the research revealed about the repository, and recommend the matching skill. Never run it unprompted.
 
    | Finding                                                                   | Recommendation                                                           |
@@ -86,5 +86,5 @@ Commit the topic on the `research/<topic-slug>` branch, and open a pull request 
 
 - **Nightly-only topics,** such as an unstable language feature: Research them fully. Lead with the stabilisation status and the tracking issue, and mark guidance for "when it reaches stable" as hypothetical.
 - **A topic outside Rust:** Say that the roster has no authority there, and stop. Don't present general knowledge as vetted research.
-- **Offline:** Answer from `opinions/` alone, and say you skipped the roster sweep. The answer is sourced, but only as current as the opinions' `last-reviewed` dates.
+- **Offline:** Answer from `opinions/` alone, and say you skipped the roster scan. The answer is sourced, but only as current as the opinions' `last-reviewed` dates.
 - **House and community positions conflict, for the profile the user named:** Present both, house first, with the house reasoning. The reader might not follow the profile's conventions.
