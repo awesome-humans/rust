@@ -151,6 +151,8 @@ On 2026-11-12, the editor compiled this on 1.99.1 with `tokio` 1.53.3 and 1.54.1
 
 **The deadline bounds "runs to completion".** If `wait` takes longer than the 10 s, `main` returns and the runtime drops. Its tasks then "keep running until they yield. Then they are dropped", and "are not guaranteed to run to completion" ([`Runtime`](https://docs.rs/tokio/latest/tokio/runtime/struct.Runtime.html#shutdown), a reference, read 2026-11-12 for `tokio` 1.54.1). A tracked task therefore finishes only inside the deadline, so set it longer than the slowest cancel-unsafe operation. That reading is the editor's.
 
+The timeout bounds only `wait`, not the process. Blocking functions "keep running until they return", and the runtime's `Drop` "waits forever for this" (the same page). So the program exits only after `report`'s `spawn_blocking` call returns. `Runtime::shutdown_timeout` is the method that stops waiting, and it needs a runtime built by hand instead of `#[tokio::main]`.
+
 **The Tokio-only form** changes the owner and the token. This is a fragment: the channel, the send loop, and `report` stay as above, and the imports become `tokio::sync::{mpsc, watch}` and `tokio::task::JoinSet`.
 
 ```rust
@@ -214,7 +216,7 @@ The editor compiled the whole program with the same checks on 2026-11-12. `chang
 
 The Tokio docs answer the mutex question: "Contrary to popular belief, it is ok and often preferred to use the ordinary Mutex from the standard library in asynchronous code." The async mutex's only advantage is being held across an `.await`, and for a shared I/O resource "it is often better to spawn a task to manage the IO resource, and to use message passing" ([`tokio::sync::Mutex`](https://docs.rs/tokio/latest/tokio/sync/struct.Mutex.html), a reference). The tutorial says the same, and warns that a `MutexGuard` from a crate that implements `Send` for it compiles across an `.await` and deadlocks ([Tokio: Shared state](https://tokio.rs/tokio/tutorial/shared-state), `tokio-blog`).
 
-No docs.rs page restates the deadlock (checked 2026-10-26 for `tokio` 1.54.1), but it depends on no Tokio version. A `Send` guard makes the future `Send`, so `tokio::spawn` accepts it. Clippy's `await_holding_lock` catches the case for `std` and `parking_lot` guards.
+No docs.rs page restates the deadlock (checked 2026-10-26 for `tokio` 1.54.1), but it depends on no Tokio version. A `Send` guard doesn't stop the future being `Send`, so `tokio::spawn` accepts it when nothing else held across the `.await` breaks that bound. Clippy's `await_holding_lock` catches the case for `std` and `parking_lot` guards.
 
 `sunshowers` and `alice-ryhl` both point to the actor pattern instead. Wrap the `Arc<Mutex<T>>` in a type with synchronous methods, so no caller can hold the guard across an `.await`.
 
