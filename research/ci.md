@@ -82,7 +82,7 @@ Clippy reads `rust-version` from `Cargo.toml`. With `rust-version = "1.85"`, the
 
 How far `rust-version` trails is a policy question, not CI. Two references set the range: Tokio keeps "a rolling MSRV … of at least 6 months" ([tokio-rs/tokio: README](https://github.com/tokio-rs/tokio#supported-rust-versions)), and `ripgrep` "tracks the latest stable release" ([BurntSushi/ripgrep: README](https://github.com/BurntSushi/ripgrep#building)). `api-design.md` should own the policy, because raising `rust-version` is a SemVer question ([The Cargo Book: SemVer Compatibility](https://doc.rust-lang.org/cargo/reference/semver.html)). An application whose `rust-version` matches the pinned toolchain needs no MSRV job.
 
-RFC 3537, which added the MSRV-aware resolver, agrees on the scope: maintainers "will need to verify at least their MSRV and latest", and "only need to do a compilation check for MSRV" ([RFC 3537: MSRV-aware Resolver](https://rust-lang.github.io/rfcs/3537-msrv-resolver.html)). An accepted RFC is a reference on this roster, so it corroborates the Cargo Book and carries nothing alone.
+RFC 3537, which added the MSRV-aware resolver, agrees on the scope: maintainers "will need to verify at least their MSRV and latest", and "only need to do a compilation check for MSRV" ([RFC 3537: MSRV-aware Resolver](https://rust-lang.github.io/rfcs/3537-msrv-resolver.html)). An accepted RFC is a reference on this roster, so it corroborates the Cargo Book and supports nothing alone.
 
 ## Caching and build speed
 
@@ -108,7 +108,7 @@ Choosing between `cargo-audit` and `cargo-deny`, and their configuration, is `se
 
 ## Workflow hardening
 
-**Blocker: no citable source recommends SHA-pinned actions, a read-only `GITHUB_TOKEN`, or `persist-credentials: false`.** The sweep found these only in GitHub's documentation, in tools, and in other projects' CI, none of which can carry a claim:
+**Blocker: no citable source recommends SHA-pinned actions, a read-only `GITHUB_TOKEN`, or `persist-credentials: false`.** The sweep found these only in GitHub's documentation, in tools, and in other projects' CI, none of which can support a claim:
 
 - **GitHub:** "Pin references to actions to a commit SHA in your workflow files", because an attacker "would need to generate a SHA-1 collision" to change what runs. Set the `GITHUB_TOKEN` to "read access only for repository contents", and avoid `pull_request_target` ([GitHub Docs: Secure use reference](https://docs.github.com/en/actions/reference/security/secure-use), read 2026-10-19). Organisation and repository admins can require SHA pins since 2025-08-15 ([GitHub Changelog: Actions policy now supports blocking and SHA pinning actions](https://github.blog/changelog/2025-08-15-github-actions-policy-now-supports-blocking-and-sha-pinning-actions/)).
 - **The incident:** `tj-actions/changed-files` had its tags repointed to a commit that printed CI secrets to logs around 2025-03-14 (CVE-2025-30066), and CISA links it to the `reviewdog/action-setup` compromise on 2025-03-11 (CVE-2025-30154) ([CISA: Supply Chain Compromise of Third-Party GitHub Action](https://www.cisa.gov/news-events/alerts/2025/03/18/supply-chain-compromise-third-party-github-action-cve-2025-30066)). A SHA pin wasn't affected.
@@ -128,7 +128,7 @@ The CISA alert is a reference for what happened, and GitHub's documentation is a
 
 ## Watch-list and unvetted material
 
-Kept apart from the roster findings above. None of it carried a claim.
+Kept apart from the roster findings above. None of it supported a claim.
 
 - **Watch-list `effective-rust`:** Item 32 lists build, test, Clippy with `-Dwarnings`, `cargo doc`, `cargo-deny`, `cargo fmt --check`, an MSRV build, and a build without `Cargo.lock` for libraries. It says to "pin external scripts to versions or hashes" in public projects ([David Drysdale: Effective Rust, Item 32](https://www.lurklurk.org/effective-rust/ci.html)). It agrees with the checks table, and predates `build.warnings`.
 - **Watch-list `ms-rust-guidelines`:** M-STATIC-VERIFICATION names Clippy, rustfmt, `cargo-audit`, `cargo-hack`, `cargo-udeps`, and Miri "as part of check-in gates" ([Microsoft: Pragmatic Rust Guidelines](https://microsoft.github.io/rust-guidelines/)). It doesn't say how to wire them into CI.

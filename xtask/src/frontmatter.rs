@@ -35,7 +35,7 @@ pub fn parse(text: &str) -> Result<Mapping, String> {
     }
 }
 
-/// A scalar's text, as a header would carry it, or `None` for a list, a mapping, or null.
+/// A scalar's text, as a header would hold it, or `None` for a list, a mapping, or null.
 pub fn scalar(value: &Value) -> Option<String> {
     match value {
         Value::String(text) => Some(text.clone()),

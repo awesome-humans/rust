@@ -30,7 +30,7 @@ matklad adds four rules that the Cargo Book doesn't state:
 1. "The name of each directory is equal to the name of the crate", and "Don't succumb to the temptation to strip common prefix from folder names."
 2. A flat layout beats a hierarchy, because Cargo's crate namespace is flat anyway, and moving or splitting a crate needs no new folder.
 3. Keep `src/lib.rs` in a single-file crate: "even if crate is single file now, it might get expanded later."
-4. Put crates you publish under a separate top-level `libs/`, so you're "very deliberate" about which crates carry a SemVer promise, and `libs/` can't depend on `crates/`. The glob then needs both directories, as `members = ["crates/*", "libs/*"]`, or Cargo refuses to build a `libs/` crate that no member depends on: "current package believes it's in a workspace when it's not" (editor's probe on Cargo 1.99.1, 2026-10-19).
+4. Put crates you publish under a separate top-level `libs/`, so you're "very deliberate" about which crates make a SemVer promise, and `libs/` can't depend on `crates/`. The glob then needs both directories, as `members = ["crates/*", "libs/*"]`, or Cargo refuses to build a `libs/` crate that no member depends on: "current package believes it's in a workspace when it's not" (editor's probe on Cargo 1.99.1, 2026-10-19).
 
 He scopes the advice to projects of roughly 10 thousand to 1 million lines. Below that, a single package needs no workspace.
 
@@ -125,7 +125,7 @@ Why pin, and not `channel = "stable"`:
 
 - **A new stable release adds warn-by-default lints,** and CI denies warnings. For example, `io_other_error` arrived in 1.87 and `manual_is_multiple_of` in 1.90 (from the release announcements on `rust-blog`, as `opinions/rust.md` lists them). On a floating `stable`, a release day breaks the build of a commit that passed the day before.
 - **corrode pins the compiler version in build images,** and uses the same one in every stage ([Matthias Endler: Hardening Rust Code For Production](https://corrode.dev/blog/hardening-rust/), 2026-07-23). `corrode`. The same post builds with `--locked`.
-- **Pinning `1.99` rather than `1.99.1`** takes point releases without an edit. A point release carries fixes only. 1.99.1 fixed `wcslen`, FFI `bool` returns on x86-64, and `rust-lld` on macOS ([Rust Blog: Announcing Rust 1.99.1](https://blog.rust-lang.org/2026/10/15/Rust-1.99.1/)). `rust-blog`.
+- **Pinning `1.99` rather than `1.99.1`** takes point releases without an edit. A point release contains fixes only. 1.99.1 fixed `wcslen`, FFI `bool` returns on x86-64, and `rust-lld` on macOS ([Rust Blog: Announcing Rust 1.99.1](https://blog.rust-lang.org/2026/10/15/Rust-1.99.1/)). `rust-blog`.
 
 **The argument against pinning:** corrode also advises readers to "stick to the stable release of Rust if at all possible" and to run `rustup update` regularly ([Matthias Endler: Long-term Rust Project Maintenance](https://corrode.dev/blog/long-term-rust-maintenance/), 2024-05-13), and its CI examples use the latest stable. That's an argument against nightly and against falling behind, not against pinning a stable release. A pin that a bot bumps on each release keeps both. Renovate, which this repository already runs, can bump `rust-toolchain.toml`, and the repository's own `refresh-rust-versions` skill does the same for its templates. No roster source argues for a floating `stable` in a toolchain file. **Unvetted** discussion, such as forum threads and CI templates, splits between the two, so this recommendation rests on the lint argument.
 
@@ -194,4 +194,4 @@ These are unstable on nightly as of 2026-10-19, so they're not yet an opinion:
 - **The planned `justfile` template has no citable source.** `resolve-research` should either drop it from the template set, reduce it to recipes that only call `cargo` and `cargo xtask`, or record it as a house opinion through `weave-house-opinion`.
 - **Hand off what other topics own:** integration-test layout and doctests to `testing.md`, `[profile.release]` to `runtime-performance.md`, MSRV checks in CI and `build.warnings = "deny"` to `ci.md`, and which lints to set to `rust.md` and `ci.md`.
 - **Rust 1.100, due 2026-11-12,** might stabilise Cargo's lints. That's `refresh-rust-versions`, which would then add `missing_lints_inheritance` to the opinion.
-- **No `vet-source` candidate.** The roster carried every recommendation. The Microsoft guidelines agree throughout, but they're already on the watch list until 2027-08-11.
+- **No `vet-source` candidate.** The roster supported every recommendation. The Microsoft guidelines agree throughout, but they're already on the watch list until 2027-08-11.

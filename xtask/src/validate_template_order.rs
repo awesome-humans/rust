@@ -6,7 +6,7 @@
 //! expect it, and two edits that add the same one land on the same line.
 //!
 //! A group is a run of keys between blank lines, and a comment stays with the key below it,
-//! so a table can keep related entries together under one comment. Order that carries meaning
+//! so a table can keep related entries together under one comment. Order that has meaning
 //! isn't checked. See awesome-humans/website: Writing style, Order.
 
 use std::sync::LazyLock;

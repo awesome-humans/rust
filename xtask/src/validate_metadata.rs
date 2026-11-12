@@ -1,8 +1,8 @@
-//! `validate-metadata`: every resource carries the metadata fields AGENTS.md requires
+//! `validate-metadata`: every resource has the metadata fields AGENTS.md requires
 //! (`targets`, `last-reviewed`, and `sources`), the dates are ISO 8601, and each sources
 //! list is in ordinal order.
 //!
-//! Three resource kinds carry them two ways. `opinions/` and `research/` use YAML
+//! Three resource kinds record them two ways. `opinions/` and `research/` use YAML
 //! frontmatter, and `templates/` use a first-line comment header. One required set spans
 //! both syntaxes, so they can't drift apart.
 
@@ -18,7 +18,7 @@ use crate::{Report, comment_header, frontmatter};
 const REQUIRED: &[&str] = &["targets", "last-reviewed", "sources"];
 
 // last-used is retired everywhere: whether a resource is still referenced is read from the
-// repository by audit-freshness, not stored. A research topic also must not carry a status:
+// repository by audit-freshness, not stored. A research topic also must not have a status:
 // a topic on disk is unresolved by definition, and deletion is the only promotion signal
 // (AGENTS.md). Both are rejected, not ignored, so the retired shapes can't come back.
 const FORBIDDEN: &[&str] = &["last-used"];
@@ -67,7 +67,7 @@ pub fn run(repo: &Repo) -> Report {
     let templates = repo.header_templates();
     if repo.is_dir(repo::TEMPLATES) && templates.is_empty() {
         errors.push(format!(
-            "no header-carrying files found under {}/",
+            "no files with a comment header under {}/",
             repo::TEMPLATES
         ));
     }
@@ -88,7 +88,7 @@ pub fn run(repo: &Repo) -> Report {
         failure: "Resource metadata validation failed:",
         errors,
         summary: format!(
-            "All {} resources carry valid metadata ({} opinions, {} research, {} templates).",
+            "All {} resources have valid metadata ({} opinions, {} research, {} templates).",
             resources.len(),
             opinions.len(),
             research.len(),
@@ -160,7 +160,7 @@ fn check(resource: &Resource, errors: &mut Vec<String>) {
     }
 }
 
-// A key that is present but carries nothing (null, "", []) is as much a gap as a missing
+// A key that is present but holds nothing (null, "", []) is as much a gap as a missing
 // key, so both fail the same way.
 fn is_empty(value: &Value) -> bool {
     match value {
@@ -192,7 +192,7 @@ mod tests {
         assert_eq!(report.errors, Vec::<String>::new());
         assert_eq!(
             report.summary,
-            "All 0 resources carry valid metadata (0 opinions, 0 research, 0 templates)."
+            "All 0 resources have valid metadata (0 opinions, 0 research, 0 templates)."
         );
     }
 
@@ -207,7 +207,7 @@ mod tests {
         assert_eq!(report.errors, Vec::<String>::new());
         assert_eq!(
             report.summary,
-            "All 2 resources carry valid metadata (1 opinions, 0 research, 1 templates)."
+            "All 2 resources have valid metadata (1 opinions, 0 research, 1 templates)."
         );
     }
 
@@ -330,7 +330,7 @@ mod tests {
         let fixture = Fixture::new().file("templates/rustfmt.toml", "edition = \"2024\"\n");
         assert_eq!(
             run(&fixture.repo()).errors,
-            ["templates/rustfmt.toml: first line carries no comment header"]
+            ["templates/rustfmt.toml: first line has no comment header"]
         );
     }
 }

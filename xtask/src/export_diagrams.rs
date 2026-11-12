@@ -398,9 +398,9 @@ fn standing() -> String {
         or declined. A citable source is unmarked, marked Corroborate and never the only citation on a claim, or marked Discovery-only and never cited. \
         Citable and watch-listed sources go back through vet-source when they go dormant, drop in quality, or clear a blocker.";
 
-    // Each marking a citable source can carry, and what it lets a citation rest on.
+    // Each marking a citable source can have, and what it lets a citation rest on.
     const MARKINGS: &[(&str, &str)] = &[
-        ("unmarked", "may carry a claim alone"),
+        ("unmarked", "may support a claim alone"),
         (
             "**Corroborate.**",
             "cited, never as the only source on a claim",

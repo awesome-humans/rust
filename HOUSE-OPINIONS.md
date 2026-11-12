@@ -16,7 +16,7 @@ The site registers every profile in [awesome-humans/website: `houses.toml`](http
 
 Every awesome-humans ecosystem weaves house opinions the same way, as [awesome-humans/website: House opinions](https://github.com/awesome-humans/website/blob/main/pages/conventions/house-opinions.md) defines. It gives the [entry format](https://github.com/awesome-humans/website/blob/main/pages/conventions/house-opinions.md#entry-format) for the [Inbox](#inbox), how `weave-house-opinion` writes an entry in beside the sourced text, the fixed `**House:**` marking, and how a contributor's opinion is adopted. It's the canonical statement, so read it before you add or weave an entry, and work from it, not a paraphrase.
 
-No house opinion carries over from the .NET repository. Each one comes back through the Inbox if it applies to Rust.
+No house opinion transfers from the .NET repository. Each one comes back through the Inbox if it applies to Rust.
 
 ## Inbox
 

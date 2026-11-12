@@ -43,7 +43,7 @@ Before you use an excerpt to support a claim, match it as a string against the p
    Research a clear request without asking.
 
 2. **Start a worktree** on the branch `research/<topic-slug>`, such as `research/async-closures`, following [AGENTS.md](../../AGENTS.md). Create it before the first write. Use the repository's existing kebab-case name for the topic (`error-handling`, not `errors`), so the branch, topic, and opinions share one search term.
-3. **Start with the repository.** Read the matching `opinions/` files, which might already answer the question or carry a "Coming next" note. Skip house blocks unless the user named a house profile. Present that profile's blocks as "its owner's convention, not community consensus".
+3. **Start with the repository.** Read the matching `opinions/` files, which might already answer the question or have a "Coming next" note. Skip house blocks unless the user named a house profile. Present that profile's blocks as "its owner's convention, not community consensus".
 4. **Sweep the roster in this order:**
    1. **Citable sources,** weighted by how well their Focus column matches. You can quote these.
    2. **Watch-list sources,** for discovery and cross-checking. Label them as watch-list.
@@ -68,7 +68,7 @@ Before you use an excerpt to support a claim, match it as a string against the p
    | ------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
    | The topic has no opinion file or coverage                                 | `resolve-research`, which decides between an existing file and a new one |
    | A note or opinion is stale: a feature reached stable, or guidance changed | `refresh-rust-versions` or `harvest-sources`                             |
-   | A strong source from outside the roster carried the research              | `vet-source`                                                             |
+   | A strong source from outside the roster supported the research            | `vet-source`                                                             |
    | The repository already answers the question fully                         | Say so. `resolve-research` can discard the topic                         |
    | A saved research topic on this subject exists in `research/`              | Build on it, refresh its dates, and report its promote-or-discard status |
 

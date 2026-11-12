@@ -39,7 +39,7 @@ enum Bucket {
 }
 
 // Which level-2 headings open which bucket. Anything outside them, such as the admission
-// criteria and the decision log, carries no source rows.
+// criteria and the decision log, has no source rows.
 const SECTIONS: &[(Bucket, &str)] = &[
     (Bucket::Citable, "## Citable"),
     (Bucket::Watch, "## Watch list"),
@@ -147,7 +147,7 @@ fn citing(repo: &Repo, errors: &mut Vec<String>) -> Vec<(String, Vec<String>)> {
         }
     }
 
-    // A template carries the same IDs comma-separated inside its one-line comment header.
+    // A template lists the same IDs comma-separated inside its one-line comment header.
     for path in repo.header_templates() {
         let Ok(fields) = repo
             .read(&path)
@@ -427,7 +427,7 @@ fn check_citations(path: &str, ids: &[String], roster: &Roster, errors: &mut Vec
         }
     }
 
-    // A Corroborate-marked source may carry the shape of a claim but never the claim alone,
+    // A Corroborate-marked source may support the shape of a claim but never the claim alone,
     // so something unmarked has to stand beside it. A house profile doesn't count: it's its
     // owner's position, not a second reading of the evidence.
     let marked = ids.iter().any(|id| roster.corroborate.contains(id));
@@ -471,7 +471,7 @@ fn check_house(path: &str, ids: &[String], text: &str, errors: &mut Vec<String>)
 
     for span in spans.iter().filter(|span| !span.marked) {
         errors.push(format!(
-            "{path}:{}: the house {kind} for {} doesn't carry '{}'",
+            "{path}:{}: the house {kind} for {} doesn't contain '{}'",
             span.start + 1,
             span.profile,
             house::MARKING
@@ -485,7 +485,7 @@ fn check_house(path: &str, ids: &[String], text: &str, errors: &mut Vec<String>)
                 .any(|span| span.start < index && index < span.end)
         {
             errors.push(format!(
-                "{path}:{}: '{}' outside a house {kind}, so the default copy would carry it",
+                "{path}:{}: '{}' outside a house {kind}, so the default copy would include it",
                 index + 1,
                 house::MARKING
             ));
@@ -624,7 +624,7 @@ mod tests {
             [
                 "opinions/b.md: sources name house:simon-mckenna, but no house block here belongs to it",
                 "opinions/c.md: a house block belongs to simon-mckenna, but sources don't name house:simon-mckenna",
-                "opinions/d.md:8: '**House:**' outside a house block, so the default copy would carry it",
+                "opinions/d.md:8: '**House:**' outside a house block, so the default copy would include it",
             ]
         );
     }
@@ -638,7 +638,7 @@ mod tests {
         assert_eq!(
             run(&fixture.repo()).errors,
             [
-                "templates/Cargo.toml:2: the house region for simon-mckenna doesn't carry '**House:**'"
+                "templates/Cargo.toml:2: the house region for simon-mckenna doesn't contain '**House:**'"
             ]
         );
     }

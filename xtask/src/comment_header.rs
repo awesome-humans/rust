@@ -15,7 +15,7 @@ use serde_yaml_ng::{Mapping, Value};
 /// The literal every header opens with, inside its comment marker.
 pub const MARKER: &str = "awesome-humans/rust template";
 
-/// Parses a template's first line, or says why it carries no valid header.
+/// Parses a template's first line, or says why it has no valid header.
 pub fn parse(text: &str) -> Result<Mapping, String> {
     let line = text
         .strip_prefix('\u{feff}')
@@ -31,7 +31,7 @@ pub fn parse(text: &str) -> Result<Mapping, String> {
         .or_else(|| line.strip_prefix('#'))
         .map(str::trim)
     else {
-        return Err("first line carries no comment header".into());
+        return Err("first line has no comment header".into());
     };
 
     let Some(segments) = body.strip_prefix(MARKER) else {
@@ -86,7 +86,7 @@ mod tests {
     fn parse_rejects_a_first_line_without_a_comment() {
         assert_eq!(
             parse("[workspace]\n"),
-            Err("first line carries no comment header".to_string())
+            Err("first line has no comment header".to_string())
         );
     }
 

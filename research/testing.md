@@ -28,7 +28,7 @@ Four worker agents were assigned the sweep. The `sunshowers` worker finished. Th
 **Run `cargo nextest run` in place of `cargo test`, and run `cargo test --doc` beside it.** `corrode`, which has no stake in it, recommends adopting it, and `sunshowers` explains its design:
 
 - `corrode` says "Use Cargo Nextest Instead of `cargo test`", which "can be up to 60% faster than `cargo test` thanks to its parallel execution model" ([Matthias Endler: Tips For Faster Rust Compile Times](https://corrode.dev/blog/tips-for-faster-rust-compile-times/), published 2024-01-12, updated 2026-03-14). Its table of 1.37× to 3.38× speed-ups across nine projects is copied from nextest's own benchmarks page, so the measurement is the vendor's, and the recommendation is `corrode`'s.
-- `sunshowers` explains the design: "One test segfaulting does not take down a bunch of other tests", and the process-per-test model "forms a universal protocol that everyone in the ecosystem can rely on" ([Rain: Why nextest is process-per-test](https://sunshowers.io/posts/nextest-process-per-test/), 2025-01-07). Rain writes nextest, and the roster note forbids citing them alone on adopting it. Here `corrode` carries the adoption, and `sunshowers` carries how it works.
+- `sunshowers` explains the design: "One test segfaulting does not take down a bunch of other tests", and the process-per-test model "forms a universal protocol that everyone in the ecosystem can rely on" ([Rain: Why nextest is process-per-test](https://sunshowers.io/posts/nextest-process-per-test/), 2025-01-07). Rain writes nextest, and the roster note forbids citing them alone on adopting it. Here `corrode` supports the adoption, and `sunshowers` explains how it works.
 
 How nextest differs from `cargo test`, from its documentation (a reference):
 
@@ -74,7 +74,7 @@ The editor's reading: leave retries off by default, so a flake fails the run and
 
 - `matklad` recommends "only one integration test crate with several modules", as `tests/it/main.rs`, and measured Cargo's own test suite compiling three times faster, with five times less on disk, after the change ([Alex Kladov: Delete Cargo Integration Tests](https://matklad.github.io/2021/02/27/delete-cargo-integration-tests.html), 2021-02-27).
 - `corrode` says "Combine All Integration Tests Into A Single Binary", because many system linkers are single-threaded (2026-03-14, above).
-- `luca-palmieri`, watch-list, uses `tests/api/main.rs` and notes that "the linking phase is instead entirely sequential!" ([Luca Palmieri: Skeleton And Principles For A Maintainable Test Suite](https://www.lpalmieri.com/posts/skeleton-and-principles-for-a-maintainable-test-suite/), 2021-02). It agrees, and carries nothing on its own.
+- `luca-palmieri`, watch-list, uses `tests/api/main.rs` and notes that "the linking phase is instead entirely sequential!" ([Luca Palmieri: Skeleton And Principles For A Maintainable Test Suite](https://www.lpalmieri.com/posts/skeleton-and-principles-for-a-maintainable-test-suite/), 2021-02). It agrees, and supports nothing on its own.
 
 `matklad`'s second reason, that Cargo runs test binaries one after another, doesn't apply under nextest, which schedules tests across binaries. The link-time reason still applies, so the recommendation stands either way.
 
@@ -139,7 +139,7 @@ A doctest isn't merged if it uses `compile_fail` or an `edition` tag, uses a glo
 
 ### Where the roster disagrees: `doctest = false`
 
-`matklad` says to "avoid doc tests in internal libraries for big projects", with `[lib] doctest = false`, because each doctest was linked as its own binary (2021-02-27, above). Edition 2024 removed that cost for merged doctests, so his reason now applies only to the doctests that can't be merged. The editor's reading: on edition 2024, set `doctest = false` only on an unpublished crate whose doc comments carry no examples, where it saves the doctest build step and loses nothing. That needs a measurement or a second source before an opinion rests on it.
+`matklad` says to "avoid doc tests in internal libraries for big projects", with `[lib] doctest = false`, because each doctest was linked as its own binary (2021-02-27, above). Edition 2024 removed that cost for merged doctests, so his reason now applies only to the doctests that can't be merged. The editor's reading: on edition 2024, set `doctest = false` only on an unpublished crate whose doc comments have no examples, where it saves the doctest build step and loses nothing. That needs a measurement or a second source before an opinion rests on it.
 
 ## Assertions and test hygiene
 
@@ -226,16 +226,16 @@ Stable libtest JSON output would give `cargo test` the structured results that n
 
 Kept apart from the roster findings above.
 
-- **Watch-list `luca-palmieri`:** agrees on the single integration binary and black-box tests, as quoted above. It carried no claim alone.
-- **Unvetted:** no source outside the roster carried a claim. Searches for modern Rust testing guidance returned generated list articles and tutorials, which were discarded.
+- **Watch-list `luca-palmieri`:** agrees on the single integration binary and black-box tests, as quoted above. It supported no claim alone.
+- **Unvetted:** no source outside the roster supported a claim. Searches for modern Rust testing guidance returned generated list articles and tutorials, which were discarded.
 - **References:** the nextest, insta, and proptest documentation, the crates.io version data, and rust-clippy's source were used for facts about those tools, never for whether to adopt them.
 
 ## What this means for the repository
 
 - **No opinion covers the topic.** Run `resolve-research` to create `opinions/testing.md`. Its first sentence is the opening list here. It needs sections for the runner and its CI profile, the test layout, snapshot and property tests, doctests, and the lints. List it under README.md's Scope and in the layout tree.
-- **The expected sources need one swap.** PLAN.md expects `sunshowers`, `matklad`, and `luca-palmieri`. `luca-palmieri` is watch-listed and can't be cited, and `sunshowers` can't carry nextest adoption alone. `corrode` fills both gaps.
+- **The expected sources need one swap.** PLAN.md expects `sunshowers`, `matklad`, and `luca-palmieri`. `luca-palmieri` is watch-listed and can't be cited, and `sunshowers` can't support nextest adoption alone. `corrode` fills both gaps.
 - **Avoid repeating `rust.md`.** `opinions/testing.md` should link the `standalone_crate` row in `rust.md` instead of repeating it. Step 4 of the migration can keep `cargo test`, because it also runs the doctests that nextest can't. Leave `rust.md` unchanged.
 - **Templates:** add `templates/.config/nextest.toml` with the `ci` profile above, and add `should_panic_without_expect` and `ignore_without_reason` to `[workspace.lints.clippy]` in `templates/Cargo.toml`. Don't add a `templates/clippy.toml` for `allow-unwrap-in-tests`: no template turns on `unwrap_used` or `expect_used`, so the keys would do nothing. The single integration binary fits the planned example crates under `templates/projects/`.
 - **Leave the CI workflow, Miri, and async tests to their own topics.** `ci.md` owns the commands' place in a workflow, `unsafe.md` owns Miri, and `async.md` owns `#[tokio::test]` and paused time.
-- **`vet-source` candidate:** Armin Ronacher ([Armin Ronacher's Thoughts and Writings](https://lucumr.pocoo.org/)), the author of `insta`, if the opinion names a snapshot crate. He'd carry a conflict on adopting `insta`, like `sunshowers` on nextest.
+- **`vet-source` candidate:** Armin Ronacher ([Armin Ronacher's Thoughts and Writings](https://lucumr.pocoo.org/)), the author of `insta`, if the opinion names a snapshot crate. He'd have a conflict on adopting `insta`, like `sunshowers` on nextest.
 - **A harvest could fill the gap the rate limit left:** `burntsushi`, `tokio-blog`, and the others listed in [How the sweep ran](#how-the-sweep-ran) weren't searched for testing posts.

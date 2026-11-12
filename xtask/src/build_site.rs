@@ -1,10 +1,10 @@
 //! `build-site`: stages the Rust ecosystem's pages of awesome-humans.net, under `/rust/`.
-//! They're generated from this repository's own files, so the site never carries a second copy
+//! They're generated from this repository's own files, so the site never keeps a second copy
 //! to drift: README.md up to its layout section becomes the overview, `opinions/`,
 //! `research/`, and `skills/` are copied in full, the roster is split into a page per section, and every file
 //! under `templates/` gets a page showing it. `llms.txt` points agents at the raw files.
 //! Relative links are rewritten to the page they now point at, or to GitHub for a file the
-//! site doesn't carry. The navigation is generated too: the opinions take their titles and
+//! site doesn't publish. The navigation is generated too: the opinions take their titles and
 //! order from README.md's Scope list, and the skills theirs from its Maintenance via skills
 //! table, which `validate-readme-index` holds to the directories.
 //!
@@ -47,7 +47,7 @@ const SITE_URL: &str = "https://awesome-humans.net/";
 const HOUSE_OPINIONS: &str = "HOUSE-OPINIONS.md";
 const README: &str = "README.md";
 
-// The default profile, which carries no house opinions. Its copies go under raw/none/.
+// The default profile, which has no house opinions. Its copies go under raw/none/.
 const NO_PROFILE: &str = "none";
 
 // Days after its last-reviewed date that an opinion counts as stale, from audit-freshness.
@@ -370,7 +370,7 @@ impl Site<'_> {
         diagrams
     }
 
-    // The roster, split so that no page carries all of it. The overview holds the admission
+    // The roster, split so that no page holds all of it. The overview holds the admission
     // criteria and the shape of a source's notes, each roster table gets a page beside the
     // notes for the sources in it, each collapsed so the page reads as a list of sources, and
     // the decision log gets its own. A heading's anchor resolves to the page now holding it,
@@ -780,7 +780,7 @@ impl Site<'_> {
     // llms.txt, per llmstxt.org: a summary and links an agent can follow, to the raw Markdown
     // of each opinion and the raw template files rather than rendered pages. It describes this
     // ecosystem alone, at /rust/llms.txt, and the website repository's root llms.txt links to
-    // it. It carries no house opinions, and llms-<profile>.txt carries one profile's.
+    // it. It has no house opinions, and llms-<profile>.txt has one profile's.
     fn stage_llms(
         &mut self,
         scope: &[(String, String, String)],
@@ -828,9 +828,9 @@ impl Site<'_> {
                 .join("\n");
 
             let house = match profile {
-                None => "These files carry no house opinions.".to_string(),
+                None => "These files have no house opinions.".to_string(),
                 Some(profile) => format!(
-                    "These files carry the {profile} house profile's opinions. Each is a block that opens with `/// house | {profile}`, starts with `**House:**`, and closes with `///`, or a template region between `house:{profile} begin` and `house:{profile} end` comments. A house opinion is its owner's preference from experience, not sourced community practice. Where it conflicts with the sourced text beside it, follow the house opinion. For the default, which carries no house opinions, read [llms.txt]({SITE_URL}{ECOSYSTEM}/llms.txt)."
+                    "These files include the {profile} house profile's opinions. Each is a block that opens with `/// house | {profile}`, starts with `**House:**`, and closes with `///`, or a template region between `house:{profile} begin` and `house:{profile} end` comments. A house opinion is its owner's preference from experience, not sourced community practice. Where it conflicts with the sourced text beside it, follow the house opinion. For the default, which has no house opinions, read [llms.txt]({SITE_URL}{ECOSYSTEM}/llms.txt)."
                 ),
             };
 
@@ -1010,7 +1010,7 @@ impl Site<'_> {
     }
 
     // One source in sources.json, from its roster row and the heading of its notes, which
-    // carries the marking. A person's name is the start of their Source link text, before
+    // holds the marking. A person's name is the start of their Source link text, before
     // ": ", " (", or "'s". A publication's is the whole link text. Since keeps only its
     // leading year, so "~2016 (old docs)" exports as "~2016".
     fn source(&mut self, row: &Captures, bucket: &str, roster: &str) -> Option<Value> {
@@ -1334,7 +1334,7 @@ fn meta_item(label: &str, values: &str) -> String {
     format!("<span class=\"ah-meta__item\"><span class=\"ah-label\">{label}</span> {values}</span>")
 }
 
-// A house profile's chip carries the profile, so the site shows it only with its blocks.
+// A house profile's chip names the profile, so the site shows it only with its blocks.
 fn house_attribute(id: &str) -> String {
     house::profile_of(id).map_or_else(String::new, |profile| format!(" data-house=\"{profile}\""))
 }
@@ -1536,7 +1536,7 @@ mod tests {
         let errors = run(&fixture.repo(), &fixture.path().join("out"));
         assert_eq!(errors, Vec::<String>::new());
         assert!(staged(&fixture, "rust/index.md").contains("[house opinions](house-opinions.md)"));
-        assert!(staged(&fixture, "rust/llms.txt").contains("These files carry no house opinions."));
+        assert!(staged(&fixture, "rust/llms.txt").contains("These files have no house opinions."));
         let nav: Value = serde_json::from_str(&staged(&fixture, "rust/nav.json")).expect("JSON");
         assert_eq!(
             nav["nav"],
