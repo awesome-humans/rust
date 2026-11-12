@@ -352,8 +352,8 @@ Citable on how Tokio works, with a project limit.
   The tutorial explains futures and the runtime in worked steps, but gives no date or Tokio version.
 - **Independence:** A project's view of itself: since 2025, most posts announce TokioConf, Toasty, or Topcoat.
 - **Cite:** How Tokio and axum work.
-  Never cite it on whether to adopt Tokio, or a tokio-rs crate that isn't listed here.
-  Cite it on using `tokio-util`, once another roster source supports adopting Tokio. The crate is built in the [tokio-rs/tokio](https://github.com/tokio-rs/tokio/tree/master/tokio-util) repository and only extends Tokio's own API, so using it isn't a separate adoption choice.
+  Never cite it on whether to adopt Tokio or any other tokio-rs crate, axum included.
+  The only exceptions are the crates this note names, and it names one: `tokio-util`. Cite it on using `tokio-util`, once another roster source supports adopting Tokio. The crate is built in the [tokio-rs/tokio](https://github.com/tokio-rs/tokio/tree/master/tokio-util) repository and only extends Tokio's own API, so using it isn't a separate adoption choice.
   Check a tutorial claim against the current docs.rs pages, because the tutorial names no version.
 
 ### `tweede-golf`: Citable
