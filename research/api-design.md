@@ -204,7 +204,7 @@ Unstable on nightly as of 2026-10-19, not yet an opinion. The tracking issues ar
 Kept apart from the roster findings above. None of it supported a claim. The "Coming next" row on `cargo publish` rests on the unvetted page alone.
 
 - **Watch-list `api-guidelines`:** the checklist has the items this topic covers, among them C-SEALED, C-STRUCT-PRIVATE, C-BUILDER, C-NEWTYPE, C-COMMON-TRAITS, and C-GOOD-ERR ([Rust API Guidelines: Checklist](https://rust-lang.github.io/api-guidelines/checklist.html)). It agrees with the sealed-trait and private-field rules, which rest on the Cargo Book. Its C-COMMON-TRAITS item, to implement `Clone`, `PartialEq`, `Hash`, `Default`, and the rest eagerly on public types, has no citable source here, so it can't go in the opinion yet.
-- **Watch-list `ms-rust-guidelines`, `effective-rust`, and `jon-gjengset`:** not swept. The worker assigned to them hit a usage limit before it reported, so this topic has no cross-check from them.
+- **Watch-list `ms-rust-guidelines`, `effective-rust`, and `jon-gjengset`:** not scanned. The worker assigned to them hit a usage limit before it reported, so this topic has no cross-check from them.
 - **Unvetted, Rust Project Goals:** the page calls the tool "broadly adopted by the Rust community" and plans to merge it into `cargo publish` ([Rust Project Goals: Continue resolving cargo-semver-checks blockers for merging into cargo](https://goals.rust-lang.org/2026/cargo-semver-checks.html), accepted for 2026). goals.rust-lang.org isn't on the roster or among its named references, so it supports nothing here. `cargo-semver-checks`' own documentation is a reference, not an unvetted source.
 
 ## What this means for the repository
