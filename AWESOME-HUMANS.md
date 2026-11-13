@@ -1,6 +1,6 @@
 # Awesome humans
 
-These are the vetted sources behind every opinion in this repository. An opinion can use content only if it traces to a source listed here, or carries a reserved `house:<profile>` ID described below.
+These are the vetted sources behind every opinion in this repository. An opinion can use content only if it traces to a source listed here, or cites a reserved `house:<profile>` ID described below.
 
 To propose a source, [suggest it for vetting](https://github.com/awesome-humans/website/issues/new?template=suggest-source.yml&ecosystem=Rust). If you're a listed source and don't want your work cited, [ask to opt out](https://github.com/awesome-humans/website/issues/new?template=opt-out.yml). For how both work, see [Want in or out?](https://awesome-humans.net/want-in-or-out/)
 
@@ -70,7 +70,7 @@ A watch-list source is never cited. `just validate-sources` rejects a watch-list
 
 ## Named references
 
-The [admission criteria](https://github.com/awesome-humans/website/blob/main/pages/conventions/admission-criteria.md#reserved-ids-markings-and-references) define a reference and the rules for citing one. A reference corroborates a claim from a roster source, never carries one, and never appears in `sources:`. A crate's or tool's own material already qualifies when an opinion names it, such as its repository (`rust-lang/cargo` or `rust-lang/rust-clippy`), its docs.rs page, or its crates.io page, so it isn't listed here. This roster also names:
+The [admission criteria](https://github.com/awesome-humans/website/blob/main/pages/conventions/admission-criteria.md#reserved-ids-markings-and-references) define a reference and the rules for citing one. A reference corroborates a claim from a roster source, never supports one alone, and never appears in `sources:`. A crate's or tool's own material already qualifies when an opinion names it, such as its repository (`rust-lang/cargo` or `rust-lang/rust-clippy`), its docs.rs page, or its crates.io page, so it isn't listed here. This roster also names:
 
 - **[rust-lang/rfcs](https://github.com/rust-lang/rfcs):** The RFC for a language, Cargo, or library feature an opinion names, for how the feature behaves, not whether to use it. Link its page in [the RFC Book](https://rust-lang.github.io/rfcs/), such as `https://rust-lang.github.io/rfcs/2383-lint-reasons.html`.
 - **[rust-lang/rust](https://github.com/rust-lang/rust):** The tracking issue or stabilization pull request for a feature or lint an opinion names, for when it shipped or what still blocks it.
@@ -265,7 +265,7 @@ Citable on performance, with measurements in both the book and the blog.
 - **Scope:** Covers The Rust Performance Book, first published in 2020-11, and Nicholas Nethercote's blog.
 - **Longevity:** The book has updates through 2026-04-23, and the blog runs from 2021 to 2026-09-30.
   The longest gap in the last three years is about nine months, from 2024-03-06 to 2024-12-19.
-- **Depth:** The [Heap Allocations](https://nnethercote.github.io/perf-book/heap-allocations.html) chapter works from DHAT output to a rule of thumb.
+- **Depth:** The [Heap Allocations](https://nnethercote.github.io/perf-book/heap-allocations.html) chapter works from DHAT output to a general rule.
   ["How much code does that proc macro generate?"](https://nnethercote.github.io/2025/06/26/how-much-code-does-that-proc-macro-generate.html) measures the code `serde`'s derive generates.
 
 ### `predrag`: Citable
@@ -303,7 +303,7 @@ Citable on graphics, GPU compute, UI architecture, and SIMD, with the writing mo
 The Rust project's canonical record of what shipped in each release.
 
 - **Cite:** Release announcements for what changed and when.
-  Inside Rust posts on process and governance carry no technical claim.
+  Inside Rust posts on process and governance make no technical claim.
 
 ### `rust-docs`: Citable
 
@@ -324,7 +324,7 @@ Marked for uneven depth: community-written, maintained, and shallow in places.
 
 Dormant: the latest of six posts is from 2024-09-22.
 
-- **Accuracy:** "Why the 'Null' Lifetime Does Not Exist" carries a correction, dated 2023-07-22, that credits the reader who found the mistake.
+- **Accuracy:** "Why the 'Null' Lifetime Does Not Exist" includes a correction, dated 2023-07-22, that credits the reader who found the mistake.
 - **Re-evaluate:** When the writing resumes.
 
 ### `sunshowers`: Citable
@@ -349,7 +349,7 @@ A weekly newsletter since 2013-06-07, at issue 673 on 2026-10-14.
 Citable on how Tokio works, with a project limit.
 
 - **Depth:** ["Introducing dial9"](https://tokio.rs/blog/2026-03-18-dial9) works from production traces to scheduling delays and lock contention.
-  The tutorial explains futures and the runtime in worked steps, but carries no date or Tokio version.
+  The tutorial explains futures and the runtime in worked steps, but gives no date or Tokio version.
 - **Independence:** A project's view of itself: since 2025, most posts announce TokioConf, Toasty, or Topcoat.
 - **Cite:** How Tokio and axum work.
   Never cite it on whether to adopt Tokio or a crate from the same organisation.

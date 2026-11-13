@@ -15,7 +15,7 @@ use serde_yaml_ng::{Mapping, Value};
 /// The literal every header opens with, inside its comment marker.
 pub const MARKER: &str = "awesome-humans/rust template";
 
-/// Parses a template's first line, or says why it carries no valid header.
+/// Parses a template's first line, or says why it has no valid header.
 pub fn parse(text: &str) -> Result<Mapping, String> {
     let line = text
         .strip_prefix('\u{feff}')
@@ -31,11 +31,11 @@ pub fn parse(text: &str) -> Result<Mapping, String> {
         .or_else(|| line.strip_prefix('#'))
         .map(str::trim)
     else {
-        return Err("first line carries no comment header".into());
+        return Err("first line has no comment header".into());
     };
 
     let Some(segments) = body.strip_prefix(MARKER) else {
-        return Err(format!("header does not open with '{MARKER}'"));
+        return Err(format!("header doesn't open with '{MARKER}'"));
     };
 
     let mut fields = Mapping::new();
@@ -47,7 +47,7 @@ pub fn parse(text: &str) -> Result<Mapping, String> {
         // Split on the first colon only: `targets: rust-1.99, edition-2024` is one field
         // whose value happens to be a list.
         let Some((key, value)) = segment.split_once(':') else {
-            return Err(format!("header segment '{segment}' is not 'key: value'"));
+            return Err(format!("header segment '{segment}' isn't 'key: value'"));
         };
 
         let key = key.trim();
@@ -86,7 +86,7 @@ mod tests {
     fn parse_rejects_a_first_line_without_a_comment() {
         assert_eq!(
             parse("[workspace]\n"),
-            Err("first line carries no comment header".to_string())
+            Err("first line has no comment header".to_string())
         );
     }
 
@@ -94,7 +94,7 @@ mod tests {
     fn parse_rejects_another_marker() {
         assert_eq!(
             parse("# awesome-humans/dotnet template | targets: net10.0\n"),
-            Err(format!("header does not open with '{MARKER}'"))
+            Err(format!("header doesn't open with '{MARKER}'"))
         );
     }
 
@@ -102,7 +102,7 @@ mod tests {
     fn parse_rejects_a_segment_without_a_colon() {
         assert_eq!(
             parse(&format!("# {MARKER} | targets\n")),
-            Err("header segment 'targets' is not 'key: value'".to_string())
+            Err("header segment 'targets' isn't 'key: value'".to_string())
         );
     }
 

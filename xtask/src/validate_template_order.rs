@@ -6,7 +6,7 @@
 //! expect it, and two edits that add the same one land on the same line.
 //!
 //! A group is a run of keys between blank lines, and a comment stays with the key below it,
-//! so a table can keep related entries together under one comment. Order that carries meaning
+//! so a table can keep related entries together under one comment. Order that has meaning
 //! isn't checked. See awesome-humans/website: Writing style, Order.
 
 use std::sync::LazyLock;
@@ -117,7 +117,7 @@ fn finish(
     sorted.sort_by_key(|name| name.to_lowercase());
     if names != sorted {
         errors.push(format!(
-            "{path}:{}: the keys in [{table}] are not sorted; expected {}",
+            "{path}:{}: the keys in [{table}] aren't sorted; expected {}",
             keys[0].0,
             sorted.join(", ")
         ));
@@ -168,7 +168,7 @@ mod tests {
                 "[workspace.lints.clippy]\nmanual_let_else = \"warn\"\nallow_attributes = \"warn\"\n"
             ),
             [
-                "templates/Cargo.toml:2: the keys in [workspace.lints.clippy] are not sorted; expected allow_attributes, manual_let_else"
+                "templates/Cargo.toml:2: the keys in [workspace.lints.clippy] aren't sorted; expected allow_attributes, manual_let_else"
             ]
         );
     }
@@ -178,7 +178,7 @@ mod tests {
         assert_eq!(
             errors("[target.'cfg(unix)'.dependencies]\nlibc = \"0.2\"\nanyhow = \"1\"\n"),
             [
-                "templates/Cargo.toml:2: the keys in [target.'cfg(unix)'.dependencies] are not sorted; expected anyhow, libc"
+                "templates/Cargo.toml:2: the keys in [target.'cfg(unix)'.dependencies] aren't sorted; expected anyhow, libc"
             ]
         );
     }
@@ -206,7 +206,7 @@ mod tests {
         assert_eq!(
             errors("[dependencies]\n  tokio = \"1\"\n  anyhow = \"1\"\n"),
             [
-                "templates/Cargo.toml:2: the keys in [dependencies] are not sorted; expected anyhow, tokio"
+                "templates/Cargo.toml:2: the keys in [dependencies] aren't sorted; expected anyhow, tokio"
             ]
         );
     }
@@ -228,7 +228,7 @@ mod tests {
                 "[dependencies]\n# Use \"\"\" for multiline values.\ntokio = \"1\"\nanyhow = \"1\"\n"
             ),
             [
-                "templates/Cargo.toml:3: the keys in [dependencies] are not sorted; expected anyhow, tokio"
+                "templates/Cargo.toml:3: the keys in [dependencies] aren't sorted; expected anyhow, tokio"
             ]
         );
     }

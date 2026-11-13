@@ -1,6 +1,6 @@
 # Review instructions
 
-These instructions tune automated pull request review in this repository. The agent reviewer (currently CodeRabbit) reads them, and so can any other agent asked to review a pull request here. They add review-specific guidance, such as what each severity means, to [AGENTS.md](AGENTS.md), which stays the source of every other rule.
+These instructions guide automated pull request reviews in this repository. The agent reviewer (currently CodeRabbit) reads them, and so can any other agent asked to review a pull request here. They add review-specific guidance, such as what each severity means, to [AGENTS.md](AGENTS.md), which stays the source of every other rule.
 
 This repository is mostly prose. A finding matters when it would put a wrong or unsourced recommendation in front of a reader, or break a check or a skill that keeps the content current.
 
@@ -8,7 +8,7 @@ This repository is mostly prose. A finding matters when it would put a wrong or 
 
 Reserve Important for these. Everything else is Nit at most.
 
-- **An unsourced claim.** A new or changed recommendation in `opinions/` or `templates/` that no ID in the file's `sources` carries, or that relies on a link used as a reference to carry it. Quote the claim and name the source IDs the file lists.
+- **An unsourced claim.** A new or changed recommendation in `opinions/` or `templates/` that no ID in the file's `sources` supports, or that relies on a link used as a reference to support it. Quote the claim and name the source IDs the file lists.
 - **A misquoted source.** The text says a roster source recommends something that the cited page doesn't say. Quote the sentence from the source, with its link, or don't report it.
 - **Guidance from an unvetted source,** folded in instead of proposed through `vet-source`.
 - **A rule changed inside a research pull request.** A pull request that adds or changes a topic in `research/` and also changes a rule in `AGENTS.md`, `AWESOME-HUMANS.md`, or a `SKILL.md` that research applies. The rule needs its own pull request, so every open topic can be checked against it.
@@ -18,13 +18,13 @@ Reserve Important for these. Everything else is Nit at most.
 - **A broken skill.** A `SKILL.md` step that names a recipe, script, template, branch prefix, or file that doesn't exist, or that contradicts `AGENTS.md`.
 - **A wrong check.** In `xtask/`, a check that passes on input it should reject, a change to the exit codes (0 clean, 1 findings, 2 wrong directory), or a new check without a `#[cfg(test)]` case for the failure it catches.
 - **An unsafe workflow.** A `pull_request_target` job that checks out or runs the pull request's code, a secret passed to a step that doesn't need it, or an action pinned to a tag instead of a commit SHA.
-- **A loosened review.** A change to `REVIEW.md` or `AGENTS.md` that drops an Important item, raises the nit cap, or skips a path or a class of finding, without saying why. The agent reviewer can read both files from the pull request itself, so the change would soften its own review.
+- **Weaker review rules.** A change to `REVIEW.md` or `AGENTS.md` that drops an Important item, raises the nit cap, or skips a path or a class of finding, without saying why. The agent reviewer reads both files from the pull request's own branch, so such a change softens its own review.
 
 ## Cap the nits
 
 Report at most five Nits per review, the ones a reader would notice first. Writing-style findings, from `AGENTS.md: Writing style` and the shared page it links, are Nit at most.
 
-## Do not report
+## Don't report
 
 - Anything CI already enforces: Prettier, markdownlint, cspell, `rustfmt`, Clippy, `just validate-metadata`, `just validate-sources`, `just validate-readme-index`, `just validate-skills`, redrawn diagrams, links, and the site's strict build.
 - Generated files: `Cargo.lock`, `package-lock.json`, `.github/state/`, `assets/diagrams/`, and `templates/target/`.
@@ -41,4 +41,4 @@ Report at most five Nits per review, the ones a reader would notice first. Writi
 
 ## Evidence
 
-Cite `file:line` for every finding about this repository's behaviour, not an inference from a name. A finding about what a source says quotes the source.
+Cite `file:line` for every finding about this repository's behaviour. Don't infer behaviour from a name. A finding about what a source says quotes the source.

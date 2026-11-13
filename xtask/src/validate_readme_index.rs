@@ -75,7 +75,7 @@ pub fn run(repo: &Repo) -> Report {
     ] {
         if required && body.is_none() {
             errors.push(format!(
-                "README.md: '## {name}' section not found — the index checks below cannot run"
+                "README.md: '## {name}' section not found: the index checks below can't run"
             ));
         }
     }
@@ -133,13 +133,13 @@ fn check_scope(scope: &str, paths: &BTreeSet<&str>, errors: &mut Vec<String>) {
 
     for path in paths.difference(&linked) {
         errors.push(format!(
-            "README.md: Scope has no bullet linking to {path} — add one when adding an opinion"
+            "README.md: Scope has no bullet linking to {path}: add one when adding an opinion"
         ));
     }
 
     for stale in linked.difference(paths) {
         errors.push(format!(
-            "README.md: Scope links to {stale}, which no longer exists — drop or repoint the bullet"
+            "README.md: Scope links to {stale}, which no longer exists: drop or repoint the bullet"
         ));
     }
 
@@ -163,13 +163,13 @@ fn check_scope(scope: &str, paths: &BTreeSet<&str>, errors: &mut Vec<String>) {
 
         if let Some(unlinked) = unlinked {
             errors.push(format!(
-                "README.md: Scope bullet '{title}' follows the unlinked '{unlinked}' bullet — unlinked bullets stay last"
+                "README.md: Scope bullet '{title}' follows the unlinked '{unlinked}' bullet: unlinked bullets stay last"
             ));
         } else if let Some(previous) = previous
             && previous.to_lowercase() > title.to_lowercase()
         {
             errors.push(format!(
-                "README.md: Scope is not sorted by title — '{title}' follows '{previous}'"
+                "README.md: Scope isn't sorted by title: '{title}' follows '{previous}'"
             ));
         }
 
@@ -187,7 +187,7 @@ fn check_layout(
 
     if has_opinions && listed.is_empty() {
         errors.push(format!(
-            "README.md: Repository layout tree has no `{}/` node — the tree check cannot run",
+            "README.md: Repository layout tree has no `{}/` node: the tree check can't run",
             repo::OPINIONS
         ));
     }
@@ -195,7 +195,7 @@ fn check_layout(
     let listed_set: BTreeSet<&str> = listed.iter().copied().collect();
     for missing in names.difference(&listed_set) {
         errors.push(format!(
-            "README.md: Repository layout tree does not list opinions/{missing}"
+            "README.md: Repository layout tree doesn't list opinions/{missing}"
         ));
     }
 
@@ -209,7 +209,7 @@ fn check_layout(
     for pair in listed.windows(2) {
         if pair[0] > pair[1] {
             errors.push(format!(
-                "README.md: Repository layout tree is not sorted under `{}/` — {} follows {}",
+                "README.md: Repository layout tree isn't sorted under `{}/`: {} follows {}",
                 repo::OPINIONS,
                 pair[1],
                 pair[0]
@@ -237,7 +237,7 @@ fn check_skills(table: &str, skills: &[String], errors: &mut Vec<String>) {
 
     for stale in row_set.difference(&skill_set) {
         errors.push(format!(
-            "README.md: 'Maintenance via skills' table has a row for `{stale}`, which is not a skill directory"
+            "README.md: 'Maintenance via skills' table has a row for `{stale}`, which isn't a skill directory"
         ));
     }
 
@@ -246,7 +246,7 @@ fn check_skills(table: &str, skills: &[String], errors: &mut Vec<String>) {
     for pair in rows.windows(2) {
         if pair[0] > pair[1] {
             errors.push(format!(
-                "README.md: 'Maintenance via skills' table is not sorted by skill name — `{}` follows `{}`",
+                "README.md: 'Maintenance via skills' table isn't sorted by skill name: `{}` follows `{}`",
                 pair[1], pair[0]
             ));
         }
@@ -347,7 +347,7 @@ mod tests {
         );
         assert_eq!(
             run(&fixture(&readme).repo()).errors,
-            ["README.md: Scope is not sorted by title — 'Error handling' follows 'Rust'"]
+            ["README.md: Scope isn't sorted by title: 'Error handling' follows 'Rust'"]
         );
     }
 
@@ -359,7 +359,7 @@ mod tests {
         );
         let fixture = fixture(&readme).file("opinions/testing.md", "");
         let errors = run(&fixture.repo()).errors;
-        assert!(errors.contains(&"README.md: Scope bullet 'Testing' follows the unlinked 'Crates' bullet — unlinked bullets stay last".to_string()), "{errors:?}");
+        assert!(errors.contains(&"README.md: Scope bullet 'Testing' follows the unlinked 'Crates' bullet: unlinked bullets stay last".to_string()), "{errors:?}");
     }
 
     #[test]
@@ -368,8 +368,8 @@ mod tests {
         assert_eq!(
             run(&fixture.repo()).errors,
             [
-                "README.md: Scope has no bullet linking to opinions/testing.md — add one when adding an opinion",
-                "README.md: Repository layout tree does not list opinions/testing.md",
+                "README.md: Scope has no bullet linking to opinions/testing.md: add one when adding an opinion",
+                "README.md: Repository layout tree doesn't list opinions/testing.md",
             ]
         );
     }
@@ -384,7 +384,7 @@ mod tests {
         assert_eq!(
             run(&fixture.repo()).errors,
             [
-                "README.md: Scope links to opinions/error-handling.md, which no longer exists — drop or repoint the bullet",
+                "README.md: Scope links to opinions/error-handling.md, which no longer exists: drop or repoint the bullet",
                 "README.md: Repository layout tree lists opinions/error-handling.md, which no longer exists",
             ]
         );
@@ -399,7 +399,7 @@ mod tests {
         assert_eq!(
             run(&fixture(&readme).repo()).errors,
             [
-                "README.md: 'Maintenance via skills' table is not sorted by skill name — `audit-freshness` follows `vet-source`"
+                "README.md: 'Maintenance via skills' table isn't sorted by skill name: `audit-freshness` follows `vet-source`"
             ]
         );
     }
@@ -410,7 +410,7 @@ mod tests {
         assert_eq!(
             run(&fixture(&readme).repo()).errors,
             [
-                "README.md: '## Maintenance via skills' section not found — the index checks below cannot run"
+                "README.md: '## Maintenance via skills' section not found: the index checks below can't run"
             ]
         );
     }
@@ -424,7 +424,7 @@ mod tests {
         assert_eq!(
             run(&fixture(&readme).repo()).errors,
             [
-                "README.md: Repository layout tree is not sorted under `opinions/` — error-handling.md follows rust.md"
+                "README.md: Repository layout tree isn't sorted under `opinions/`: error-handling.md follows rust.md"
             ]
         );
     }

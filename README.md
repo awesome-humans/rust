@@ -1,6 +1,6 @@
 # Awesome Humans of Rust
 
-An agentic take on [awesome-rust](https://github.com/rust-unofficial/awesome-rust): distilled, opinionated guidance, thanks to awesome humans. Instead of links, it distils what vetted Rust writers recommend into guidance your agent can follow, each opinion citing its sources. It documents current best practice in Rust code, and updates it as Rust evolves.
+An agentic take on [awesome-rust](https://github.com/rust-unofficial/awesome-rust): opinionated guidance for your coding agent, distilled from the writing of awesome humans. Instead of a list of links, it gives one recommendation per question, and each opinion cites its sources. It documents current best practice in Rust code, and changes as Rust evolves.
 
 The writers are listed in [AWESOME-HUMANS.md](AWESOME-HUMANS.md): people and publications with at least two years of accurate, independent writing on Rust.
 
@@ -32,7 +32,7 @@ The writers are listed in [AWESOME-HUMANS.md](AWESOME-HUMANS.md): people and pub
   Use the research-topic skill at awesome-humans.net/rust/llms.txt to research whether to adopt cargo-nextest
   ```
 
-- **Read the opinions and templates.** Browse them at [awesome-humans.net](https://awesome-humans.net/rust/) or on GitHub. Each opinion gives its recommendation, with the rationale and sources behind it, and the [`templates/`](templates) encode those opinions.
+- **Read the opinions and templates.** Browse them at [awesome-humans.net](https://awesome-humans.net/rust/) or on GitHub. Each opinion gives its recommendation, rationale, and sources, and the [`templates/`](templates) encode them.
 
 ## Scope
 
@@ -65,7 +65,9 @@ Any other limit, such as a concern about independence or an outdated back catalo
 
 ## House opinions
 
-House opinions are preferences from experience rather than from a vetted source. Each belongs to a house profile, named for the person or organisation that owns it, such as the owner's, `simon-mckenna`. On awesome-humans.net, every page shows sourced community practice only, until you choose a profile in the header. Agents read `llms-<profile>.txt` instead of `llms.txt`. In this repository, each house opinion is a marked block beside the sourced text it changes, and [HOUSE-OPINIONS.md](HOUSE-OPINIONS.md) defines the format and records each one. Other contributors can propose sourced or experience-based opinions through the organisation's [opinion pull request template](https://github.com/awesome-humans/.github/blob/main/PULL_REQUEST_TEMPLATE/opinion.md).
+A house opinion is a preference from experience, not from a vetted source. Each belongs to a house profile, named for the person or organisation that owns it, such as `simon-mckenna`. On awesome-humans.net, every page shows only sourced community practice until you choose a profile in the header. An agent that follows a profile reads `llms-<profile>.txt` instead of `llms.txt`.
+
+In this repository, each house opinion is a marked block beside the sourced text it changes, and [HOUSE-OPINIONS.md](HOUSE-OPINIONS.md) defines the format and records each one. Other contributors can propose sourced or experience-based opinions through the organisation's [opinion pull request template](https://github.com/awesome-humans/.github/blob/main/PULL_REQUEST_TEMPLATE/opinion.md).
 
 ## Repository layout
 
@@ -104,7 +106,7 @@ House opinions are preferences from experience rather than from a vetted source.
 
 Agent skills maintain the repository. They follow the [Agent Skills specification](https://agentskills.io/specification), so any compliant agent can run them. Each skill is a directory under [`skills/`](skills) with a `SKILL.md` file.
 
-The skills split work by cost. Cheaper worker agents run the web searches and source sweeps in parallel. The strongest available model is the editor, and only the editor writes to the opinions and templates.
+The skills split work by cost. Lower-cost worker agents run the web searches and source scans in parallel. The strongest available model is the editor, and only the editor writes to the opinions and templates.
 
 Every skill except the three report-only ones works on its own branch, and its changes land through a pull request that passes CI, gets an agent review, and passes the owner's review. Each `SKILL.md` is canonical over this diagram.
 
@@ -113,7 +115,7 @@ Every skill except the three report-only ones works on its own branch, and its c
 | Skill                                                            | Purpose                                                                                            |
 | ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
 | [`audit-freshness`](skills/audit-freshness/SKILL.md)             | Report resources whose `last-reviewed` date has drifted past tolerance                             |
-| [`harvest-sources`](skills/harvest-sources/SKILL.md)             | Sweep the awesome-humans sources for new posts, and add notable guidance to the opinions           |
+| [`harvest-sources`](skills/harvest-sources/SKILL.md)             | Scan the awesome-humans sources for new posts, and add notable guidance to the opinions            |
 | [`refresh-rust-versions`](skills/refresh-rust-versions/SKILL.md) | Detect new stable Rust releases and editions, and update all opinions and templates to target them |
 | [`research-topic`](skills/research-topic/SKILL.md)               | Research a Rust topic from the opinions and vetted sources, and save it with citations             |
 | [`resolve-research`](skills/resolve-research/SKILL.md)           | Resolve a saved research topic by weaving it into the opinions and templates, or discard it        |
@@ -159,7 +161,7 @@ just validate-metadata
 
 `just verify` runs every offline check CI runs, in one command: `just check`, `just clippy`, `just test`, the skills check, the four validators, `check-diagrams`, and `build-site`. It redraws the diagrams, and fails until you commit any SVG it changes. The link check is left to CI, because lychee is a separate binary and depends on third-party hosts. Run `just links` to check links locally. `just` with no arguments lists every recipe.
 
-Every check exits 0 when clean, 1 for findings, and 2 when it isn't run from the repository root. Until a later phase adds `opinions/` or `templates/`, the checks read the missing one as empty. Once it exists, an empty directory or a missing README section is a finding.
+Every check exits 0 when clean, 1 for findings, and 2 when it isn't run from the repository root. The checks read a missing `opinions/` or `templates/` directory as empty, but an empty one that exists, or a missing README section, is a finding.
 
 Four modules hold the code that more than one subcommand uses:
 
@@ -170,8 +172,8 @@ Four modules hold the code that more than one subcommand uses:
 
 ## Acknowledgement
 
-Agents build and maintain this project, so the [usual disclaimers](https://awesome-humans.net/credits/#disclaimer) apply, but it wouldn't exist without the people whose writing it draws on. Every opinion cites their work. Thank you to all of these awesome humans, and to everyone who supports them.
+Agents build and maintain this project, so the [usual disclaimers](https://awesome-humans.net/credits/#disclaimer) apply. It wouldn't exist without the people whose writing it draws on, and every opinion cites their work. Thank you to all of these awesome humans, and to everyone who supports them.
 
 ## Licence
 
-See [LICENSE](LICENSE).
+[Apache License 2.0](LICENSE).

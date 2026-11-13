@@ -19,7 +19,7 @@
 //! ```
 //!
 //! The file's sources list names the profile as `house:<profile>`. Removing every block and
-//! region gives the default copy, which carries no house opinions, and keeping one profile's
+//! region gives the default copy, which has no house opinions, and keeping one profile's
 //! gives that profile's copy.
 
 use std::sync::LazyLock;
@@ -44,7 +44,7 @@ static FENCE_OPENING: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\A\s*(?<fence>`{3,}|~{3,})").expect("valid pattern"));
 
 /// One house block or region: its profile, its first and last line (the opening and closing
-/// lines included, counted from 0), and whether it carries the marking.
+/// lines included, counted from 0), and whether it has the marking.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Span {
     pub profile: String,
@@ -166,7 +166,7 @@ pub fn spans(path: &str, text: &str, errors: &mut Vec<String>) -> Vec<Span> {
 /// The text with every house block or region removed except the given profile's, or all of
 /// them for `None`. A kept template region loses its two marker lines, which only staging
 /// reads. The sources list loses every other profile's id, so a copy names only the house
-/// opinions it carries.
+/// opinions it contains.
 pub fn for_profile(path: &str, text: &str, profile: Option<&str>) -> String {
     let template = is_template(path);
     let mut lines: Vec<String> = text.split('\n').map(String::from).collect();

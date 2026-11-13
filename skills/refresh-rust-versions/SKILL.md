@@ -48,7 +48,7 @@ As [AGENTS.md: Orchestration and model economy](../../AGENTS.md#orchestration-an
      - Set the `Versions verified against crates.io … on <date>` comment to the run date **whether or not any version changed**. It's the file's only freshness record.
 
 5. **Update each opinion** under `opinions/`:
-   - Read the release notes from the first-party sources, `rust-blog` and `rust-docs`: the release announcement, the [release notes](https://doc.rust-lang.org/releases.html), and the Edition Guide. Read feature deep dives from the rest of the citable roster, such as `nnethercote` on compile times or `predrag` on SemVer.
+   - Read the release notes from the first-party sources, `rust-blog` and `rust-docs`: the release announcement, the [release notes](https://doc.rust-lang.org/releases.html), and the Edition Guide. Read detailed posts on each feature from the rest of the citable roster, such as `nnethercote` on compile times or `predrag` on SemVer.
    - Add a newly stabilised feature where it changes an opinion, for example an API that replaces a crate or an old idiom.
    - When a feature needs a new opinion, create a stub with a `TODO` and a source link, and add its `README.md` Scope bullet and Repository layout entry, which CI enforces.
    - Update `targets:` and `last-reviewed:` on every file you change **or verify as unchanged**.

@@ -39,7 +39,7 @@ enum Bucket {
 }
 
 // Which level-2 headings open which bucket. Anything outside them, such as the admission
-// criteria and the decision log, carries no source rows.
+// criteria and the decision log, has no source rows.
 const SECTIONS: &[(Bucket, &str)] = &[
     (Bucket::Citable, "## Citable"),
     (Bucket::Watch, "## Watch list"),
@@ -70,7 +70,7 @@ pub fn run(repo: &Repo) -> Report {
     let mut errors = Vec::new();
     let citing = citing(repo, &mut errors);
 
-    // The roster arrives in phase 3 of PLAN.md. Until then, nothing may cite a source.
+    // Without a roster, nothing may cite a source.
     let Ok(text) = repo.read(ROSTER) else {
         if citing.is_empty() {
             return Report {
@@ -147,7 +147,7 @@ fn citing(repo: &Repo, errors: &mut Vec<String>) -> Vec<(String, Vec<String>)> {
         }
     }
 
-    // A template carries the same IDs comma-separated inside its one-line comment header.
+    // A template lists the same IDs comma-separated inside its one-line comment header.
     for path in repo.header_templates() {
         let Ok(fields) = repo
             .read(&path)
@@ -287,7 +287,7 @@ impl Roster {
 
             match entries.entry(id) {
                 Slot::Occupied(slot) => errors.push(format!(
-                    "{ROSTER}: source id '{}' appears on more than one row — ids are unique",
+                    "{ROSTER}: source id '{}' appears on more than one row: ids are unique",
                     slot.key()
                 )),
                 Slot::Vacant(slot) => {
@@ -319,7 +319,7 @@ impl Roster {
 
         if entries.is_empty() {
             errors.push(format!(
-                "{ROSTER}: no source rows parsed — roster tables may have changed shape"
+                "{ROSTER}: no source rows parsed: roster tables may have changed shape"
             ));
         }
 
@@ -329,7 +329,7 @@ impl Roster {
             for pair in ids.windows(2) {
                 if pair[0] > pair[1] {
                     errors.push(format!(
-                        "{ROSTER}: '{heading}' is not sorted by id — '{}' follows '{}'",
+                        "{ROSTER}: '{heading}' isn't sorted by id: '{}' follows '{}'",
                         pair[1], pair[0]
                     ));
                 }
@@ -346,7 +346,7 @@ impl Roster {
                 // An opted-out source's notes go with it: the evidence was about work it asked
                 // us to stop citing, and its row and the decision log are all the roster keeps.
                 Some(entry) if entry.bucket == Bucket::OptedOut => errors.push(format!(
-                    "{ROSTER}: '{NOTES_HEADING}' has a section for '{id}', which has opted out — delete the section"
+                    "{ROSTER}: '{NOTES_HEADING}' has a section for '{id}', which has opted out: delete the section"
                 )),
                 Some(_) => {}
             }
@@ -355,7 +355,7 @@ impl Roster {
         for pair in note_ids.windows(2) {
             if pair[0] > pair[1] {
                 errors.push(format!(
-                    "{ROSTER}: '{NOTES_HEADING}' is not sorted by id — '{}' follows '{}'",
+                    "{ROSTER}: '{NOTES_HEADING}' isn't sorted by id: '{}' follows '{}'",
                     pair[1], pair[0]
                 ));
             }
@@ -399,7 +399,7 @@ fn check_citations(path: &str, ids: &[String], roster: &Roster, errors: &mut Vec
 
         if id == "house" {
             errors.push(format!(
-                "{path}: 'house' names no profile — write {}<profile>, such as {}simon-mckenna",
+                "{path}: 'house' names no profile: write {}<profile>, such as {}simon-mckenna",
                 house::PREFIX,
                 house::PREFIX
             ));
@@ -408,26 +408,26 @@ fn check_citations(path: &str, ids: &[String], roster: &Roster, errors: &mut Vec
 
         let Some(entry) = roster.entries.get(id) else {
             errors.push(format!(
-                "{path}: source '{id}' is not on the roster in {ROSTER}"
+                "{path}: source '{id}' isn't on the roster in {ROSTER}"
             ));
             continue;
         };
 
         match entry.bucket {
             Bucket::Watch => errors.push(format!(
-                "{path}: source '{id}' is on the watch list and may not feed opinions or templates — corroborate with a citable source or admit it via vet-source"
+                "{path}: source '{id}' is on the watch list and may not feed opinions or templates: corroborate with a citable source or admit it via vet-source"
             )),
             Bucket::OptedOut => errors.push(format!(
-                "{path}: source '{id}' has opted out and may not feed opinions or templates — re-source the claim with research-topic, or cut it back to what other citable sources support"
+                "{path}: source '{id}' has opted out and may not feed opinions or templates: re-source the claim with research-topic, or cut it back to what other citable sources support"
             )),
             Bucket::Citable if roster.discovery.contains(id) => errors.push(format!(
-                "{path}: source '{id}' is marked discovery-only and never appears in 'sources:' — cite the primary source it led you to"
+                "{path}: source '{id}' is marked discovery-only and never appears in 'sources:': cite the primary source it led you to"
             )),
             Bucket::Citable => {}
         }
     }
 
-    // A Corroborate-marked source may carry the shape of a claim but never the claim alone,
+    // A Corroborate-marked source may support the shape of a claim but never the claim alone,
     // so something unmarked has to stand beside it. A house profile doesn't count: it's its
     // owner's position, not a second reading of the evidence.
     let marked = ids.iter().any(|id| roster.corroborate.contains(id));
@@ -438,7 +438,7 @@ fn check_citations(path: &str, ids: &[String], roster: &Roster, errors: &mut Vec
     });
     if marked && !unmarked {
         errors.push(format!(
-            "{path}: every citable source here is marked '{CORROBORATE_MARKER}' — add a citable source that is not, or drop the claim"
+            "{path}: every citable source here is marked '{CORROBORATE_MARKER}': add a citable source that isn't, or drop the claim"
         ));
     }
 }
@@ -471,7 +471,7 @@ fn check_house(path: &str, ids: &[String], text: &str, errors: &mut Vec<String>)
 
     for span in spans.iter().filter(|span| !span.marked) {
         errors.push(format!(
-            "{path}:{}: the house {kind} for {} doesn't carry '{}'",
+            "{path}:{}: the house {kind} for {} doesn't contain '{}'",
             span.start + 1,
             span.profile,
             house::MARKING
@@ -485,7 +485,7 @@ fn check_house(path: &str, ids: &[String], text: &str, errors: &mut Vec<String>)
                 .any(|span| span.start < index && index < span.end)
         {
             errors.push(format!(
-                "{path}:{}: '{}' outside a house {kind}, so the default copy would carry it",
+                "{path}:{}: '{}' outside a house {kind}, so the default copy would include it",
                 index + 1,
                 house::MARKING
             ));
@@ -555,9 +555,7 @@ mod tests {
         let fixture = Fixture::new().file(ROSTER, &duplicate);
         assert_eq!(
             run(&fixture.repo()).errors,
-            [
-                "AWESOME-HUMANS.md: source id 'matklad' appears on more than one row — ids are unique"
-            ]
+            ["AWESOME-HUMANS.md: source id 'matklad' appears on more than one row: ids are unique"]
         );
     }
 
@@ -568,7 +566,7 @@ mod tests {
         assert_eq!(
             run(&fixture.repo()).errors,
             [
-                "AWESOME-HUMANS.md: 'Citable: quotable in opinions and templates' is not sorted by id — 'matklad' follows 'zz-top'"
+                "AWESOME-HUMANS.md: 'Citable: quotable in opinions and templates' isn't sorted by id: 'matklad' follows 'zz-top'"
             ]
         );
     }
@@ -595,10 +593,10 @@ mod tests {
         assert_eq!(
             run(&fixture.repo()).errors,
             [
-                "opinions/a.md: source 'newcomer' is on the watch list and may not feed opinions or templates — corroborate with a citable source or admit it via vet-source",
-                "opinions/b.md: every citable source here is marked '**Corroborate.**' — add a citable source that is not, or drop the claim",
-                "opinions/c.md: 'house' names no profile — write house:<profile>, such as house:simon-mckenna",
-                "opinions/c.md: source 'unknown' is not on the roster in AWESOME-HUMANS.md",
+                "opinions/a.md: source 'newcomer' is on the watch list and may not feed opinions or templates: corroborate with a citable source or admit it via vet-source",
+                "opinions/b.md: every citable source here is marked '**Corroborate.**': add a citable source that isn't, or drop the claim",
+                "opinions/c.md: 'house' names no profile: write house:<profile>, such as house:simon-mckenna",
+                "opinions/c.md: source 'unknown' isn't on the roster in AWESOME-HUMANS.md",
             ]
         );
     }
@@ -626,7 +624,7 @@ mod tests {
             [
                 "opinions/b.md: sources name house:simon-mckenna, but no house block here belongs to it",
                 "opinions/c.md: a house block belongs to simon-mckenna, but sources don't name house:simon-mckenna",
-                "opinions/d.md:8: '**House:**' outside a house block, so the default copy would carry it",
+                "opinions/d.md:8: '**House:**' outside a house block, so the default copy would include it",
             ]
         );
     }
@@ -640,7 +638,7 @@ mod tests {
         assert_eq!(
             run(&fixture.repo()).errors,
             [
-                "templates/Cargo.toml:2: the house region for simon-mckenna doesn't carry '**House:**'"
+                "templates/Cargo.toml:2: the house region for simon-mckenna doesn't contain '**House:**'"
             ]
         );
     }
