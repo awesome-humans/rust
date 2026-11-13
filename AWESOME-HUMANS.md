@@ -353,7 +353,9 @@ Citable on how Tokio works, with a project limit.
 - **Independence:** A project's view of itself: since 2025, most posts announce TokioConf, Toasty, or Topcoat.
 - **Cite:** How Tokio and axum work.
   Never cite it on whether to adopt Tokio or any other tokio-rs crate, axum included.
-  The only exceptions are the crates this note names, and it names one: `tokio-util`. Cite it on using `tokio-util`, once another roster source supports adopting Tokio. The crate is built in the [tokio-rs/tokio](https://github.com/tokio-rs/tokio/tree/master/tokio-util) repository and only extends Tokio's own API, so using it isn't a separate adoption choice.
+  One exception: cite it on using `tokio-util`'s `TaskTracker` and `CancellationToken`, once another roster source supports adopting Tokio.
+  They're built in the [tokio-rs/tokio](https://github.com/tokio-rs/tokio/tree/master/tokio-util) repository and only extend Tokio's task API, so using them isn't a separate adoption choice.
+  The rest of `tokio-util`, such as its codecs, keeps the limit, because crates outside tokio-rs compete with it.
   Check a tutorial claim against the current docs.rs pages, because the tutorial names no version.
 
 ### `tweede-golf`: Citable
@@ -391,7 +393,7 @@ Citable on async and effects design, from 177 posts since 2016.
 | Date | Decision | Detail |
 | --- | --- | --- |
 | 2026-11-14 | Let a reference support a reference fact alone (no roster change) | A reference fact is a statement about a reference's own subject that a reader can check against it, including what the subject requires of a project that uses it. It needs no roster source. A choice or a judgement still rests on one. The shared admission criteria define the terms. The maintainer's decision, in awesome-humans/website#188 |
-| 2026-11-12 | Listed `tokio-util` in `tokio-blog`'s usage limit (no roster change) | `tokio-util` is built in the `tokio-rs/tokio` repository and only extends Tokio's API, so using it isn't a separate adoption choice once another source supports adopting Tokio. Every other tokio-rs crate keeps the limit |
+| 2026-11-12 | Listed `tokio-util`'s `TaskTracker` and `CancellationToken` in `tokio-blog`'s usage limit (no roster change) | They're built in the `tokio-rs/tokio` repository and only extend Tokio's task API, so using them isn't a separate adoption choice once another source supports adopting Tokio. The rest of `tokio-util` and every other tokio-rs crate keep the limit |
 | 2026-10-23 | Named four repositories as references (no roster change) | `rust-lang/rfcs`, `rust-lang/rust`, `rust-lang/libs-team`, and `rustsec/advisory-db` can corroborate a roster-sourced claim inline. Crate and tool repositories already qualify, and the repositories behind `rust-docs` stay part of that source |
 | 2026-10-18 | Watch-listed `without-boats` | No writing since 2024-10 |
 | 2026-10-18 | Watch-listed `sabrina-jewson` | No writing since 2024-09 |
