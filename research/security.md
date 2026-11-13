@@ -99,7 +99,7 @@ crates.io's trusted publishing, shipped 2025-07-11, "eliminates the need for Git
 
 ## Secure coding
 
-The roster sweep here is narrower than for the supply chain. A worker covering the secure-coding sources stopped on a rate limit, and the editor read ANSSI and `corrode`'s hardening post in full, but not the rest of the roster on fuzzing, TLS, or cryptography crates. For the follow-up sweep, see [What this means for the repository](#what-this-means-for-the-repository).
+The roster scan here is narrower than for the supply chain. A worker covering the secure-coding sources stopped on a rate limit, and the editor read ANSSI and `corrode`'s hardening post in full, but not the rest of the roster on fuzzing, TLS, or cryptography crates. For the follow-up scan, see [What this means for the repository](#what-this-means-for-the-repository).
 
 ### `unsafe`
 
@@ -147,7 +147,7 @@ Bound everything that input controls. `corrode`: "Set explicit limits on everyth
 ### Secrets
 
 - **`Debug` and logs:** write `Debug` by hand for a type that holds a secret (`rust.md`, from `corrode`). `corrode` adds: "avoid putting secrets or raw user data into panic messages in the first place", and sanitise in a panic hook (2026-07-23, above).
-- **Erasure:** "Ensuring security operations at the end of some treatment (such as key erasure at the end of a cryptographic encryption) MUST NOT rely only on the `Drop` trait implementation", because a reference cycle, `mem::forget`, or an abort skips it ([ANSSI: LANG-DROP-SEC](https://anssi-fr.github.io/rust-guide/standard.html#LANG-DROP-SEC)). ANSSI doesn't say what to use instead, and names neither `zeroize` (1.9.1, 2026-10-06) nor `secrecy` (0.10.3, 2024-10-09). The sweep found no roster source that recommends either, so the opinion can name the problem but not the crate.
+- **Erasure:** "Ensuring security operations at the end of some treatment (such as key erasure at the end of a cryptographic encryption) MUST NOT rely only on the `Drop` trait implementation", because a reference cycle, `mem::forget`, or an abort skips it ([ANSSI: LANG-DROP-SEC](https://anssi-fr.github.io/rust-guide/standard.html#LANG-DROP-SEC)). ANSSI doesn't say what to use instead, and names neither `zeroize` (1.9.1, 2026-10-06) nor `secrecy` (0.10.3, 2024-10-09). The scan found no roster source that recommends either, so the opinion can name the problem but not the crate.
 - **`panic = "abort"`:** `corrode` shows it for release builds (2026-07-23, above). ANSSI warns that abort skips `Drop` ([ANSSI: errors](https://anssi-fr.github.io/rust-guide/errors.html)), which LANG-DROP-SEC already accounts for. Leave the panic strategy to `error-handling.md`.
 
 ### Toolchain and build environment
@@ -169,7 +169,7 @@ The guide's latest content change is 2026-04-07, and its environment chapter des
 Kept apart from the roster findings above. None of it supported a claim.
 
 - **Watch-list `ms-rust-guidelines`:** M-STATIC-VERIFICATION names `cargo-audit` for dependencies and Miri for `unsafe`, and M-UNSAFE says `unsafe` "needs reason, should be avoided" ([Microsoft: Pragmatic Rust Guidelines](https://microsoft.github.io/rust-guidelines/)). It agrees with ANSSI and `corrode`.
-- **Watch-list `effective-rust`:** not checked in this sweep.
+- **Watch-list `effective-rust`:** not checked in this scan.
 - **Unvetted:** StepSecurity, Wiz, and The Hacker News covered `arrayref`. The editor used only the Rust Blog post and the RustSec advisory, and the press reports disagree on whose account was compromised. They aren't `vet-source` candidates, because they're vendor incident write-ups, not Rust guidance.
 
 ## What this means for the repository
@@ -180,5 +180,5 @@ Kept apart from the roster findings above. None of it supported a claim.
 - **`rust.md` has no rule to stay on the latest stable toolchain.** The Cargo advisories are the reason for one, and the security opinion would have to state it.
 - **`templates/Cargo.toml` gains `[workspace.lints.rust] unsafe_code = "forbid"`,** if `resolve-research` agrees. Its header comment already tells each crate to inherit with `[lints] workspace = true`, and `unsafe.md` should say how a crate that needs `unsafe` lists its own lints instead.
 - **Hand off to later topics:** running `cargo deny check` in CI, SHA-pinning `cargo-deny-action`, and `--locked` go to `ci.md`. Miri, `cargo-geiger`, and ANSSI's FFI rules go to `unsafe.md`. `panic = "abort"` goes to `error-handling.md`.
-- **The secure-coding sweep needs a second pass** before the opinion's secure-coding section is final: fuzzing (`cargo-fuzz`), TLS and cryptography crate choice, and deserialization limits weren't swept across the roster. Run `research-topic` again on those, or have `resolve-research` sweep them.
+- **The secure-coding scan needs a second pass** before the opinion's secure-coding section is final: fuzzing (`cargo-fuzz`), TLS and cryptography crate choice, and deserialization limits weren't scanned across the roster. Run `research-topic` again on those, or have `resolve-research` scan them.
 - **No `vet-source` candidate, and one roster note to correct.** ANSSI, `corrode`, `tweede-golf`, `rust-blog`, and `rust-docs` supported every claim that isn't marked unsupported. The marked ones rest on references: the RustSec advisory, and the cargo-deny book, which is a crate's own documentation that `rust-docs` doesn't cover. `anssi-rust`'s note says the guide "names no Rust version or edition", but its environment chapter names Rust 2021, Rust 2024, and version 1.29, and recommends no edition. `vet-source` should reword the note.
