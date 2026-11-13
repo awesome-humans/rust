@@ -108,7 +108,7 @@ Choosing between `cargo-audit` and `cargo-deny`, and their configuration, is `se
 
 ## Workflow hardening
 
-**Blocker: no citable source recommends SHA-pinned actions, a read-only `GITHUB_TOKEN`, or `persist-credentials: false`.** The sweep found these only in GitHub's documentation, in tools, and in other projects' CI, none of which can support a claim:
+**Blocker: no citable source recommends SHA-pinned actions, a read-only `GITHUB_TOKEN`, or `persist-credentials: false`.** The scan found these only in GitHub's documentation, in tools, and in other projects' CI, none of which can support a claim:
 
 - **GitHub:** "Pin references to actions to a commit SHA in your workflow files", because an attacker "would need to generate a SHA-1 collision" to change what runs. Set the `GITHUB_TOKEN` to "read access only for repository contents", and avoid `pull_request_target` ([GitHub Docs: Secure use reference](https://docs.github.com/en/actions/reference/security/secure-use), read 2026-10-19). Organisation and repository admins can require SHA pins since 2025-08-15 ([GitHub Changelog: Actions policy now supports blocking and SHA pinning actions](https://github.blog/changelog/2025-08-15-github-actions-policy-now-supports-blocking-and-sha-pinning-actions/)).
 - **The incident:** `tj-actions/changed-files` had its tags repointed to a commit that printed CI secrets to logs around 2025-03-14 (CVE-2025-30066), and CISA links it to the `reviewdog/action-setup` compromise on 2025-03-11 (CVE-2025-30154) ([CISA: Supply Chain Compromise of Third-Party GitHub Action](https://www.cisa.gov/news-events/alerts/2025/03/18/supply-chain-compromise-third-party-github-action-cve-2025-30066)). A SHA pin wasn't affected.
@@ -117,7 +117,7 @@ Choosing between `cargo-audit` and `cargo-deny`, and their configuration, is `se
 
 The CISA alert is a reference for what happened, and GitHub's documentation is a reference for how the platform works. Neither decides that a Rust project should pin. Two ways to unblock it, for `resolve-research` to choose between:
 
-1. **`vet-source` a security source on GitHub Actions.** William Woodruff, who leads `zizmor` and writes on Actions security, is the strongest candidate the sweep found. GitHub's own documentation is a vendor's view of itself, so it's a weaker candidate.
+1. **`vet-source` a security source on GitHub Actions.** William Woodruff, who leads `zizmor` and writes on Actions security, is the strongest candidate the scan found. GitHub's own documentation is a vendor's view of itself, so it's a weaker candidate.
 2. **Record it as a house opinion** for `house:simon-mckenna` with `weave-house-opinion`, since the repository already follows it.
 
 ### Coming next

@@ -15,13 +15,13 @@ Run tests with `cargo nextest run` and doctests with `cargo test --doc`, keep th
 - **Keep doctests on for a published library.** Edition 2024 merges compatible doctests into one binary, which removes most of their old compile cost.
 - **Warn on the two pedantic test lints:** set `should_panic_without_expect = "warn"` and `ignore_without_reason = "warn"` in `[workspace.lints.clippy]`, unless the workspace already warns on `clippy::pedantic`. `items_after_test_module` warns by default and needs no key.
 
-Every feature recommended here is stable in Rust 1.99.1, and cargo-nextest 0.9.148 was the latest release when the sweep ran (crates.io, read 2026-10-19). 0.9.149 has shipped since. Nextest's setup scripts are experimental, and stabilising libtest's JSON output is a 2026 project goal that's open for help. Both are in [Coming next](#coming-next).
+Every feature recommended here is stable in Rust 1.99.1, and cargo-nextest 0.9.148 was the latest release when the scan ran (crates.io, read 2026-10-19). 0.9.149 has shipped since. Nextest's setup scripts are experimental, and stabilising libtest's JSON output is a 2026 project goal that's open for help. Both are in [Coming next](#coming-next).
 
 **No opinion file covers this.** `opinions/` holds only `rust.md`, which touches testing in three places: the panic boundary (`unwrap` in tests is fine), step 4 of its edition migration ("Run `cargo build` and `cargo test`"), and the `standalone_crate` row of its edition 2024 table, under Combined doctests. This topic is the fifth in [PLAN.md: Phase 6](../PLAN.md#phase-6-first-opinions-and-templates), whose target is `opinions/testing.md`.
 
-## How the sweep ran
+## How the scan ran
 
-Four worker agents were assigned the sweep. The `sunshowers` worker finished. The other three hit a rate limit, so the editor read `matklad`, `rust-docs`, `rust-blog`, `corrode`, `luca-palmieri`, and the crate references directly. Missing as a result: no testing posts were sought from `burntsushi`, `fasterthanlime`, `ferrous-systems`, `nnethercote`, `tokio-blog`, or `tweede-golf`. No recommendation below depends on them, but a harvest might add to it.
+Four worker agents were assigned the scan. The `sunshowers` worker finished. The other three hit a rate limit, so the editor read `matklad`, `rust-docs`, `rust-blog`, `corrode`, `luca-palmieri`, and the crate references directly. Missing as a result: no testing posts were sought from `burntsushi`, `fasterthanlime`, `ferrous-systems`, `nnethercote`, `tokio-blog`, or `tweede-golf`. No recommendation below depends on them, but a harvest might add to it.
 
 ## Test runner: cargo-nextest
 
@@ -238,4 +238,4 @@ Kept apart from the roster findings above.
 - **Templates:** add `templates/.config/nextest.toml` with the `ci` profile above, and add `should_panic_without_expect` and `ignore_without_reason` to `[workspace.lints.clippy]` in `templates/Cargo.toml`. Don't add a `templates/clippy.toml` for `allow-unwrap-in-tests`: no template turns on `unwrap_used` or `expect_used`, so the keys would do nothing. The single integration binary fits the planned example crates under `templates/projects/`.
 - **Leave the CI workflow, Miri, and async tests to their own topics.** `ci.md` owns the commands' place in a workflow, `unsafe.md` owns Miri, and `async.md` owns `#[tokio::test]` and paused time.
 - **`vet-source` candidate:** Armin Ronacher ([Armin Ronacher's Thoughts and Writings](https://lucumr.pocoo.org/)), the author of `insta`, if the opinion names a snapshot crate. He'd have a conflict on adopting `insta`, like `sunshowers` on nextest.
-- **A harvest could fill the gap the rate limit left:** `burntsushi`, `tokio-blog`, and the others listed in [How the sweep ran](#how-the-sweep-ran) weren't searched for testing posts.
+- **A harvest could fill the gap the rate limit left:** `burntsushi`, `tokio-blog`, and the others listed in [How the scan ran](#how-the-scan-ran) weren't searched for testing posts.
