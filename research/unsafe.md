@@ -7,18 +7,18 @@ sources:
 
 # Unsafe: soundness, `unsafe_op_in_unsafe_fn`, and Miri
 
-Write no `unsafe` unless a crate needs it for FFI, hardware access, a new abstraction, or a measured hot path. When it does, put the `unsafe` inside one module whose safe API no safe caller can misuse, and test that module under Miri:
+Write no `unsafe` unless a crate needs it for FFI, hardware access, or a measured hot path. When it does, put the `unsafe` inside one module whose safe API no safe caller can misuse, and test that module under Miri:
 
-- **Deny `unsafe_code` across the workspace,** and opt one module back in with `#[expect(unsafe_code, reason = "…")]`. A manifest `forbid` can't be relaxed for a module, and a crate that inherits `[lints]` can't override one key. Add `#![forbid(unsafe_code)]` to the root of every crate that has no `unsafe`.
+- **Forbid `unsafe_code` in every crate that has no `unsafe`,** with `#![forbid(unsafe_code)]` in its root, and justify each use in a crate that needs it. A manifest `forbid` can't be relaxed for a module, and a crate that inherits `[lints]` can't override one key, so the workspace setting is still open: see [`deny` in the manifest](#when-to-write-unsafe-at-all).
 - **Treat the module as the soundness boundary.** Keep each invariant in a private field, and make the safe API sound for every safe caller, including a misbehaving `Ord`, `Clone`, or `Drop` implementation.
 - **Explain every `unsafe`.** Write a `// SAFETY:` comment on each block and `unsafe impl`, and a `# Safety` section on each public `unsafe fn` and `unsafe trait`. `clippy::missing_safety_doc` warns by default for a missing section. Turn on `clippy::undocumented_unsafe_blocks` for the comments, and the two `unnecessary_safety_*` lints to reject a comment or section on safe code.
-- **Keep an `unsafe fn` body safe by default.** Edition 2024 makes `unsafe_op_in_unsafe_fn` warn, so each unsafe operation inside an `unsafe fn` needs its own `unsafe {}` block and comment.
+- **Keep an `unsafe fn` body safe by default.** Edition 2024 makes `unsafe_op_in_unsafe_fn` warn, so every unsafe operation inside an `unsafe fn` has to sit in an explicit `unsafe {}` block, with a `// SAFETY:` comment on the block. One block can hold several operations.
 - **Prefer the 1.82 to 1.93 raw-pointer APIs:** `&raw const` and `&raw mut` over `&x as *const _`, `.cast()` over pointer `as`, and the strict provenance methods over integer round trips.
-- **Run `cargo miri test` in CI** on a nightly toolchain, with the default aliasing model. A pass means the tests hit no undefined behaviour, not that the code is sound.
+- **Run `cargo miri test` in CI** on a nightly toolchain. A pass means the tests hit no undefined behaviour, not that the code is sound.
 
-Everything recommended here is stable in 1.99.1 (released 2026-10-15) except Miri itself, which ships only as a nightly component. That's a tool, not a language feature, and the code it tests stays on stable. [Coming next](#coming-next) lists what's unstable as of 2026-10-19.
+Everything recommended here is stable in 1.99.1 (released 2026-10-15) except two tools: Miri, which ships only as a nightly component, and `cargo-careful`, which needs a nightly toolchain too. They're tools, not language features, and the code they test stays on stable. [Coming next](#coming-next) lists what's unstable as of 2026-10-19.
 
-**Four claims here are unsupported,** and each is marked where it appears: the new-abstraction case, the default aliasing model, `#[cfg_attr(miri, ignore)]`, and the `0..16` seed range. No citable source makes them, so `resolve-research` can't promote them as they stand.
+**Five claims here are unsupported,** and each is marked where it appears: the new-abstraction case, keeping the default aliasing model, the `0..16` seed range, leaving out `multiple_unsafe_ops_per_block`, and workspace `deny` with a crate-root `forbid`. They're choices or judgements that rest on the editor's reading or on a reference alone, so `resolve-research` can't promote them as they stand. The opening list leaves them out.
 
 **No opinion file covers this.** `opinions/rust.md` mentions `unsafe` only in its edition 2024 migration table, for `static_mut_refs`, unsafe attributes, and `set_var`. This is the `unsafe.md` topic in [PLAN.md: Phase 6](../PLAN.md#phase-6-first-opinions-and-templates).
 
@@ -43,7 +43,7 @@ Unsafe code also can't trust safe code it doesn't control. `BTreeMap` must stay 
 
 `anssi-rust` makes encapsulation a rule. LANG-UNSAFE-ENCP requires that a component either expose only safe behaviour, "in which no safe interaction can result in UB", or mark its unsafe features with "exhaustively documented" usage conditions ([ANSSI: General information on `unsafe`](https://anssi-fr.github.io/rust-guide/unsafe/generalities.html), changed 2026-03-25). Its note in `AWESOME-HUMANS.md` asks for a `rust-docs` cross-check before an opinion rests on a rule. The Reference's soundness rule and the Rustonomicon make the same point.
 
-The editor's example compiles with `clippy::pedantic`, the lints below, and `-D warnings` on 1.99.1, and passes `cargo +nightly miri test` (nightly 2026-10-18):
+The editor's example, a fragment of a library crate:
 
 ```rust
 //! A non-empty vector whose invariant lives in one module.
@@ -77,7 +77,21 @@ mod non_empty {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::NonEmpty;
+
+    #[test]
+    fn first_survives_push() {
+        let mut v = NonEmpty::new(String::from("a"));
+        v.push(String::from("b"));
+        assert_eq!(v.first(), "a");
+    }
+}
 ```
+
+Compiled as `src/lib.rs` of a library crate with `unsafe_code = "deny"`, `clippy::pedantic`, and the three Clippy lints below: it passes `CARGO_BUILD_WARNINGS=deny cargo check --all-targets` and `CARGO_BUILD_WARNINGS=deny cargo clippy --all-targets` on 1.99.1, and `cargo +nightly miri test` runs the test and passes (nightly 2026-10-18, miri 0.1.0), all on 2026-11-14. It uses only `std`. The test gives Miri an execution to check: without one, `cargo miri test` passes having checked nothing.
 
 The proposal sets `unsafe_code = "deny"` in `[lints.rust]`. The example compiles without it, but under `deny`, removing the `expect` is an error (editor's probe on 1.99.1, 2026-11-12). A `pub` field, or a `pub fn` that removes elements, would make `first` unsound without changing the `unsafe` line.
 
@@ -85,7 +99,7 @@ The proposal sets `unsafe_code = "deny"` in `[lints.rust]`. The example compiles
 
 `anssi-rust` LANG-UNSAFE says unsafe blocks "SHOULD be avoided, or MUST be justified" by FFI, hardware access at fixed addresses, or "a performance wall on a small portion of code". Otherwise `#![forbid(unsafe_code)]` "must appear in the crate root". The Book says to "keep unsafe blocks small" and to wrap them in a safe abstraction ([The Rust Programming Language: Unsafe Rust](https://doc.rust-lang.org/book/ch20-01-unsafe-rust.html)).
 
-**Unsupported: a new abstraction as a fourth case.** The opening rule allows it, but LANG-UNSAFE lists only the three cases above. Only watch-list `ms-rust-guidelines` M-UNSAFE allows `unsafe` for "novel abstractions", and a watch-list source can't be cited in an opinion.
+**Unsupported: a new abstraction as a fourth case.** The opening rule leaves it out, because LANG-UNSAFE lists only the three cases above. Only watch-list `ms-rust-guidelines` M-UNSAFE allows `unsafe` for "novel abstractions", and a watch-list source can't be cited in an opinion.
 
 **Use `deny` in the manifest, and `forbid` in the root of a crate with no `unsafe`.** LANG-UNSAFE exempts a crate whose `unsafe` is justified, and requires the attribute in every other crate root. The manifest can't use `forbid`, as the editor's probe on 1.99.1 (2026-10-19) found:
 
@@ -93,6 +107,8 @@ The proposal sets `unsafe_code = "deny"` in `[lints.rust]`. The example compiles
 - A crate with `[lints] workspace = true` can't add a `[lints.rust]` key of its own: Cargo refuses to load the manifest.
 
 So a workspace `forbid` would force a crate that needs one unsafe module to drop the workspace lints entirely. Workspace `deny`, plus `expect` on one module, gives that crate the audit trail ANSSI asks for: the `reason` string records the justification. Every other crate adds `#![forbid(unsafe_code)]` to its root, which compiles beside the inherited `deny` (editor's probe on 1.99.1, 2026-11-12).
+
+**Unsupported: workspace `deny` over workspace `forbid`.** What Cargo and rustc accept is from the probes. Choosing `deny` for the workspace is the editor's judgement, and no roster source weighs the two. `security.md` proposes the opposite, a workspace `forbid` and a crate that needs `unsafe` dropping `workspace = true`, so `resolve-research` settles one design for both opinions.
 
 ## Documenting `unsafe`
 
@@ -110,7 +126,7 @@ The Book calls it idiomatic to write a comment "starting with SAFETY" on every u
 
 `unsafe_op_in_unsafe_fn` is a rustc lint, not a Clippy one. The Edition Guide says it "now warns by default" on edition 2024, because an `unsafe fn` keyword that also unlocked its whole body was "too risky without explicit unsafe blocks" ([Rust Edition Guide: `unsafe_op_in_unsafe_fn` warning](https://doc.rust-lang.org/edition-guide/rust-2024/unsafe-op-in-unsafe-fn.html)). Under CI's `-D warnings` it's an error, so an edition 2024 crate needs no configuration for it.
 
-**Leave out `multiple_unsafe_ops_per_block`.** The Book's "keep unsafe blocks small" is the goal. The lint turns it into one block per dereference and pointer offset, so a two-field read needs three blocks and three comments. This is the editor's judgement from the probe, and no roster source comments on the lint.
+**Leave out `multiple_unsafe_ops_per_block`.** The Book's "keep unsafe blocks small" is the goal. The lint turns it into one block per dereference and pointer offset, so a two-field read needs three blocks and three comments. **Unsupported:** this is the editor's judgement from the probe, and no roster source comments on the lint.
 
 ## Raw pointers, provenance, and uninitialized memory
 
@@ -125,13 +141,13 @@ Each row is a stable replacement for an older idiom, from the release notes on `
 | `ptr::without_provenance` and `ptr::dangling`                 | 1.84    | `addr as *const T` for a sentinel or a dangling pointer          |
 | `[MaybeUninit<T>]::assume_init_ref` and `write_copy_of_slice` | 1.93    | Casting a `&[MaybeUninit<T>]` to `&[T]` by hand                  |
 
-`MaybeUninit` itself replaced `mem::uninitialized` in 1.36, which predates the releases in this table. Sources: [Rust Blog: Announcing Rust 1.82.0](https://blog.rust-lang.org/2024/10/17/Rust-1.82.0/), [Announcing Rust 1.84.0](https://blog.rust-lang.org/2025/01/09/Rust-1.84.0/), and [Rust Release Notes: Version 1.93.0](https://doc.rust-lang.org/releases.html#version-1930-2026-01-22). The `std::ptr` documentation calls strict provenance "a set of APIs designed to make working with provenance more explicit", "intended as substitutes for casting a pointer to an integer and back", and says "most code needs no changes to conform" ([`std::ptr`: Strict Provenance](https://doc.rust-lang.org/std/ptr/index.html#strict-provenance)). Code that must turn an integer into a pointer uses `expose_provenance` and `with_exposed_provenance`, which Miri checks less thoroughly.
+`MaybeUninit` itself replaced `mem::uninitialized` in 1.36, which predates the releases in this table. Sources: [Rust Blog: Announcing Rust 1.82.0](https://blog.rust-lang.org/2024/10/17/Rust-1.82.0/), [Announcing Rust 1.84.0](https://blog.rust-lang.org/2025/01/09/Rust-1.84.0/), and [Rust Release Notes: Version 1.93.0](https://doc.rust-lang.org/releases.html#version-1930-2026-01-22). The `std::ptr` documentation calls strict provenance "a set of APIs designed to make working with provenance more explicit", "intended as substitutes for casting a pointer to an integer and back", and says "most code needs no changes to conform" ([`std::ptr`: Strict Provenance](https://doc.rust-lang.org/std/ptr/index.html#strict-provenance)). Code that must turn an integer into a pointer uses `expose_provenance` and `with_exposed_provenance`, which Miri can't check fully: it "will necessarily miss some bugs as those operations are not efficiently and accurately implementable in a sanitizer" ([rust-lang/miri: README](https://github.com/rust-lang/miri), a reference, read 2026-11-14).
 
-The compiler now catches some of these mistakes itself. `dangerous_implicit_autorefs` (warn in 1.88, deny in 1.89) rejects an implicit reference through a raw-pointer dereference, `integer_to_ptr_transmutes` (warn in 1.91) flags `transmute::<usize, *const T>`, and `static_mut_refs` denies a reference to a `static mut` on edition 2024. 1.98 makes `unsafe_code` fire on every unsafe attribute. These come from the [Rust Release Notes](https://doc.rust-lang.org/releases.html), the published page on `rust-docs`, and `opinions/rust.md` already covers the edition 2024 rows.
+The compiler now catches some of these mistakes itself. `dangerous_implicit_autorefs` (warn in 1.88, deny in 1.89) rejects an implicit reference through a raw-pointer dereference, `integer_to_ptr_transmutes` (warn in 1.91) flags `transmute::<usize, *const T>`, and `static_mut_refs` denies a reference to a `static mut` on edition 2024. 1.98 makes `unsafe_code` fire on every unsafe attribute. These come from the [Rust Release Notes](https://doc.rust-lang.org/releases.html), the published page on `rust-docs`. `opinions/rust.md`'s migration table already covers `static_mut_refs` and unsafe attributes, but not `unsafe extern` blocks or `unsafe_op_in_unsafe_fn`, so the opinion here has to.
 
 ## FFI
 
-`anssi-rust` has the roster's only FFI rules, in [ANSSI: Foreign Function Interface](https://anssi-fr.github.io/rust-guide/unsafe/ffi.html). The ones an opinion can apply mechanically:
+`anssi-rust` has the roster's only FFI rules, in [ANSSI: Foreign Function Interface](https://anssi-fr.github.io/rust-guide/unsafe/ffi.html). Its roster note scopes it as citable for `security.md`, and asks for a `rust-docs` cross-check before an opinion rests on a rule. This topic cross-checks only LANG-UNSAFE-ENCP, so these rules, LANG-UNSAFE's cases, and its crate-root `forbid` need that check, or a ruling that the scope covers `unsafe.md`, before `resolve-research` promotes them. The ones an opinion can apply mechanically:
 
 | Rule                                 | Says                                                                              |
 | ------------------------------------ | --------------------------------------------------------------------------------- |
@@ -162,8 +178,8 @@ This topic owns the Miri job, as the `ci.md` and `testing.md` topics both say. T
 
 - **Add `MIRIFLAGS="-Zmiri-many-seeds=0..16"`** for concurrent code, to explore more thread interleavings and allocation addresses. `ralf-jung` says the flag makes Miri "randomly explore multiple possible executions" (2025-12-22, above). The range is unsupported: `0..16` is the README's example, the default is `0..64`, and the editor chose the smaller range for speed.
 - **A pass isn't a proof of soundness.** Miri checks the executions the tests reach, and "there might always be more executions that Miri did not find yet" (`ralf-jung`, 2025-12-22, above). The README agrees: "Miri fundamentally cannot ensure that your code is sound." When it finds undefined behaviour, the code is unsound. When it doesn't, you might need more inputs.
-- **Unsupported: keep the default aliasing model, Stacked Borrows.** The README says Tree Borrows "is even more experimental", and that "it is likely that the eventual final aliasing model of Rust will be stricter than Tree Borrows", so code that passes only under `-Zmiri-tree-borrows` "might be declared UB in the future". The editor's probe on nightly 2026-10-18 confirmed Stacked Borrows is still the default. Only the README and the probe say so.
-- **Unsupported: mark tests Miri can't run with `#[cfg_attr(miri, ignore)]`.** Miri can't run networking or most FFI, and it interprets slowly. Only the README says so.
+- **Unsupported: keep the default aliasing model, Stacked Borrows.** It's a choice that rests on the README alone. The README says Tree Borrows "is even more experimental", and that "it is likely that the eventual final aliasing model of Rust will be stricter than Tree Borrows", so code that passes only under `-Zmiri-tree-borrows` "might be declared UB in the future". The editor's probe on nightly 2026-10-18 confirmed Stacked Borrows is still the default, which is a reference fact. Choosing to stay on it isn't.
+- **Mark tests Miri can't run with `#[cfg_attr(miri, ignore)]`.** Miri can't run networking or most FFI, and it interprets slowly. The README shows the attribute, "to ignore test cases that fail under Miri because they do things Miri does not support" (read 2026-11-14). That's what the tool asks of a project that uses it, a reference fact, so it needs no roster source.
 
 **`cargo-careful`** runs tests against a `std` built with debug assertions. It's "much faster than executing your program in Miri", "fully FFI-compatible", and misses much of what Miri catches ([Ralf Jung: cargo careful](https://www.ralfj.de/blog/2022/09/26/cargo-careful.html), 2022-09-26). Use it for unsafe code that calls C and so can't run under Miri. It also needs nightly.
 
@@ -186,21 +202,22 @@ Unstable on nightly as of 2026-10-19, not yet an opinion. Statuses are from the 
 | Unsafe binders                      | Experimental ([rust-lang/rust#130516](https://github.com/rust-lang/rust/issues/130516))                                                                                                                                                                                                                                                                                                               |
 | Miri on stable                      | No plan found. Miri remains a nightly component                                                                                                                                                                                                                                                                                                                                                       |
 
-None is in the release notes for 1.100.0, dated 2026-11-12 ([rust-lang/rust: RELEASES.md](https://github.com/rust-lang/rust/blob/main/RELEASES.md), read 2026-11-12, before the Rust Blog announced the release). Recheck it against the `rust-blog` announcement. Unsafe fields affects this topic most: once it's stable, the `# Safety` and `// SAFETY:` rules extend to unsafe field access, and Clippy's `missing_safety_doc` already supports them ([rust-lang/rust-clippy#16767](https://github.com/rust-lang/rust-clippy/pull/16767)).
+None is in 1.100.0, released 2026-11-12 ([Rust Blog: Announcing Rust 1.100.0](https://blog.rust-lang.org/2026/11/12/Rust-1.100.0/), read 2026-11-14). The statuses themselves weren't rechecked after 2026-10-19. Unsafe fields affects this topic most: once it's stable, the `# Safety` and `// SAFETY:` rules extend to unsafe field access, and Clippy's `missing_safety_doc` already supports them ([rust-lang/rust-clippy#16767](https://github.com/rust-lang/rust-clippy/pull/16767)).
 
 ## Watch-list and unvetted material
 
-Kept apart from the roster findings above. None of it is cited for a claim, except the unsupported new-abstraction case, which only M-UNSAFE allows.
+Kept apart from the roster findings above. None of it supports a claim. M-UNSAFE is the only source that allows the new-abstraction case, which is why that case is unsupported.
 
 - **Watch-list `ms-rust-guidelines`:** M-UNSAFE allows `unsafe` only for "novel abstractions", performance, or FFI, and requires "plain-text reasoning" and a Miri pass. M-UNSAFE-IMPLIES-UB says `unsafe` "must not be used to mark functions that are dangerous to call for other reasons". M-STATIC-VERIFICATION enables `undocumented_unsafe_blocks`, `unnecessary_safety_comment`, `unnecessary_safety_doc`, and `unsafe_op_in_unsafe_fn` ([Microsoft: Pragmatic Rust Guidelines, Correctness](https://microsoft.github.io/rust-guidelines/guidelines/correctness/index.html) and [Universal](https://microsoft.github.io/rust-guidelines/guidelines/universal/index.html)). It agrees with every recommendation here, and picks the same three Clippy lints.
 - **Watch-list `effective-rust`:** Item 16, "Avoid writing unsafe code", says to check `std` and crates first, keep a wrapper layer, write safety comments, and "consider running Miri" ([David Drysdale: Effective Rust](https://www.lurklurk.org/effective-rust/unsafe.html)). It agrees.
-- **Not scanned:** `jon-gjengset` (_Rust for Rustaceans_, chapter 9), `mara-bos`, and the unvetted candidates the plan listed: the Rust for Linux safety standard, Android's and Chromium's unsafe guidance, the Rust Foundation's study of unsafe in published crates, `cargo-geiger`, and Kani. The worker scan stopped on a usage limit, and the editor didn't need them: every recommendation cites a roster source, except the four marked unsupported.
+- **Not scanned:** `jon-gjengset` (_Rust for Rustaceans_, chapter 9), `mara-bos`, and the unvetted candidates the plan listed: the Rust for Linux safety standard, Android's and Chromium's unsafe guidance, the Rust Foundation's study of unsafe in published crates, `cargo-geiger`, and Kani. The worker scan stopped on a usage limit, and the editor didn't need them: every recommendation cites a roster source, except the five marked unsupported.
 
 ## What this means for the repository
 
-- **No opinion covers the topic.** Run `resolve-research` to create `opinions/unsafe.md`. Its first sentence is the opening list here. It needs sections for when to write `unsafe`, encapsulation and the module boundary, documentation and the lint table, raw pointers and provenance, FFI, and Miri. List it under README.md's Scope and in the layout tree.
-- **`templates/Cargo.toml` gains four lints:** `unsafe_code = "deny"` in a new `[workspace.lints.rust]`, and `undocumented_unsafe_blocks`, `unnecessary_safety_comment`, and `unnecessary_safety_doc` in `[workspace.lints.clippy]`. They report nothing in a crate without `unsafe`. No template holds a crate root, so the `#![forbid(unsafe_code)]` rule goes in the opinion only. `borrow_as_ptr` and `ptr_as_ptr` are in `clippy::pedantic`, if a later topic turns the group on.
-- **Miri runs on nightly.** That's a tool, and the repository's freshness rule is about features the code uses, but `resolve-research` should confirm the opinion may recommend a nightly-only tool. The Book, `corrode`, and the Miri README all do. This topic owns the Miri job, and `ci.md` sets the workflow rules the job follows.
+- **No opinion covers the topic.** Run `resolve-research` to create `opinions/unsafe.md`. Its first sentence is the opening list here, which leaves out the unsupported claims. It needs sections for when to write `unsafe`, encapsulation and the module boundary, documentation and the lint table, raw pointers and provenance, FFI, and Miri. List it under README.md's Scope and in the layout tree.
+- **`templates/Cargo.toml` gains four lints:** `unsafe_code = "deny"` in a new `[workspace.lints.rust]`, and `undocumented_unsafe_blocks`, `unnecessary_safety_comment`, and `unnecessary_safety_doc` in `[workspace.lints.clippy]`. `undocumented_unsafe_blocks` reports nothing in a crate without `unsafe`. The two `unnecessary_safety_*` lints do: they report a `// SAFETY:` comment or a `# Safety` section on safe code in any crate (editor's probe on 1.99.1, 2026-11-14), so check the workspace under `-D warnings` before adding them. No template holds a crate root, so the `#![forbid(unsafe_code)]` rule goes in the opinion only. `borrow_as_ptr` and `ptr_as_ptr` are in `clippy::pedantic`, if a later topic turns the group on.
+- **Miri runs on nightly.** That's a tool, and the repository's freshness rule is about features the code uses, but `resolve-research` should confirm the opinion may recommend a nightly-only tool, for Miri and for `cargo-careful`. The Book, `corrode`, and the Miri README all recommend Miri, and `ralf-jung` recommends `cargo-careful`. This topic owns the Miri job, and `ci.md` sets the workflow rules the job follows.
 - **ANSSI's leak rules go to `security.md`,** with the disagreement above.
-- **Four claims are unsupported:** the new-abstraction case, the default aliasing model, `#[cfg_attr(miri, ignore)]`, and the `0..16` seed range. `resolve-research` needs a citable source for each, or leaves it out.
+- **Five claims are unsupported:** the new-abstraction case, keeping the default aliasing model, the `0..16` seed range, leaving out `multiple_unsafe_ops_per_block`, and workspace `deny` over `forbid`. `resolve-research` needs a citable source for each, or leaves it out.
+- **`anssi-rust` needs a scope ruling or a cross-check.** The FFI table, LANG-UNSAFE, and the crate-root `forbid` rest on it alone, and its roster note scopes it to `security.md`.
 - **One `vet-source` candidate: [Rust Project Goals](https://goals.rust-lang.org/).** Only the Coming next statuses cite it. Admit it, or name it as a reference, before an opinion's Coming next note cites it. Apart from it and the unsupported claims, every claim cites a roster source: `ralf-jung` and `rust-docs` cover the semantics, `anssi-rust` the rules, and `corrode`, `matklad`, and `tweede-golf` the practice.
