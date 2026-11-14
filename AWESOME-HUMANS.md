@@ -70,7 +70,7 @@ A watch-list source is never cited. `just validate-sources` rejects a watch-list
 
 ## Named references
 
-The [admission criteria](https://github.com/awesome-humans/website/blob/main/pages/conventions/admission-criteria.md#reserved-ids-markings-and-references) define a reference and the rules for citing one. A reference corroborates a claim from a roster source, never supports one alone, and never appears in `sources:`. A crate's or tool's own material already qualifies when an opinion names it, such as its repository (`rust-lang/cargo` or `rust-lang/rust-clippy`), its docs.rs page, or its crates.io page, so it isn't listed here. This roster also names:
+The [admission criteria](https://github.com/awesome-humans/website/blob/main/pages/conventions/admission-criteria.md#reserved-ids-markings-and-references) define a reference and the rules for citing one. They also define a reference fact, which a reference supports without a roster source. For a choice or a judgement, a reference only corroborates a roster source. A reference never appears in `sources:`. A crate's or tool's own material already qualifies when an opinion names it, such as its repository (`rust-lang/cargo` or `rust-lang/rust-clippy`), its docs.rs page, or its crates.io page, so it isn't listed here. This roster also names:
 
 - **[rust-lang/rfcs](https://github.com/rust-lang/rfcs):** The RFC for a language, Cargo, or library feature an opinion names, for how the feature behaves, not whether to use it. Link its page in [the RFC Book](https://rust-lang.github.io/rfcs/), such as `https://rust-lang.github.io/rfcs/2383-lint-reasons.html`.
 - **[rust-lang/rust](https://github.com/rust-lang/rust):** The tracking issue or stabilization pull request for a feature or lint an opinion names, for when it shipped or what still blocks it.
@@ -389,6 +389,7 @@ Citable on async and effects design, from 177 posts since 2016.
 <!-- prettier-ignore -->
 | Date | Decision | Detail |
 | --- | --- | --- |
+| 2026-11-14 | Let a reference support a reference fact alone (no roster change) | A reference fact is a statement about a reference's own subject that a reader can check against it, including what the subject requires of a project that uses it. It needs no roster source. A choice or a judgement still rests on one. The shared admission criteria define the terms. The owner's decision, in awesome-humans/website#188 |
 | 2026-10-23 | Named four repositories as references (no roster change) | `rust-lang/rfcs`, `rust-lang/rust`, `rust-lang/libs-team`, and `rustsec/advisory-db` can corroborate a roster-sourced claim inline. Crate and tool repositories already qualify, and the repositories behind `rust-docs` stay part of that source |
 | 2026-10-18 | Watch-listed `without-boats` | No writing since 2024-10 |
 | 2026-10-18 | Watch-listed `sabrina-jewson` | No writing since 2024-09 |
