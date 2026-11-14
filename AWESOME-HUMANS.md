@@ -81,7 +81,7 @@ The repositories behind `rust-docs`, such as `rust-lang/reference` and `rust-lan
 
 ## Opted out
 
-A source moves here when its owner asks to stop being cited. Its row keeps the same five columns, and its section under [Source notes](#source-notes) goes. The ID stays reserved, so a later suggestion of the source is turned away, and `just validate-sources` rejects it in any `sources:` list. An opt-out from any awesome-humans ecosystem covers this one too, so `vet-source` reads every other ecosystem's Opted out section before admitting anyone. Opting back in is a suggestion like any other, and the source leaves this section only on admission. For the policy, see [Want in or out?](https://awesome-humans.net/want-in-or-out/)
+A source moves here when its author asks to stop being cited. Its row keeps the same five columns, and its section under [Source notes](#source-notes) goes. The ID stays reserved, so a later suggestion of the source is turned away, and `just validate-sources` rejects it in any `sources:` list. An opt-out from any awesome-humans ecosystem covers this one too, so `vet-source` reads every other ecosystem's Opted out section before admitting anyone. Opting back in is a suggestion like any other, and the source leaves this section only on admission. For the policy, see [Want in or out?](https://awesome-humans.net/want-in-or-out/)
 
 No source has opted out.
 
@@ -389,7 +389,7 @@ Citable on async and effects design, from 177 posts since 2016.
 <!-- prettier-ignore -->
 | Date | Decision | Detail |
 | --- | --- | --- |
-| 2026-11-14 | Let a reference support a reference fact alone (no roster change) | A reference fact is a statement about a reference's own subject that a reader can check against it, including what the subject requires of a project that uses it. It needs no roster source. A choice or a judgement still rests on one. The shared admission criteria define the terms. The owner's decision, in awesome-humans/website#188 |
+| 2026-11-14 | Let a reference support a reference fact alone (no roster change) | A reference fact is a statement about a reference's own subject that a reader can check against it, including what the subject requires of a project that uses it. It needs no roster source. A choice or a judgement still rests on one. The shared admission criteria define the terms. The maintainer's decision, in awesome-humans/website#188 |
 | 2026-10-23 | Named four repositories as references (no roster change) | `rust-lang/rfcs`, `rust-lang/rust`, `rust-lang/libs-team`, and `rustsec/advisory-db` can corroborate a roster-sourced claim inline. Crate and tool repositories already qualify, and the repositories behind `rust-docs` stay part of that source |
 | 2026-10-18 | Watch-listed `without-boats` | No writing since 2024-10 |
 | 2026-10-18 | Watch-listed `sabrina-jewson` | No writing since 2024-09 |

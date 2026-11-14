@@ -52,7 +52,7 @@ These are settled. Each gives one line on the option that lost.
 
 ## Phase 0: Organisation
 
-The owner does these steps in the GitHub web UI, because a personal account can't create an organisation through the API. The name `awesome-humans` was free on 2026-10-14.
+The maintainer does these steps in the GitHub web UI, because a personal account can't create an organisation through the API. The name `awesome-humans` was free on 2026-10-14.
 
 1. **Create the organisation** `awesome-humans`, and require two-factor authentication for members.
 2. **Create `awesome-humans/.github`.** GitHub uses its community health files as the default for every repository that has none of its own. Move `.github/PULL_REQUEST_TEMPLATE.md` there, and keep the ecosystem-specific checklist lines in each repository's `AGENTS.md`. `AGENTS.md` itself, the admission criteria, and the house-opinion mechanism can't be shared this way.
@@ -135,7 +135,7 @@ Port `export-diagrams.cs` as it stands after [awesome-humans/dotnet#149](https:/
 - **`markdown.yml` arrived early,** with only its `format-and-lint` job, so the prose checks gate pull requests from now on. Phase 4 adds the `links` job and its schedule.
 - **The diagrams aren't in the README yet.** Phase 3 adds source standing under Awesome humans, and phase 4 adds the pipeline and research lifecycle with the Maintenance via skills table, as `dotnet`'s README places them.
 
-**After it merged:** the owner added the `xtask` and `format-and-lint` jobs as required status checks on the `protect-main` ruleset (ID `25144742`) on 2026-10-18. Phase 4's `validate` and `links` jobs followed on 2026-10-19.
+**After it merged:** the maintainer added the `xtask` and `format-and-lint` jobs as required status checks on the `protect-main` ruleset (ID `25144742`) on 2026-10-18. Phase 4's `validate` and `links` jobs followed on 2026-10-19.
 
 ## Phase 3: Initial roster for vetting
 
@@ -242,7 +242,7 @@ Sort README.md's Maintenance via skills table by skill name, as [awesome-humans/
 5. **`review-project` runs Clippy only on a trusted or sandboxed target,** because building runs the target's build scripts and procedural macros. It also reads a library's `rust-version` as an MSRV promise, and reports one below `targets:` only when the library documents no MSRV policy.
 6. **`vet-source` checks opt-outs as a step of its own,** step 2, before any evidence is gathered. The later steps move down by one.
 
-The table order check needed nothing new: phase 2 ported it. On 2026-10-19, the agent added the `validate` and `links` jobs to the `protect-main` ruleset's required checks, at the owner's request. A third-party host being down now blocks a merge until the `links` job is re-run.
+The table order check needed nothing new: phase 2 ported it. On 2026-10-19, the agent added the `validate` and `links` jobs to the `protect-main` ruleset's required checks, at the maintainer's request. A third-party host being down now blocks a merge until the `links` job is re-run.
 
 ## Phase 5: Site integration
 
@@ -301,7 +301,7 @@ Run `research-topic`, then `resolve-research`, for each topic. Write an opinion 
 
 CodeRabbit raised one finding, that the dates should read 2026-10-18, which was declined: the checks ran on 2026-10-19 in local time.
 
-**Progress (2026-10-22):** rust#18 resolved the topic into `opinions/rust.md`, with `templates/Cargo.toml` and `templates/rustfmt.toml`. rust#23 and rust#24 merged `research/project-structure.md` and `research/ci.md` on 2026-10-21, and neither is resolved yet. rust#25 to rust#31 stage the other seven topics, from `error-handling` to `runtime-performance`, and wait for the owner's review. Next is `resolve-research` for `project-structure` and `ci`, then for each of the seven as it merges.
+**Progress (2026-10-22):** rust#18 resolved the topic into `opinions/rust.md`, with `templates/Cargo.toml` and `templates/rustfmt.toml`. rust#23 and rust#24 merged `research/project-structure.md` and `research/ci.md` on 2026-10-21, and neither is resolved yet. rust#25 to rust#31 stage the other seven topics, from `error-handling` to `runtime-performance`, and wait for the maintainer's review. Next is `resolve-research` for `project-structure` and `ci`, then for each of the seven as it merges.
 
 Templates, each with a first-line header comment:
 
@@ -324,9 +324,9 @@ The port also reads like the C# it came from, and it's longer than it needs to b
 
 ## Open questions
 
-These need the owner's decision before the phase that depends on them:
+These need the maintainer's decision before the phase that depends on them:
 
-1. ~~**Shared text drift:**~~ Settled 2026-10-18 by the owner: move the shared text, which is `AGENTS.md`'s writing style, the admission criteria, and the house-opinion mechanism, into `awesome-humans/website`, and link to it from each ecosystem repository instead of keeping copies. A fork of an ecosystem repository then either adopts the linked text or writes its own, which is fine. A check that compares copies lost, because it would still leave copies to keep in step. The website plan's Phase 9 has the steps.
+1. ~~**Shared text drift:**~~ Settled 2026-10-18 by the maintainer: move the shared text, which is `AGENTS.md`'s writing style, the admission criteria, and the house-opinion mechanism, into `awesome-humans/website`, and link to it from each ecosystem repository instead of keeping copies. A fork of an ecosystem repository then either adopts the linked text or writes its own, which is fine. A check that compares copies lost, because it would still leave copies to keep in step. The website plan's Phase 9 has the steps.
 2. ~~**Ecosystem repositories without the site:**~~ Done 2026-10-15, in the website plan's cutover: [awesome-humans/dotnet#139](https://github.com/awesome-humans/dotnet/pull/139) added `dotnet`'s `Site preview` and `Site dispatch` workflows, and [awesome-humans/dotnet#140](https://github.com/awesome-humans/dotnet/pull/140) removed the site and updated its `README.md`, `AGENTS.md`, and CI. Checked against `dotnet`'s `main` on 2026-10-19. For `rust`, `ci/site-workflows` adds the same two workflows, which `AGENTS.md` already described.
-3. ~~**Phase 5 order:**~~ Settled 2026-10-19 by the owner: wire `rust` into the site now, and publish `/rust/` once the first opinions merge. `rust` stays `soon` in website's `ecosystems.toml` until then, but a `rust` pull request's preview builds it, so each one gets the strict build. Going live now lost, because `/rust/` has no opinions yet. Wiring everything at go-live lost, because the pull request that adds the first opinions would get no site check. The [website plan's Phase 6](https://github.com/awesome-humans/website/blob/a74ffae2609940044c05f40179d2830b4b27a84e/PLAN.md#phase-6-rust-joins), deleted in awesome-humans/website#160, tracked the steps.
-4. ~~**Review instructions:**~~ Settled 2026-10-21 by the owner, revised 2026-10-31: a `REVIEW.md` at the root tunes the agent reviewer (currently CodeRabbit), or any other agent asked to review a pull request, as in every awesome-humans repository. It names no reviewer it depends on, because the reviewer might change. It's a full copy of `dotnet`'s, adapted to Rust's toolchain and `xtask`, so a reviewer never has to follow a link out of the repository. A pull request that changes one names the other. [awesome-humans/website#165](https://github.com/awesome-humans/website/pull/165) adds website's copy, and [awesome-humans/coderabbit#7](https://github.com/awesome-humans/coderabbit/pull/7) has CodeRabbit read each one.
+3. ~~**Phase 5 order:**~~ Settled 2026-10-19 by the maintainer: wire `rust` into the site now, and publish `/rust/` once the first opinions merge. `rust` stays `soon` in website's `ecosystems.toml` until then, but a `rust` pull request's preview builds it, so each one gets the strict build. Going live now lost, because `/rust/` has no opinions yet. Wiring everything at go-live lost, because the pull request that adds the first opinions would get no site check. The [website plan's Phase 6](https://github.com/awesome-humans/website/blob/a74ffae2609940044c05f40179d2830b4b27a84e/PLAN.md#phase-6-rust-joins), deleted in awesome-humans/website#160, tracked the steps.
+4. ~~**Review instructions:**~~ Settled 2026-10-21 by the maintainer, revised 2026-10-31: a `REVIEW.md` at the root tunes the agent reviewer (currently CodeRabbit), or any other agent asked to review a pull request, as in every awesome-humans repository. It names no reviewer it depends on, because the reviewer might change. It's a full copy of `dotnet`'s, adapted to Rust's toolchain and `xtask`, so a reviewer never has to follow a link out of the repository. A pull request that changes one names the other. [awesome-humans/website#165](https://github.com/awesome-humans/website/pull/165) adds website's copy, and [awesome-humans/coderabbit#7](https://github.com/awesome-humans/coderabbit/pull/7) has CodeRabbit read each one.

@@ -29,7 +29,7 @@ pub fn run(repo: &Repo) -> io::Result<()> {
     Ok(())
 }
 
-// One skill: what starts it, the branch it works on, what the owner does at the human gate and
+// One skill: what starts it, the branch it works on, what the maintainer does at the human gate and
 // where its result lands, which is "roster", "research", "opinions" or "report". A report-only
 // skill has no branch and opens no pull request, so it passes neither gate.
 struct Row {
@@ -134,7 +134,7 @@ fn rows_where(predicate: impl Fn(&Row) -> bool) -> Vec<usize> {
 fn pipeline() -> String {
     const TITLE: &str = "Maintenance pipeline";
     const DESCRIPTION: &str = "Swimlane diagram of how this repository maintains itself: vet-source, research-topic, resolve-research, harvest-sources, refresh-rust-versions, \
-        and weave-house-opinion each work on their own branch, pass the CI checks, get an agent review, pass the owner's review, and land in the roster, research, or the opinions and templates; \
+        and weave-house-opinion each work on their own branch, pass the CI checks, get an agent review, pass the maintainer's review, and land in the roster, research, or the opinions and templates; \
         audit-freshness, review-opinions, and review-project only report. Their findings, the release watch, and the harvest reminder start the next run.";
 
     // Columns, left to right, and the height of one row.
@@ -325,7 +325,7 @@ fn pipeline() -> String {
         s += &text(X_LANDS_IN + 14.0, ty + offset, subtitle, "ts", "start");
     }
 
-    // The loop: a report's findings, with the scheduled workflows and the owner, start the
+    // The loop: a report's findings, with the scheduled workflows and the maintainer, start the
     // next run in whichever row it belongs to.
     let loop_y = rows_bottom + 56.0;
     s += &path_arrow(
@@ -722,7 +722,7 @@ fn research() -> String {
 // https://claude.ai/artifact/QfYm5d57sbJxs3W3jMyGiy, as the website repository's
 // awesome-humans.css does. The Rust accent stays out: the design system shows an ecosystem's
 // accent only in four places on the site, and a diagram isn't one. Brand marks the CI gate and
-// the outcome the agents work towards, and house what the owner decides. Each lane takes its
+// the outcome the agents work towards, and house what the maintainer decides. Each lane takes its
 // lane-* token, chosen to stay apart from those and from stale.
 const TOKENS_LIGHT: &str = "--bg: #ffffff; --surface: #f6f7f8; --band: #eef0f2; --fg: #0d1117; --muted: #5b6572; --line: #e3e6ea;
   --accent: #087d4e; --human: #9a6100; --auto: #087d4e;
