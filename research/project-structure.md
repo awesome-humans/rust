@@ -14,7 +14,7 @@ Structure every multi-crate repository as one Cargo workspace whose root is a vi
 - **Write project automation as an `xtask` crate,** run through a `.cargo/config.toml` alias, instead of shell scripts.
 - **Commit `Cargo.lock`,** for libraries too.
 
-Everything here is stable in Rust 1.99.1 (released 2026-10-15). Cargo's own lints, which would catch a member that forgets to inherit `[workspace.lints]`, are unstable on nightly as of 2026-10-19, so they're in [Coming next](#coming-next).
+Everything here is stable in Rust 1.99.1 (released 2026-10-15). Cargo's own lints, which catch a member that forgets to inherit `[workspace.lints]`, were unstable on nightly as of 2026-10-19, so they're in [Coming next](#coming-next). They're stable since Rust 1.100.0 (released 2026-11-12), and `opinions/rust.md` covers them.
 
 **No opinion file covers this.** `opinions/rust.md` sets `edition` and `resolver` in its Edition 2024 section, and `templates/Cargo.toml` already holds `[workspace]`, `[workspace.package]`, and `[workspace.lints.clippy]`. Neither says how to lay out the crates, which fields to share, or how to pin the toolchain. This is the second topic in [PLAN.md: Phase 6](../PLAN.md#phase-6-first-opinions-and-templates), whose target is `opinions/project-structure.md`.
 
@@ -177,7 +177,7 @@ matklad's later "Basic Things" generalises the rule: "a single, clearly document
 
 These are unstable on nightly as of 2026-10-19, so they're not yet an opinion:
 
-- **Cargo's own lints and `[lints.cargo]`** ([The Cargo Book: Lints](https://doc.rust-lang.org/cargo/reference/lints.html), "can only be used on nightly toolchains"). They include `missing_lints_inheritance`, `unused_workspace_dependencies`, and `unused_workspace_package_fields`, each warn by default, which Cargo 1.95 added on nightly. They'd catch a member that forgets `[lints] workspace = true`. One worker reported that they stabilise in 1.100, due 2026-11-12, but the editor couldn't confirm it in the Cargo changelog, which has no 1.100 section yet. `refresh-rust-versions` should check when it moves the targets to 1.100.
+- **Cargo's own lints and `[lints.cargo]`** ([The Cargo Book: Lints](https://doc.rust-lang.org/cargo/reference/lints.html), "can only be used on nightly toolchains"). They include `missing_lints_inheritance`, `unused_workspace_dependencies`, and `unused_workspace_package_fields`, each warn by default, which Cargo 1.95 added on nightly. They'd catch a member that forgets `[lints] workspace = true`. **Stable since 1.100.0, released 2026-11-12** ([Rust Blog: Announcing Rust 1.100.0](https://blog.rust-lang.org/2026/11/12/Rust-1.100.0/#reporting-unused-dependencies-in-cargo)), so this row and its quote are out of date. `refresh-rust-versions` added the lints to `opinions/rust.md` on 2026-11-15, and `resolve-research` should link there instead of restating them.
 - **Per-package feature unification** (`-Zfeature-unification`, [rust-lang/cargo#14774](https://github.com/rust-lang/cargo/issues/14774)), which would replace a workspace-hack crate.
 - **Public and private dependencies** (`-Zpublic-dependency`, [rust-lang/rust#44663](https://github.com/rust-lang/rust/issues/44663)).
 - **Path bases** (`-Zpath-bases`, [rust-lang/cargo#14355](https://github.com/rust-lang/cargo/issues/14355)).
@@ -193,5 +193,5 @@ These are unstable on nightly as of 2026-10-19, so they're not yet an opinion:
   - `templates/rust-toolchain.toml` and `templates/.cargo/config.toml`, which PLAN.md plans: `channel = "1.99"` with `clippy` and `rustfmt`, and the `xtask` alias. This settles the deferred decision PLAN.md records for `refresh-rust-versions`: the templates pin the minor release.
 - **The planned `justfile` template has no citable source.** `resolve-research` should either drop it from the template set, reduce it to recipes that only call `cargo` and `cargo xtask`, or record it as a house opinion through `weave-house-opinion`.
 - **Hand off what other topics own:** integration-test layout and doctests to `testing.md`, `[profile.release]` to `runtime-performance.md`, MSRV checks in CI and `build.warnings = "deny"` to `ci.md`, and which lints to set to `rust.md` and `ci.md`.
-- **Rust 1.100, due 2026-11-12,** might stabilise Cargo's lints. That's `refresh-rust-versions`, which would then add `missing_lints_inheritance` to the opinion.
+- **Rust 1.100, released 2026-11-12,** stabilised Cargo's lints. `refresh-rust-versions` added `missing_lints_inheritance` and three more to `opinions/rust.md` on 2026-11-15.
 - **No `vet-source` candidate.** The roster supported every recommendation. The Microsoft guidelines agree throughout, but they're already on the watch list until 2027-08-11.

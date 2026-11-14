@@ -238,7 +238,7 @@ Sort README.md's Maintenance via skills table by skill name, as [awesome-humans/
 1. **`validate-skills.yml` runs only `just validate-skills`.** The metadata, sources, README, and diagram checks in `dotnet`'s workflow of the same name already run in the `Rust checks` workflow, so a copy would run them twice.
 2. **The `links` job runs `just links`,** not `lycheeverse/lychee-action`, so the `justfile` stays every entry point. `taiki-e/install-action` installs lychee 0.24.2 through its cargo-binstall fallback, because lychee isn't in the action's own manifests.
 3. **The release watch reads TOML** with the runner's Python and `tomllib`, so nothing is installed. The snapshot records the release, the manifest date, and the commit.
-4. **`refresh-rust-versions` pins the root toolchain to the minor release,** `1.99`, as `rust-toolchain.toml` does today. How the templates pin it waits for their opinion in phase 6, so the skill defers to that opinion instead of choosing.
+4. **`refresh-rust-versions` pins the root toolchain to the minor release,** `1.99` at the time, as `rust-toolchain.toml` did. How the templates pin it waits for their opinion in phase 6, so the skill defers to that opinion instead of choosing.
 5. **`review-project` runs Clippy only on a trusted or sandboxed target,** because building runs the target's build scripts and procedural macros. It also reads a library's `rust-version` as an MSRV promise, and reports one below `targets:` only when the library documents no MSRV policy.
 6. **`vet-source` checks opt-outs as a step of its own,** step 2, before any evidence is gathered. The later steps move down by one.
 
@@ -303,7 +303,7 @@ CodeRabbit raised one finding, that the dates should read 2026-10-18, which was 
 
 **Progress (2026-10-22):** rust#18 resolved the topic into `opinions/rust.md`, with `templates/Cargo.toml` and `templates/rustfmt.toml`. rust#23 and rust#24 merged `research/project-structure.md` and `research/ci.md` on 2026-10-21, and neither is resolved yet. rust#25 to rust#31 stage the other seven topics, from `error-handling` to `runtime-performance`, and wait for the maintainer's review. Next is `resolve-research` for `project-structure` and `ci`, then for each of the seven as it merges.
 
-**Progress (2026-11-14):** rust#107 ran `refresh-rust-versions` for Rust 1.100.0, the first run of the skill here. It moves the root pins, `opinions/rust.md`, and both templates to `rust-1.100`. The never-type note is gone from the opinion's Coming next section, as the 2026-10-19 progress note expected. The research topics still target `rust-1.99`, inside the two-release lag that `audit-freshness` allows.
+**Progress (2026-11-14):** rust#107 ran `refresh-rust-versions` for Rust 1.100.0, the first run of the skill here. It moves the root pins, `opinions/rust.md`, and both templates to `rust-1.100`, and adds Cargo's own lints to the opinion, as `research/project-structure.md` asked. The never-type note is gone from the opinion's Coming next section, as the 2026-10-19 progress note expected. The research topics still target `rust-1.99`, inside the two-release lag that `audit-freshness` allows.
 
 Templates, each with a first-line header comment:
 

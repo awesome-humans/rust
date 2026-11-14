@@ -1,6 +1,6 @@
 ---
 targets: [rust-1.100, edition-2024]
-last-reviewed: 2026-11-14
+last-reviewed: 2026-11-15
 sources:
   [
     burntsushi,
@@ -75,10 +75,21 @@ pub fn log_owned(message: String) {
 
 The warn-by-default lints already enforce the rest of this file. Among them are `collapsible_if`, `question_mark`, `needless_return`, `manual_ok_err`, `unnecessary_map_or`, `io_other_error`, `manual_is_multiple_of`, and `manual_pop_if` ([Clippy Lints](https://rust-lang.github.io/rust-clippy/stable/index.html)). Two rustc lints change everyday code: `mismatched_lifetime_syntaxes` (1.89) asks for `Iter<'_, u8>` where a return type hides an elided lifetime, and `dangling_pointers_from_locals` (1.91) catches a raw pointer to a local that escapes its function ([Rust Blog: Announcing Rust 1.89.0](https://blog.rust-lang.org/2025/08/07/Rust-1.89.0/), [Announcing Rust 1.91.0](https://blog.rust-lang.org/2025/10/30/Rust-1.91.0/)).
 
-**Remove a dependency that `cargo::unused_dependencies` reports.** Cargo's own lint, warn-by-default since 1.100, reports a `[dependencies]` or `[build-dependencies]` entry that no build target uses, and `CARGO_BUILD_WARNINGS=deny` fails the build on it. It only fires when the command builds every target that could use the entry, so `cargo check --bin foo` doesn't report `[dependencies]`, and it never checks `[dev-dependencies]` ([Rust Blog: Announcing Rust 1.100.0](https://blog.rust-lang.org/2026/11/12/Rust-1.100.0/#reporting-unused-dependencies-in-cargo)). The Cargo Book documents two false positives, so check for them before you remove an entry:
+**Fix what Cargo's own lints report, in the manifest.** Cargo has lints of its own since 1.100, set in `[workspace.lints.cargo]`, and `CARGO_BUILD_WARNINGS=deny` fails the build on them too. Four of the warn-by-default ones fire on a workspace:
+
+| Lint                              | Reports                                                                      | What you do                                                |
+| --------------------------------- | ---------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| `missing_lints_inheritance`       | A member with no `[lints]` table, when `[workspace.lints]` exists            | Add `[lints] workspace = true`                             |
+| `unused_dependencies`             | A `[dependencies]` or `[build-dependencies]` entry that no build target uses | Remove it, unless it's one of the false positives below    |
+| `unused_workspace_dependencies`   | A `[workspace.dependencies]` entry that no member inherits                   | Remove it                                                  |
+| `unused_workspace_package_fields` | A `[workspace.package]` field that no member inherits                        | Inherit it, as in `edition.workspace = true`, or remove it |
+
+([Rust Blog: Announcing Rust 1.100.0](https://blog.rust-lang.org/2026/11/12/Rust-1.100.0/#reporting-unused-dependencies-in-cargo), [The Cargo Book: Lints](https://doc.rust-lang.org/cargo/reference/lints.html))
+
+**A clean run doesn't prove that no dependency is unused.** `unused_dependencies` checks only the packages the command selects, and only when the command builds every target that could use the entry. So run it over the whole workspace: `cargo check -p foo` skips the path dependencies of `foo`, and `cargo check --bin foo` skips `[dependencies]`. It never checks `[dev-dependencies]`. The Cargo Book also documents two false positives:
 
 - **An entry that only pins the version of a transitive dependency:** move it to `[target."cfg(false)".dependencies]`.
-- **An entry that only turns on a feature of a transitive dependency:** keep it. The Cargo Book gives no fix for this one.
+- **An entry that only turns on a feature of a transitive dependency:** keep it. The Cargo Book gives no fix, and a member that inherits `[workspace.lints]` can't set a level of its own. So set `unused_dependencies = "allow"` in `[workspace.lints.cargo]`, with a comment that names the entry. That turns the lint off for every member, so remove the line when the entry goes.
 
 ([The Cargo Book: Lints](https://doc.rust-lang.org/cargo/reference/lints.html#unused_dependencies))
 
@@ -171,7 +182,7 @@ fn total(lines: &[&str]) -> u32 {
 | `trim_prefix` and `trim_suffix` on `str` and slices | 1.100   | `s.strip_prefix(p).unwrap_or(s)`                                       |
 | `Vec::from_fn`                                      | 1.100   | `(0..n).map(f).collect::<Vec<_>>()`                                    |
 
-The standard library's documentation states three of the 1.100 replacements. It prefers `!` to `Infallible`, which "may be deprecated in a future Rust version". "Unlike `strip_prefix`", `trim_prefix` "always returns `&str` for easy method chaining". And `Vec::from_fn` is "similar to `(0..i).map(f)`, just for `Vec<T>`s not iterators" ([The Rust Standard Library: `Infallible`](https://doc.rust-lang.org/std/convert/type.Infallible.html), [`str::trim_prefix`](https://doc.rust-lang.org/std/primitive.str.html#method.trim_prefix), [`Vec::from_fn`](https://doc.rust-lang.org/std/vec/struct.Vec.html#method.from_fn)). The announcement gives `DropGuard`'s purpose: to "run some code unconditionally when a function exits" without implementing `Drop` ([Rust Blog: Announcing Rust 1.100.0](https://blog.rust-lang.org/2026/11/12/Rust-1.100.0/#dropguard-run-a-closure-on-every-exit-path)).
+The standard library's documentation states three of the 1.100 replacements. It prefers `!` to `Infallible` "unless targeting older Rust versions", and says `Infallible` "may be deprecated in a future Rust version". Keep `Infallible` in a crate whose `rust-version` is below 1.100, where `Result<T, !>` doesn't compile. "Unlike `strip_prefix`", `trim_prefix` "always returns `&str` for easy method chaining". And `Vec::from_fn` is "similar to `(0..i).map(f)`, just for `Vec<T>`s not iterators" ([The Rust Standard Library: `Infallible`](https://doc.rust-lang.org/std/convert/type.Infallible.html), [`str::trim_prefix`](https://doc.rust-lang.org/std/primitive.str.html#method.trim_prefix), [`Vec::from_fn`](https://doc.rust-lang.org/std/vec/struct.Vec.html#method.from_fn)). The announcement gives `DropGuard`'s purpose: to "run some code unconditionally when a function exits" without implementing `Drop` ([Rust Blog: Announcing Rust 1.100.0](https://blog.rust-lang.org/2026/11/12/Rust-1.100.0/#dropguard-run-a-closure-on-every-exit-path)).
 
 Use `thread::scope` for threads that borrow local data, instead of `thread::spawn` with `Arc` clones ([Matthias Endler: Sharp Edges In The Rust Standard Library](https://corrode.dev/blog/sharp-edges-in-rust-std/)).
 
