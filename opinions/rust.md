@@ -1,6 +1,6 @@
 ---
-targets: [rust-1.99, edition-2024]
-last-reviewed: 2026-10-19
+targets: [rust-1.100, edition-2024]
+last-reviewed: 2026-11-14
 sources:
   [
     burntsushi,
@@ -15,7 +15,7 @@ sources:
 
 # Rust
 
-Write every crate on edition 2024 with Rust 1.99, and use the features that releases 1.65 to 1.99 added where they replace an older idiom. Let the compiler and Clippy enforce the idioms, so a review doesn't have to.
+Write every crate on edition 2024 with Rust 1.100, and use the features that releases 1.65 to 1.100 added where they replace an older idiom. Let the compiler and Clippy enforce the idioms, so a review doesn't have to.
 
 ## Opinions
 
@@ -38,19 +38,18 @@ To migrate a crate, follow the Edition Guide's steps:
 
 `cargo fix` doesn't touch doctests or code that macros and build scripts generate ([Rust Edition Guide: Transitioning an existing project to a new edition](https://doc.rust-lang.org/edition-guide/editions/transitioning-an-existing-project-to-a-new-edition.html)). Review these changes by hand, because it either can't make them or makes them too broadly:
 
-| Change                      | Lint                                     | What you do                                                                                           |
-| --------------------------- | ---------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| Tail-expression temporaries | `tail_expr_drop_order`                   | Move a temporary that the tail expression borrows into a `let`                                        |
-| `if let` temporary scope    | `if_let_rescope`                         | Revert each `match` that `cargo fix` wrote, unless the code needs the old drop order                  |
-| `static mut` references     | `static_mut_refs`                        | Use an atomic, a `Mutex`, or `&raw const` and `&raw mut`                                              |
-| Never-type fallback         | `dependency_on_unit_never_type_fallback` | Name the type: `f::<()>()?` or `() = f()?`                                                            |
-| RPIT lifetime capture       | `impl_trait_overcaptures`                | Delete each `use<..>` that `cargo fix` added where capturing every lifetime is fine                   |
-| Unsafe attributes           | `unsafe_attr_outside_unsafe`             | Check each `#[unsafe(no_mangle)]`, `export_name`, and `link_section`, which the compiler can't verify |
-| `set_var` and `remove_var`  | `deprecated_safe_2024`                   | Remove the call, or prove no other thread is running, and delete the TODO comment                     |
-| `expr` fragment specifier   | `edition_2024_expr_fragment_specifier`   | Revert `expr_2021` to `expr` in most macros                                                           |
-| Combined doctests           | none                                     | Mark a doctest that depends on `Location`, `type_name`, or line numbers as `standalone_crate`         |
+| Change                      | Lint                                   | What you do                                                                                           |
+| --------------------------- | -------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Tail-expression temporaries | `tail_expr_drop_order`                 | Move a temporary that the tail expression borrows into a `let`                                        |
+| `if let` temporary scope    | `if_let_rescope`                       | Revert each `match` that `cargo fix` wrote, unless the code needs the old drop order                  |
+| `static mut` references     | `static_mut_refs`                      | Use an atomic, a `Mutex`, or `&raw const` and `&raw mut`                                              |
+| RPIT lifetime capture       | `impl_trait_overcaptures`              | Delete each `use<..>` that `cargo fix` added where capturing every lifetime is fine                   |
+| Unsafe attributes           | `unsafe_attr_outside_unsafe`           | Check each `#[unsafe(no_mangle)]`, `export_name`, and `link_section`, which the compiler can't verify |
+| `set_var` and `remove_var`  | `deprecated_safe_2024`                 | Remove the call, or prove no other thread is running, and delete the TODO comment                     |
+| `expr` fragment specifier   | `edition_2024_expr_fragment_specifier` | Revert `expr_2021` to `expr` in most macros                                                           |
+| Combined doctests           | none                                   | Mark a doctest that depends on `Location`, `type_name`, or line numbers as `standalone_crate`         |
 
-([Rust Edition Guide: Tail expression temporary scope](https://doc.rust-lang.org/edition-guide/rust-2024/temporary-tail-expr-scope.html), [`if let` temporary scope](https://doc.rust-lang.org/edition-guide/rust-2024/temporary-if-let-scope.html), [Disallow references to `static mut`](https://doc.rust-lang.org/edition-guide/rust-2024/static-mut-references.html), [Never type fallback change](https://doc.rust-lang.org/edition-guide/rust-2024/never-type-fallback.html), [RPIT lifetime capture rules](https://doc.rust-lang.org/edition-guide/rust-2024/rpit-lifetime-capture.html), [Unsafe attributes](https://doc.rust-lang.org/edition-guide/rust-2024/unsafe-attributes.html), [Newly unsafe functions](https://doc.rust-lang.org/edition-guide/rust-2024/newly-unsafe-functions.html), [Macro fragment specifiers](https://doc.rust-lang.org/edition-guide/rust-2024/macro-fragment-specifiers.html), [Rustdoc combined tests](https://doc.rust-lang.org/edition-guide/rust-2024/rustdoc-doctests.html))
+([Rust Edition Guide: Tail expression temporary scope](https://doc.rust-lang.org/edition-guide/rust-2024/temporary-tail-expr-scope.html), [`if let` temporary scope](https://doc.rust-lang.org/edition-guide/rust-2024/temporary-if-let-scope.html), [Disallow references to `static mut`](https://doc.rust-lang.org/edition-guide/rust-2024/static-mut-references.html), [RPIT lifetime capture rules](https://doc.rust-lang.org/edition-guide/rust-2024/rpit-lifetime-capture.html), [Unsafe attributes](https://doc.rust-lang.org/edition-guide/rust-2024/unsafe-attributes.html), [Newly unsafe functions](https://doc.rust-lang.org/edition-guide/rust-2024/newly-unsafe-functions.html), [Macro fragment specifiers](https://doc.rust-lang.org/edition-guide/rust-2024/macro-fragment-specifiers.html), [Rustdoc combined tests](https://doc.rust-lang.org/edition-guide/rust-2024/rustdoc-doctests.html))
 
 ### Lints
 
@@ -75,6 +74,8 @@ pub fn log_owned(message: String) {
 ```
 
 The warn-by-default lints already enforce the rest of this file. Among them are `collapsible_if`, `question_mark`, `needless_return`, `manual_ok_err`, `unnecessary_map_or`, `io_other_error`, `manual_is_multiple_of`, and `manual_pop_if` ([Clippy Lints](https://rust-lang.github.io/rust-clippy/stable/index.html)). Two rustc lints change everyday code: `mismatched_lifetime_syntaxes` (1.89) asks for `Iter<'_, u8>` where a return type hides an elided lifetime, and `dangling_pointers_from_locals` (1.91) catches a raw pointer to a local that escapes its function ([Rust Blog: Announcing Rust 1.89.0](https://blog.rust-lang.org/2025/08/07/Rust-1.89.0/), [Announcing Rust 1.91.0](https://blog.rust-lang.org/2025/10/30/Rust-1.91.0/)).
+
+**Remove a dependency that `cargo::unused_dependencies` reports.** Cargo's own lint, warn-by-default since 1.100, reports a `[dependencies]` or `[build-dependencies]` entry that no build target uses, and `CARGO_BUILD_WARNINGS=deny` fails the build on it. It only fires when the command builds every target that could use the entry, so `cargo check --bin foo` doesn't report `[dependencies]`, and it never checks `[dev-dependencies]` ([Rust Blog: Announcing Rust 1.100.0](https://blog.rust-lang.org/2026/11/12/Rust-1.100.0/#reporting-unused-dependencies-in-cargo), [The Cargo Book: Lints](https://doc.rust-lang.org/cargo/reference/lints.html#unused_dependencies)).
 
 ### Flat control flow
 
@@ -118,7 +119,7 @@ fn port(config: &Config) -> Option<u16> {
 }
 ```
 
-Both are fragments: they need a `Config` with `server: Option<Server>` and `fallback: Option<String>`, and a `Server` with `port: Option<u16>`. The Book's chapter 19 still says the two conditions can't be combined ([The Rust Programming Language: All the Places Patterns Can Be Used](https://doc.rust-lang.org/book/ch19-01-all-the-places-for-patterns.html), read 2026-10-19). That's wrong on edition 2024, and the Reference allows it ([The Rust Reference: `if` expressions](https://doc.rust-lang.org/reference/expressions/if-expr.html#chains-of-conditions)).
+Both are fragments: they need a `Config` with `server: Option<Server>` and `fallback: Option<String>`, and a `Server` with `port: Option<u16>`. The Book's chapter 19 still says the two conditions can't be combined ([The Rust Programming Language: All the Places Patterns Can Be Used](https://doc.rust-lang.org/book/ch19-01-all-the-places-for-patterns.html), read 2026-11-14). That's wrong on edition 2024, and the Reference allows it ([The Rust Reference: `if` expressions](https://doc.rust-lang.org/reference/expressions/if-expr.html#chains-of-conditions)).
 
 **Use `?` when the failure branch only propagates, and `let … else` when it does anything else.** `let … else` keeps the happy path unindented ([Matthias Endler: Don't Unwrap Options: There Are Better Ways](https://corrode.dev/blog/rust-option-handling-best-practices/)). Clippy's `question_mark` rewrites `let Some(x) = o else { return None };` as `let x = o?;`, so keep `let … else` for an `else` that logs, returns a different value, or uses `continue` or `break`:
 
@@ -142,24 +143,30 @@ fn total(lines: &[&str]) -> u32 {
 
 **Use the `std` item in the left column wherever the code does what the right column describes.** Each row is from the release announcement of the version shown, on the [Rust Blog](https://blog.rust-lang.org/). A row that retires a crate also removes a dependency.
 
-| Use                                        | Release | Instead of                                                             |
-| ------------------------------------------ | ------- | ---------------------------------------------------------------------- |
-| `LazyLock` and `LazyCell`                  | 1.80    | The `once_cell` crate                                                  |
-| Precise capturing `use<..>`                | 1.82    | The `Captures<'a>` trait and `+ 'a` outlives tricks                    |
-| Async closures and `AsyncFn*` bounds       | 1.85    | `\|\| async move { … }` and `Fn() -> impl Future` bounds               |
-| Trait upcasting to a supertrait object     | 1.86    | An `as_any(&self) -> &dyn Any` method on every implementer             |
-| `get_disjoint_mut` on slices and `HashMap` | 1.86    | `split_at_mut` and index arithmetic                                    |
-| `Vec::pop_if`                              | 1.86    | Checking `last()`, then calling `pop()`                                |
-| `extract_if` on `Vec`                      | 1.87    | `retain` plus a second pass. Maps and sets have it since 1.88 and 1.91 |
-| `Cell::update`                             | 1.88    | `c.set(c.get() + 1)`                                                   |
-| `cfg(true)` and `cfg(false)`               | 1.88    | `cfg(all())` and `cfg(any())`                                          |
-| `File::lock` and `try_lock`                | 1.89    | A third-party file-locking crate                                       |
-| `fmt::from_fn`                             | 1.93    | A one-off wrapper struct with a `Display` impl                         |
-| `cfg_select!`                              | 1.95    | The `cfg-if` crate                                                     |
-| `Vec::push_mut` and `insert_mut`           | 1.95    | `push` followed by `last_mut().unwrap()`                               |
-| `assert_matches!`                          | 1.96    | `assert!(matches!(…))`, which prints no value on failure               |
-| `core::range` types                        | 1.96    | Storing `std::ops::Range`, which isn't `Copy`                          |
-| `{integer}::format_into`                   | 1.98    | The `itoa` crate                                                       |
+| Use                                                 | Release | Instead of                                                             |
+| --------------------------------------------------- | ------- | ---------------------------------------------------------------------- |
+| `LazyLock` and `LazyCell`                           | 1.80    | The `once_cell` crate                                                  |
+| Precise capturing `use<..>`                         | 1.82    | The `Captures<'a>` trait and `+ 'a` outlives tricks                    |
+| Async closures and `AsyncFn*` bounds                | 1.85    | `\|\| async move { … }` and `Fn() -> impl Future` bounds               |
+| Trait upcasting to a supertrait object              | 1.86    | An `as_any(&self) -> &dyn Any` method on every implementer             |
+| `get_disjoint_mut` on slices and `HashMap`          | 1.86    | `split_at_mut` and index arithmetic                                    |
+| `Vec::pop_if`                                       | 1.86    | Checking `last()`, then calling `pop()`                                |
+| `extract_if` on `Vec`                               | 1.87    | `retain` plus a second pass. Maps and sets have it since 1.88 and 1.91 |
+| `Cell::update`                                      | 1.88    | `c.set(c.get() + 1)`                                                   |
+| `cfg(true)` and `cfg(false)`                        | 1.88    | `cfg(all())` and `cfg(any())`                                          |
+| `File::lock` and `try_lock`                         | 1.89    | A third-party file-locking crate                                       |
+| `fmt::from_fn`                                      | 1.93    | A one-off wrapper struct with a `Display` impl                         |
+| `cfg_select!`                                       | 1.95    | The `cfg-if` crate                                                     |
+| `Vec::push_mut` and `insert_mut`                    | 1.95    | `push` followed by `last_mut().unwrap()`                               |
+| `assert_matches!`                                   | 1.96    | `assert!(matches!(…))`, which prints no value on failure               |
+| `core::range` types                                 | 1.96    | Storing `std::ops::Range`, which isn't `Copy`                          |
+| `{integer}::format_into`                            | 1.98    | The `itoa` crate                                                       |
+| `!` in any type, such as `Result<T, !>`             | 1.100   | `std::convert::Infallible`, now an alias of `!`                        |
+| `mem::DropGuard`                                    | 1.100   | A one-off struct with a `Drop` impl that runs code on every exit path  |
+| `trim_prefix` and `trim_suffix` on `str` and slices | 1.100   | `s.strip_prefix(p).unwrap_or(s)`                                       |
+| `Vec::from_fn`                                      | 1.100   | `(0..n).map(f).collect::<Vec<_>>()`                                    |
+
+The standard library's documentation prefers `!` to `Infallible` from 1.100, and says `Infallible` "may be deprecated in a future Rust version" ([The Rust Standard Library: `Infallible`](https://doc.rust-lang.org/std/convert/type.Infallible.html)).
 
 Use `thread::scope` for threads that borrow local data, instead of `thread::spawn` with `Arc` clones ([Matthias Endler: Sharp Edges In The Rust Standard Library](https://corrode.dev/blog/sharp-edges-in-rust-std/)).
 
@@ -190,9 +197,7 @@ For public API shape, see `api-design.md`, which isn't written yet.
 
 ## Coming next
 
-**Review by 2026-11-26.** The never type `!` reaches stable in Rust 1.100, due 2026-11-12. It makes `Infallible` an alias of `!`, makes `!` the fallback in every edition, and removes `dependency_on_unit_never_type_fallback` ([rust-lang/rust#155499](https://github.com/rust-lang/rust/pull/155499)). When `refresh-rust-versions` moves the targets to 1.100, drop this note and the lint's row from the migration table.
-
-These are unstable on nightly as of 2026-10-19, so don't use them yet:
+These are unstable on nightly as of 2026-11-14, so don't use them yet:
 
 - `try` blocks ([rust-lang/rust#154391](https://github.com/rust-lang/rust/issues/154391)) and `gen` blocks ([rust-lang/rust#117078](https://github.com/rust-lang/rust/issues/117078)).
 - Default field values ([rust-lang/rust#132162](https://github.com/rust-lang/rust/issues/132162)).
@@ -201,8 +206,8 @@ These are unstable on nightly as of 2026-10-19, so don't use them yet:
 
 ## Sources
 
-- **`rust-blog`:** the release announcements for 1.80 to 1.98, and edition 2024.
-- **`rust-docs`:** the Edition Guide, the Cargo Book, the Reference, the Book, and Clippy's usage guide and lint list.
+- **`rust-blog`:** the release announcements for 1.80 to 1.100, and edition 2024.
+- **`rust-docs`:** the Edition Guide, the Cargo Book, the Reference, the Book, the standard library's documentation, and Clippy's usage guide and lint list.
 - **`corrode`:** `let … else`, panics, safe-Rust pitfalls, cloning, signatures, and iterators.
 - **`burntsushi`:** when a panic is the right response.
 - **`matklad`:** moving conditions to the caller.
