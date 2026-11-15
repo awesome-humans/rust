@@ -175,19 +175,12 @@ impl Site<'_> {
 
         // validate-sources holds each house opinion to its sources list, so a malformed one is
         // an error here too, rather than a page that shows the wrong thing. A profile ID names
-        // a raw/<profile>/ directory, so an invalid one, such as ../.., never reaches a path:
-        // spans() reports it, and it's dropped here.
+        // a raw/<profile>/ directory, so profiles() leaves out an invalid one, such as ../..
         for path in opinions.iter().chain(&templates) {
             let Some(text) = self.read(path) else {
                 continue;
             };
-            let mut found: Vec<String> = house::spans(path, &text, &mut self.errors)
-                .into_iter()
-                .map(|span| span.profile)
-                .filter(|profile| house::is_valid_profile(profile))
-                .collect();
-            found.sort();
-            found.dedup();
+            let found = house::profiles(path, &text, &mut self.errors);
             self.copied.insert(path.clone(), found);
         }
 

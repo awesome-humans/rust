@@ -93,6 +93,7 @@ In this repository, each house opinion is a marked block beside the sourced text
 │   └── rustfmt.toml
 ├── xtask/src/                ← this repository's own CI checks, one subcommand each
 │   ├── build_site.rs
+│   ├── build_templates.rs
 │   ├── comment_header.rs     ← shared module: template headers
 │   ├── export_diagrams.rs
 │   ├── frontmatter.rs        ← shared module: YAML frontmatter
@@ -153,6 +154,7 @@ A second, [`.github/workflows/harvest-reminder.yml`](.github/workflows/harvest-r
 | `just validate-sources`        | Every source ID in `opinions/` and `templates/` exists in the [AWESOME-HUMANS.md](AWESOME-HUMANS.md) roster and is citable. Each `house:<profile>` ID has a house block or region of that profile, and every house opinion sits inside one. The roster tables and notes sections are sorted by ID, no ID appears twice, every notes section matches a row, and the Citable count is right |
 | `just validate-readme-index`   | This README lists every opinion and skill, and lists nothing that doesn't exist. Scope is sorted by title, the layout tree by file name, and the skills table by skill name                                                                                                                                                                                                               |
 | `just validate-template-order` | Every dependency and lint table in a TOML template is sorted by key, ignoring case, within each run of keys between blank lines                                                                                                                                                                                                                                                           |
+| `just build-templates`         | Every file under `templates/` builds, tests, and passes Clippy with warnings denied and `cargo fmt --check`. It copies them to `<out>/<profile>/`, `target/templates/` by default, as the default copy and as each house profile's, and adds one crate to each with `cargo new --lib`. It also fails when rustfmt warns that it ignored a setting                                         |
 | `just export-diagrams`         | Draws the SVG diagrams in `assets/diagrams/`. It doesn't check anything, but CI runs `just check-diagrams`, which redraws them and fails if the committed SVGs differ                                                                                                                                                                                                                     |
 | `just links`                   | Every link in the repository resolves, with the settings in `lychee.toml`. CI runs it on every pull request and weekly                                                                                                                                                                                                                                                                    |
 | `just build-site`              | Stages the `/rust/` pages of awesome-humans.net in `<out>/rust/`, `target/site/` by default, to the [awesome-humans/website staging contract](https://github.com/awesome-humans/website#staging-contract)                                                                                                                                                                                 |
@@ -163,7 +165,7 @@ Run them from the repository root, as CI does:
 just validate-metadata
 ```
 
-`just verify` runs every offline check CI runs, in one command: `just check`, `just clippy`, `just test`, the skills check, the four validators, `check-diagrams`, and `build-site`. It redraws the diagrams, and fails until you commit any SVG it changes. The link check is left to CI, because lychee is a separate binary and depends on third-party hosts. Run `just links` to check links locally. `just` with no arguments lists every recipe.
+`just verify` runs every offline check CI runs, in one command: `just check`, `just clippy`, `just test`, the skills check, the four validators, `build-templates`, `check-diagrams`, and `build-site`. `build-templates` is one of them because no template names a crate, so its copies build without the network. The `Templates` workflow also runs it weekly, because the pinned toolchain takes patch releases without a change here. It redraws the diagrams, and fails until you commit any SVG it changes. The link check is left to CI, because lychee is a separate binary and depends on third-party hosts. Run `just links` to check links locally. `just` with no arguments lists every recipe.
 
 Every check exits 0 when clean, 1 for findings, and 2 when it isn't run from the repository root. The checks read a missing `opinions/` or `templates/` directory as empty, but an empty one that exists, or a missing README section, is a finding.
 
