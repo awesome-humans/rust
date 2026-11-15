@@ -203,7 +203,7 @@ For error types, see `error-handling.md`, which isn't written yet.
 
 ### Ownership and signatures
 
-**Clone an `Arc` or a small value instead of adding a lifetime parameter to avoid it,** outside a hot path you've measured. `corrode` treats explicit lifetimes as "a last resort" ([Matthias Endler: Be Simple](https://corrode.dev/blog/simple/), [Don't Worry About Lifetimes](https://corrode.dev/blog/lifetimes/)). Treating the clone as an anti-pattern lost: its source, `rust-patterns`, is marked Corroborate on the roster.
+**Clone an `Arc` or a small value instead of adding a lifetime parameter to avoid it,** outside a hot path you've measured. `corrode` treats explicit lifetimes as "a last resort" ([Matthias Endler: Be Simple](https://corrode.dev/blog/simple/), [Don't Worry About Lifetimes](https://corrode.dev/blog/lifetimes/)). Treating the clone as an anti-pattern rests on `rust-patterns` alone, which the roster marks Corroborate.
 
 - **Take `impl Trait` in argument position when a generic appears once,** and a named type parameter when it recurs ([Matthias Endler: Practical Rust API Design](https://corrode.dev/blog/practical-rust-api-design/)).
 - **Move a condition to the caller.** A function takes `Walrus`, not `Option<Walrus>`, and the caller decides what `None` means ([Alex Kladov: Push Ifs Up And Fors Down](https://matklad.github.io/2023/11/15/push-ifs-up-and-fors-down.html)).
