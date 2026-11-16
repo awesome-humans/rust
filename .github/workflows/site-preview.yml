@@ -18,14 +18,14 @@ concurrency:
 
 jobs:
   build:
-    uses: awesome-humans/website/.github/workflows/build.yml@9c1748f32cdd51bdcd91b484ee8fa34d72d484e3 # main
+    uses: awesome-humans/website/.github/workflows/build.yml@62cc1160a20c0d970c229edf221bb5d9a77e0fd2 # main
     with:
       ecosystem: rust
       ref: ${{ github.event.pull_request.head.sha }}
 
   deploy:
     needs: build
-    uses: awesome-humans/website/.github/workflows/deploy.yml@9c1748f32cdd51bdcd91b484ee8fa34d72d484e3 # main
+    uses: awesome-humans/website/.github/workflows/deploy.yml@62cc1160a20c0d970c229edf221bb5d9a77e0fd2 # main
     with:
       preview-alias: pr-rust-${{ github.event.pull_request.number }}
     # Pass only the secrets deploy.yml needs, not `secrets: inherit`.
