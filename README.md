@@ -4,6 +4,10 @@ An agentic take on [awesome-rust](https://github.com/rust-unofficial/awesome-rus
 
 The writers are listed in [AWESOME-HUMANS.md](AWESOME-HUMANS.md): people and publications with at least two years of accurate, independent writing on Rust.
 
+## Note
+
+**Review by 2027-01-17.** The Rust ecosystem is currently being bootstrapped. See [Research](research), the [research branches](https://github.com/awesome-humans/rust/branches/all?query=research%2F), and the [plan](PLAN.md).
+
 ## Usage
 
 - **Point your agent at it.** Tell your coding agent to follow the opinions when it writes code:
