@@ -180,7 +180,7 @@ Work in a git worktree, with one branch per directory. The local clone is bare, 
 - Test each check with `#[cfg(test)]` cases built from the failures it catches, such as a relative date or a duplicate roster ID, and run them with `just test`.
 - When you add or rename a subcommand, update the table in [README.md: Repository scripts](README.md#repository-scripts) and the layout tree.
 - Renovate bumps the crates in `xtask/Cargo.toml` and the root workspace. `renovate.json` turns the cargo manager off under `templates/`, because those pins are content that `refresh-rust-versions` maintains.
-- **Review by 2027-04-01.** Single-file Cargo scripts (`cargo -Zscript`) are still unstable, tracked in [rust-lang/cargo#12207](https://github.com/rust-lang/cargo/issues/12207), and running checks on nightly would break the repository's own "latest stable" rule. When they stabilise, consider moving each check to a script, as the .NET repository's file-based apps do.
+- Single-file Cargo scripts (`cargo -Zscript`) are still unstable, tracked in [rust-lang/cargo#12207](https://github.com/rust-lang/cargo/issues/12207), and running checks on nightly would break the repository's own "latest stable" rule. When they stabilise, consider moving each check to a script, as the .NET repository's file-based apps do. **Review by 2027-04-01.**
 
 ### Site
 
