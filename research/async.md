@@ -35,7 +35,7 @@ Every API recommended here is stable on Rust 1.99.1, checked with `tokio` 1.53.3
 
 **Async only where you need it.** `corrode`: "use async Rust only when you really need it", and "In binary crates, think twice if you really need to use async. It's probably easier to just spawn a thread and get away with blocking I/O." It adds: isolate async code so domain logic stays synchronous, and "In your public library code, avoid async-only interfaces" ([Matthias Endler: The State of Async Rust: Runtimes](https://corrode.dev/blog/async/), 2024-02-21, updated 2026-07-30).
 
-**Tokio.** The same post: "Tokio stands as Rust's canonical async runtime", and "for now, Tokio stands out as the pragmatic choice for real-world implementations". `corrode`'s conflict covers adopting Rust, not a runtime, so it can support this. `tokio-blog` can't: its notes forbid citing it on adopting Tokio. What rules out the alternatives:
+**Tokio.** The same post: "Tokio stands as Rust's canonical async runtime", and "for now, Tokio stands out as the pragmatic choice for real-world implementations". `corrode`'s conflict covers adopting Rust, not a runtime, so it can support this. `tokio-blog` can't: its notes forbid citing it on adopting Tokio. The alternatives lost:
 
 - **`async-std`** is discontinued. Its README says "`async-std` has been discontinued; use `smol` instead", and the repository's last push was 2025-08-15 ([async-rs/async-std](https://github.com/async-rs/async-std), a reference).
 - **`smol`** is "A small async runtime, which is easy to understand" (`corrode`, above), but has a fraction of Tokio's ecosystem. Embedded targets use their own executors, which are outside this topic.

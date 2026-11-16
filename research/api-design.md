@@ -53,7 +53,7 @@ Two of the chapter's mitigations are rules to apply when a type or trait is firs
 
 **For a published library, support the latest stable release and the two before it, set `package.rust-version` to the oldest of the three, and treat a bump as minor.** The Cargo Book's `rust-version` page says changing it "is assumed to be a minor incompatibility". It recommends that you "Choose a policy for what Rust versions to support and when that is changed", and says "The simplest policy to support is to always use the latest Rust version". Its example policies include N-2, "latest version with a 2 release grace window for updating" ([The Cargo Book: Rust version](https://doc.rust-lang.org/cargo/reference/rust-version.html)). The SemVer chapter agrees: "It is generally recommended to treat this as a minor change".
 
-**The policy is N-2.** On Rust 1.99, that's `rust-version = "1.97"`. The page gives N-2 as an example and doesn't choose between its examples, so the choice is the owner's, made on 2026-11-12, and no source makes it. Always using the latest release would stop a user one release behind from taking an update.
+**The policy is N-2.** On Rust 1.99, that's `rust-version = "1.97"`. The page gives N-2 as an example and doesn't choose between its examples, so the choice is the owner's, made on 2026-11-12, and no source makes it. Always using the latest release lost, because a user one release behind couldn't take an update.
 
 The page expects each supported version to be "verified on its supported Rust versions, including automated testing", which belongs in `ci.md`.
 
@@ -133,7 +133,7 @@ Two things unseal a trait silently ([Predrag Gruevski: Is this trait sealed, or 
 
 **In a library, use builder lite:** `Options::default().with_retry(true)`, with `with_` methods on the `#[non_exhaustive]` struct itself. `matklad` calls it "an incremental, zero-cost evolution from the `new` method" ([Alex Kladov: Builder Lite](https://matklad.github.io/2022/05/29/builder-lite.html), 2022-05-29). His examples are application code, so applying it to a library is the editor's reading, and unsupported until a citable source says it. The call compiles across crates and passes Clippy (editor's probe on 1.99.1, 2026-11-12).
 
-Mutating a default, `let mut options = Options::default(); options.retry = true;`, also compiles across crates when the fields are public (same probe). The owner ruled it out on 2026-11-12: no roster source recommends it, and it needs a statement for each field.
+Mutating a default, `let mut options = Options::default(); options.retry = true;`, also compiles across crates when the fields are public (same probe). It lost, by the owner's choice on 2026-11-12: no roster source recommends it, and it needs a statement for each field.
 
 Struct-update syntax still works inside your own crate, and in application code, where no downstream crate can break.
 

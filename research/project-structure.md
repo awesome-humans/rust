@@ -28,7 +28,7 @@ Everything here is stable in Rust 1.99.1 (released 2026-10-15). Cargo's own lint
 matklad adds four rules that the Cargo Book doesn't state:
 
 1. "The name of each directory is equal to the name of the crate", and "Don't succumb to the temptation to strip common prefix from folder names."
-2. Keep the layout flat, not a hierarchy, because Cargo's crate namespace is flat anyway, and moving or splitting a crate needs no new folder.
+2. A flat layout beats a hierarchy, because Cargo's crate namespace is flat anyway, and moving or splitting a crate needs no new folder.
 3. Keep `src/lib.rs` in a single-file crate: "even if crate is single file now, it might get expanded later."
 4. Put crates you publish under a separate top-level `libs/`, so you're "very deliberate" about which crates make a SemVer promise, and `libs/` can't depend on `crates/`. The glob then needs both directories, as `members = ["crates/*", "libs/*"]`, or Cargo refuses to build a `libs/` crate that no member depends on: "current package believes it's in a workspace when it's not" (editor's probe on Cargo 1.99.1, 2026-10-19).
 
