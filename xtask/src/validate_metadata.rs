@@ -1,4 +1,4 @@
-//! `validate-metadata`: every resource has the metadata fields AGENTS.md requires
+//! `validate-metadata`: every resource has the metadata fields agents/metadata.md requires
 //! (`targets`, `last-reviewed`, and `sources`), the dates are ISO 8601, and each sources
 //! list is in ordinal order.
 //!
@@ -20,7 +20,7 @@ const REQUIRED: &[&str] = &["targets", "last-reviewed", "sources"];
 // last-used is retired everywhere: whether a resource is still referenced is read from the
 // repository by audit-freshness, not stored. A research topic also must not have a status:
 // a topic on disk is unresolved by definition, and deletion is the only promotion signal
-// (AGENTS.md). Both are rejected, not ignored, so the retired shapes can't come back.
+// (agents/metadata.md). Both are rejected, not ignored, so the retired shapes can't come back.
 const FORBIDDEN: &[&str] = &["last-used"];
 const RESEARCH_FORBIDDEN: &[&str] = &["last-used", "status"];
 
@@ -145,7 +145,7 @@ fn check(resource: &Resource, errors: &mut Vec<String>) {
         }
     }
 
-    // AGENTS.md: a sources list is sorted by ID, house profiles included. One order means two
+    // agents/metadata.md: a sources list is sorted by ID, house profiles included. One order means two
     // edits that add the same source land on the same line, and a reader scanning for an ID
     // knows where to look.
     if let Some(ids) = fields.get("sources").and_then(frontmatter::list) {
@@ -172,7 +172,7 @@ fn is_empty(value: &Value) -> bool {
     }
 }
 
-// AGENTS.md: dates are ISO 8601, always absolute, never relative. The exact shape is what
+// agents/metadata.md: dates are ISO 8601, always absolute, never relative. The exact shape is what
 // rejects "yesterday", "August 2026", and 20-08-2026, and the parse rejects 2026-02-30.
 fn is_iso_date(text: &str) -> bool {
     ISO_DATE.is_match(text) && text.parse::<Date>().is_ok()

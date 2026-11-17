@@ -17,7 +17,7 @@ jobs:
         with:
           persist-credentials: false
 
-      # rust-toolchain.toml decides the toolchain, per AGENTS.md: Scripts. CI must not
+      # rust-toolchain.toml decides the toolchain, per agents/checks.md: Scripts. CI must not
       # float a version the repository didn't choose, so rustup installs that one.
       - name: Install the pinned toolchain
         run: rustup toolchain install
