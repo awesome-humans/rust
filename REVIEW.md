@@ -22,7 +22,7 @@ Reserve Important for these. Everything else is Nit at most.
 
 ## Cap the nits
 
-Report at most five Nits per review, the ones a reader would notice first. Writing-style findings, from `AGENTS.md: Writing style`, `agents/writing-opinions.md`, and the shared page they link, are Nit at most.
+Report at most five Nits per review, the ones a reader would notice first. Writing-style findings, from `AGENTS.md: Writing style` and the shared page it links, are Nit at most.
 
 ## Don't report
 
