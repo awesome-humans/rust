@@ -1,5 +1,5 @@
 //! This repository's own CI checks, and the staging of its awesome-humans.net pages, as one
-//! binary with a subcommand each (AGENTS.md: Scripts). Run them from the repository root
+//! binary with a subcommand each (agents/checks.md: Scripts). Run them from the repository root
 //! through `just`, or as `cargo xtask <name>`.
 //!
 //! Exit codes: 0 clean, 1 findings printed, 2 not run from the repository root or given

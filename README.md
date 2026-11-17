@@ -47,7 +47,7 @@ The writers are listed in [AWESOME-HUMANS.md](AWESOME-HUMANS.md): people and pub
 
 Opinions target the latest stable Rust release and the latest edition, never an older toolchain. Nightly-only features appear only in "Coming next" notes. The maintenance skills move the repository to each new release.
 
-Every resource records when it was last reviewed against its sources. [AGENTS.md: Metadata](AGENTS.md#metadata) defines the fields. The [repository scripts](#repository-scripts) enforce them.
+Every resource records when it was last reviewed against its sources. [agents/metadata.md](agents/metadata.md) defines the fields. The [repository scripts](#repository-scripts) enforce them.
 
 ## Awesome humans
 
@@ -82,6 +82,7 @@ In this repository, each house opinion is a marked block beside the sourced text
 ├── Cargo.toml                ← the root Cargo workspace, which holds only xtask/
 ├── justfile                  ← every local and CI entry point: run just to list them
 ├── rust-toolchain.toml       ← the toolchain the checks build with
+├── agents/                   ← on-demand agent instructions that AGENTS.md indexes
 ├── assets/diagrams/          ← generated SVG diagrams: rerun the command, never edit by hand
 ├── opinions/                 ← the opinions, one topic per file, code examples as needed
 │   └── rust.md
