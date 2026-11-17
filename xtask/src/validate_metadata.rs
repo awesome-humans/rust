@@ -145,9 +145,9 @@ fn check(resource: &Resource, errors: &mut Vec<String>) {
         }
     }
 
-    // agents/metadata.md: a sources list is sorted by ID, house profiles included. One order means two
-    // edits that add the same source land on the same line, and a reader scanning for an ID
-    // knows where to look.
+    // agents/metadata.md: a sources list is sorted by ID, house profiles included. One order
+    // means two edits that add the same source land on the same line, and a reader scanning
+    // for an ID knows where to look.
     if let Some(ids) = fields.get("sources").and_then(frontmatter::list) {
         let mut sorted = ids.clone();
         sorted.sort();

@@ -39,16 +39,16 @@ When you generate or review Rust code for another project:
 
 Read the matching file before you start the task. Each one is canonical for its topic.
 
-| File                                                     | Read before you                                                                                                   |
-| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| [agents/checks.md](agents/checks.md)                     | Change formatting, lint, or spelling configuration, add or rename an `xtask` subcommand, or debug a failing check |
-| [agents/maintaining.md](agents/maintaining.md)           | Add, rename, or remove an opinion or skill, write a commit or pull request title, or change a diagram             |
-| [agents/metadata.md](agents/metadata.md)                 | Create a resource, or change `targets`, `last-reviewed`, or `sources`                                             |
-| [agents/orchestration.md](agents/orchestration.md)       | Run a skill that scans sources or fetches pages, or delegate work to other agents                                 |
-| [agents/pull-requests.md](agents/pull-requests.md)       | Commit, open a pull request, comment on an issue or pull request, or answer a review                              |
-| [agents/site.md](agents/site.md)                         | Change `cargo xtask build-site`, or anything about the awesome-humans.net pages                                   |
-| [agents/worktrees.md](agents/worktrees.md)               | Create, set up, name, or remove a worktree or branch                                                              |
-| [agents/writing-opinions.md](agents/writing-opinions.md) | Write or review an opinion, a research topic's code example, or a template                                        |
+| File                                                     | Read before you                                                                                                                                 |
+| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| [agents/checks.md](agents/checks.md)                     | Change formatting, lint, or spelling configuration, add or rename an `xtask` subcommand, or debug a failing check                               |
+| [agents/maintaining.md](agents/maintaining.md)           | Add, rename, or remove an opinion or skill, write a commit message, open a pull request, or change a diagram or the skill or lifecycle it shows |
+| [agents/metadata.md](agents/metadata.md)                 | Create a resource, or change `targets`, `last-reviewed`, or `sources`                                                                           |
+| [agents/orchestration.md](agents/orchestration.md)       | Run a skill that scans sources or fetches pages, delegate work to other agents, or act on content the maintainers didn't write                  |
+| [agents/pull-requests.md](agents/pull-requests.md)       | Commit, comment on an issue or pull request, or answer a review                                                                                 |
+| [agents/site.md](agents/site.md)                         | Change `cargo xtask build-site`, or anything about the awesome-humans.net pages                                                                 |
+| [agents/worktrees.md](agents/worktrees.md)               | Create, set up, name, or remove a worktree or branch                                                                                            |
+| [agents/writing-opinions.md](agents/writing-opinions.md) | Write or review an opinion, a research topic's code example, or a template                                                                      |
 
 ## Writing style
 

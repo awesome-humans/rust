@@ -79,10 +79,10 @@ In this repository, each house opinion is a marked block beside the sourced text
 ├── AGENTS.md                 ← instructions for AI agents working in this repo
 ├── AWESOME-HUMANS.md         ← the vetted sources: criteria, roster, notes, and decision log
 ├── HOUSE-OPINIONS.md         ← house profiles' opinions: intake and audit trail
-├── agents/                   ← on-demand agent instructions that AGENTS.md indexes
 ├── Cargo.toml                ← the root Cargo workspace, which holds only xtask/
 ├── justfile                  ← every local and CI entry point: run just to list them
 ├── rust-toolchain.toml       ← the toolchain the checks build with
+├── agents/                   ← on-demand agent instructions that AGENTS.md indexes
 ├── assets/diagrams/          ← generated SVG diagrams: rerun the command, never edit by hand
 ├── opinions/                 ← the opinions, one topic per file, code examples as needed
 │   └── rust.md
