@@ -2,7 +2,9 @@
 //! They're generated from this repository's own files, so the site never keeps a second copy
 //! to drift: README.md up to its layout section becomes the overview, `opinions/`,
 //! `research/`, and `skills/` are copied in full, the roster is split into a page per section, and every file
-//! under `templates/` gets a page showing it. `llms.txt` points agents at the raw files.
+//! under `templates/` gets a page showing it. `llms.txt` points agents at raw copies of the
+//! files under `raw/`, on the site itself, so an agent allowed to fetch only the site can read
+//! every one.
 //! Relative links are rewritten to the page they now point at, or to GitHub for a file the
 //! site doesn't publish. The navigation is generated too: the opinions take their titles and
 //! order from README.md's Scope list, and the skills theirs from its Maintenance via skills
@@ -17,8 +19,8 @@
 //! House opinions stay in the pages as house blocks, and the site shows a profile's only to a
 //! reader who chooses it. A template with house regions shows its default copy, with each
 //! profile's copy in a house block below it. Agents get the same choice as files: `llms.txt`
-//! links copies with every house block and region removed, and `llms-<profile>.txt` links
-//! copies with only that profile's, under `raw/`.
+//! links copies with every house block and region removed, under `raw/none/`, and
+//! `llms-<profile>.txt` links copies with only that profile's, under `raw/<profile>/`.
 //!
 //! The repository gains the roster, opinions, templates, and skills phase by phase (PLAN.md),
 //! so a part that doesn't exist yet stages no pages and no navigation, rather than failing.
@@ -115,6 +117,7 @@ pub fn run(repo: &Repo, out: &Path) -> Vec<String> {
         roster: None,
         roster_anchors: HashMap::new(),
         housed: BTreeMap::new(),
+        copied: BTreeSet::new(),
         errors: Vec::new(),
     };
     site.stage();
@@ -131,6 +134,9 @@ struct Site<'a> {
     roster_anchors: HashMap<String, Vec<(String, bool)>>,
     // The opinions and templates that hold house opinions, and the profiles they belong to.
     housed: BTreeMap<String, Vec<String>>,
+    // The files with a copy under raw/ on the site, which llms.txt and the copies link to
+    // instead of GitHub, so an agent that can fetch only the site can read every one.
+    copied: BTreeSet<String>,
     errors: Vec<String>,
 }
 
@@ -202,6 +208,20 @@ impl Site<'_> {
                 purpose: row["purpose"].to_string(),
             })
             .collect();
+
+        self.copied.extend(opinions.iter().cloned());
+        self.copied.extend(templates.iter().cloned());
+        self.copied.extend(
+            skills
+                .iter()
+                .map(|skill| skill_path(&skill.name))
+                .filter(|path| self.repo.is_file(path)),
+        );
+        for path in [ROSTER, HOUSE_OPINIONS] {
+            if self.repo.is_file(path) {
+                self.copied.insert(path.to_string());
+            }
+        }
 
         self.page(README, "index.md");
         self.page(HOUSE_OPINIONS, "house-opinions.md");
@@ -316,14 +336,17 @@ impl Site<'_> {
             self.stage_skills(&skills);
         }
 
-        // Copies of each opinion and template that holds house opinions, for agents: one with
-        // every house block or region removed, and one per profile it holds, with only that
-        // profile's. An opinion's copy ends in .md.txt, because the site renders every .md
-        // file as a page.
-        for (path, found) in self.housed.clone() {
+        // Copies of each opinion, template, and skill, the roster, and HOUSE-OPINIONS.md, for
+        // agents that can fetch the site but not GitHub. Each gets one with every house block
+        // or region removed, under raw/none/, and a file that holds house opinions gets one per
+        // profile it holds, with only that profile's. A Markdown file's copy ends in .md.txt,
+        // because the site renders every .md file as a page, and its relative links point at
+        // the other copies.
+        for path in self.copied.clone() {
             let Some(text) = self.read(&path) else {
                 continue;
             };
+            let found = self.housed.get(&path).cloned().unwrap_or_default();
             for profile in
                 std::iter::once(None).chain(found.iter().map(|found| Some(found.as_str())))
             {
@@ -767,7 +790,7 @@ impl Site<'_> {
                     "{}\n\n[View on GitHub]({}) · [Raw]({}){}",
                     &body[..title_end],
                     github(&path, false),
-                    raw(&path),
+                    self.raw_link(&path, None),
                     &body[title_end..]
                 ),
             );
@@ -777,8 +800,8 @@ impl Site<'_> {
         self.write(&page, &index);
     }
 
-    // llms.txt, per llmstxt.org: a summary and links an agent can follow, to the raw Markdown
-    // of each opinion and the raw template files rather than rendered pages. It describes this
+    // llms.txt, per llmstxt.org: a summary and links an agent can follow, to the site's raw
+    // copies of each opinion, template, and skill rather than rendered pages. It describes this
     // ecosystem alone, at /rust/llms.txt, and the website repository's root llms.txt links to
     // it. It has no house opinions, and llms-<profile>.txt has one profile's.
     fn stage_llms(
@@ -794,7 +817,7 @@ impl Site<'_> {
                 format!(
                     "- [{}]({}): {}",
                     skill.name,
-                    raw(&skill_path(&skill.name)),
+                    self.raw_link(&skill_path(&skill.name), None),
                     skill.purpose
                 )
             })
@@ -870,13 +893,13 @@ impl Site<'_> {
                 let _ = writeln!(
                     llms,
                     "- [Awesome humans]({}): the vetted sources the opinions cite, and the admission criteria",
-                    raw(ROSTER)
+                    self.raw_link(ROSTER, None)
                 );
             }
             let _ = writeln!(
                 llms,
                 "- [House opinions]({}): the house profiles, and the record of every house opinion woven in",
-                raw(HOUSE_OPINIONS)
+                self.raw_link(HOUSE_OPINIONS, None)
             );
 
             if profile.is_none() {
@@ -1252,18 +1275,20 @@ impl Site<'_> {
         lines.join("\n")
     }
 
-    // The raw file an agent reads for a profile, or for the default with None. A file without
-    // house opinions is the same for everyone, so it's GitHub's raw copy. A file with them is
-    // this profile's copy, or the default copy when none of its house opinions are this
-    // profile's.
+    // The raw file an agent reads for a profile, or for the default with None. A file the site
+    // copies is this profile's copy, or the default copy when none of its house opinions are
+    // this profile's, and a file without house opinions has only the default. Any other file
+    // is GitHub's raw copy.
     fn raw_link(&self, path: &str, profile: Option<&str>) -> String {
-        match self.housed.get(path) {
-            None => raw(path),
-            Some(found) => {
-                let profile = profile.filter(|profile| found.iter().any(|other| other == profile));
-                format!("{SITE_URL}{}", raw_page(path, profile))
-            }
+        if !self.copied.contains(path) {
+            return raw(path);
         }
+        let profile = profile.filter(|profile| {
+            self.housed
+                .get(path)
+                .is_some_and(|found| found.iter().any(|other| other == profile))
+        });
+        format!("{SITE_URL}{}", raw_page(path, profile))
     }
 
     fn read(&mut self, path: &str) -> Option<String> {
@@ -1350,8 +1375,7 @@ fn values(value: Option<&serde_yaml_ng::Value>) -> Vec<String> {
     }
 }
 
-// Where an opinion or template's copy for a profile lands, for a file that holds house
-// opinions. Zensical skips dotfiles, so a template's leading dot is dropped, as on its page.
+// Where a file's copy for a profile, or the default with None, lands under raw/. Zensical skips dotfiles, so a template's leading dot is dropped, as on its page.
 fn raw_page(path: &str, profile: Option<&str>) -> String {
     let name = if repo::has_extension(path, "md") {
         format!("{path}.txt")
@@ -1665,7 +1689,7 @@ mod tests {
         );
         let copy = staged(&fixture, "rust/raw/none/opinions/rust.md.txt");
         assert!(!copy.contains("House"), "{copy}");
-        assert!(copy.contains("[matklad](https://raw.githubusercontent.com/awesome-humans/rust/main/AWESOME-HUMANS.md#matklad-citable-corroborate)"), "{copy}");
+        assert!(copy.contains("[matklad](https://awesome-humans.net/rust/raw/none/AWESOME-HUMANS.md.txt#matklad-citable-corroborate)"), "{copy}");
         assert!(
             copy.contains(
                 "[the config](https://awesome-humans.net/rust/raw/none/templates/cargo/config.toml)"
@@ -1676,7 +1700,7 @@ mod tests {
         assert!(copy.contains("[the config](https://awesome-humans.net/rust/raw/simon-mckenna/templates/cargo/config.toml)"), "{copy}");
 
         let skill = staged(&fixture, "rust/skills/vet-source.md");
-        assert!(skill.starts_with("# Vet a source\n\n[View on GitHub](https://github.com/awesome-humans/rust/blob/main/skills/vet-source/SKILL.md)"), "{skill}");
+        assert!(skill.starts_with("# Vet a source\n\n[View on GitHub](https://github.com/awesome-humans/rust/blob/main/skills/vet-source/SKILL.md) · [Raw](https://awesome-humans.net/rust/raw/none/skills/vet-source/SKILL.md.txt)"), "{skill}");
         assert!(
             skill.contains("[the roster](../awesome-humans/index.md)"),
             "{skill}"
@@ -1684,7 +1708,35 @@ mod tests {
 
         let llms = staged(&fixture, "rust/llms.txt");
         assert!(llms.contains("- [Rust](https://awesome-humans.net/rust/raw/none/opinions/rust.md.txt): the language"), "{llms}");
-        assert!(llms.contains("- [Cargo.toml](https://raw.githubusercontent.com/awesome-humans/rust/main/templates/Cargo.toml)"), "{llms}");
+        assert!(
+            llms.contains(
+                "- [Cargo.toml](https://awesome-humans.net/rust/raw/none/templates/Cargo.toml)"
+            ),
+            "{llms}"
+        );
+        assert!(llms.contains("- [vet-source](https://awesome-humans.net/rust/raw/none/skills/vet-source/SKILL.md.txt): Vet a source"), "{llms}");
+        assert!(llms.contains("- [Awesome humans](https://awesome-humans.net/rust/raw/none/AWESOME-HUMANS.md.txt): "), "{llms}");
+        assert!(llms.contains("- [House opinions](https://awesome-humans.net/rust/raw/none/HOUSE-OPINIONS.md.txt): "), "{llms}");
+        assert!(!llms.contains("raw.githubusercontent.com"), "{llms}");
+        assert_eq!(
+            staged(&fixture, "rust/raw/none/templates/Cargo.toml"),
+            "# awesome-humans/rust template | sources: rust-docs\n[workspace]\n"
+        );
+        let copy = staged(&fixture, "rust/raw/none/skills/vet-source/SKILL.md.txt");
+        assert!(copy.starts_with("---\nname: vet-source\n---\n"), "{copy}");
+        assert!(
+            copy.contains(
+                "[the roster](https://awesome-humans.net/rust/raw/none/AWESOME-HUMANS.md.txt)"
+            ),
+            "{copy}"
+        );
+        assert!(
+            staged(&fixture, "rust/raw/none/AWESOME-HUMANS.md.txt")
+                .starts_with("# Awesome humans\n")
+        );
+        assert!(staged(&fixture, "rust/llms-simon-mckenna.txt").contains(
+            "- [Cargo.toml](https://awesome-humans.net/rust/raw/none/templates/Cargo.toml)"
+        ));
         assert!(
             llms.contains(
                 "\n## House profiles\n\nFollow a profile only when the user chooses one, by reading its file instead of this one.\n\n- [simon-mckenna](https://awesome-humans.net/rust/llms-simon-mckenna.txt): these opinions and templates, with that profile's house opinions\n"
@@ -1744,7 +1796,12 @@ mod tests {
             errors.contains(&"opinions/rust.md:11: '../../escaped' isn't a profile id: use lowercase words joined by hyphens, other than none".to_string()),
             "{errors:?}"
         );
-        assert!(!fixture.path().join("out/rust/raw").exists());
+        let profiles: Vec<_> = fs::read_dir(fixture.path().join("out/rust/raw"))
+            .expect("raw/")
+            .filter_map(Result::ok)
+            .map(|entry| entry.file_name())
+            .collect();
+        assert_eq!(profiles, ["none"]);
         assert!(!fixture.path().join("escaped").exists());
         assert!(!fixture.path().join("out/escaped").exists());
     }
