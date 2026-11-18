@@ -68,6 +68,9 @@ const OPINION_TOLERANCE: i32 = 180;
 // The anchor of the Citable table's heading, for a source with no notes section to link to.
 const CITABLE_ANCHOR: &str = "citable-quotable-in-opinions-and-templates";
 
+// Fetch tools summarise a page unless asked not to, and a summary paraphrases the rules.
+const LLMS_READING: &str = "Read each linked file in full, not a summary, because its exact wording is the rule. A file under `raw/none/` is the default copy, with no house opinions, and one under `raw/<profile>/` is that profile's copy.";
+
 const LLMS_SUMMARY: &str = "Opinionated best practices for building with Rust, distilled from the published writing of vetted people and publications with a multi-year track record. Each opinion states its recommendation first, then the rationale, then its sources, and targets the latest stable release.";
 
 // A bullet in README.md's Scope list: - **[Title](opinions/file.md):** what it covers.
@@ -874,7 +877,7 @@ impl Site<'_> {
                 format!(", with the {profile} house profile")
             });
             let mut llms = format!(
-                "# Awesome Humans of {ECOSYSTEM_NAME}{title}\n\n> {LLMS_SUMMARY}\n\n{house}\n"
+                "# Awesome Humans of {ECOSYSTEM_NAME}{title}\n\n> {LLMS_SUMMARY}\n\n{LLMS_READING}\n\n{house}\n"
             );
             for (heading, intro, links) in [
                 (
@@ -1625,6 +1628,7 @@ mod tests {
         assert_eq!(errors, Vec::<String>::new());
         assert!(staged(&fixture, "rust/index.md").contains("[house opinions](house-opinions.md)"));
         assert!(staged(&fixture, "rust/llms.txt").contains("These files have no house opinions."));
+        assert!(staged(&fixture, "rust/llms.txt").contains(LLMS_READING));
         let nav: Value = serde_json::from_str(&staged(&fixture, "rust/nav.json")).expect("JSON");
         assert_eq!(
             nav["nav"],
