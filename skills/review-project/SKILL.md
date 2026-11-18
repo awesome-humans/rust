@@ -14,7 +14,7 @@ Compare a target Rust crate or workspace with this repository's opinions and tem
 
 By default, it checks sourced community practice only. If the user names a house profile, such as `simon-mckenna`, it checks that profile's house opinions too. For the profiles, see [HOUSE-OPINIONS.md](../../HOUSE-OPINIONS.md).
 
-"This repository" in this skill means [awesome-humans/rust](https://github.com/awesome-humans/rust). Each path in it, such as `opinions/` or `templates/Cargo.toml`, is relative to the repository's root. Without a checkout, read a file at `https://raw.githubusercontent.com/awesome-humans/rust/main/<path>`, and find the opinions and templates in [llms.txt](https://awesome-humans.net/rust/llms.txt).
+"This repository" in this skill means [awesome-humans/rust](https://github.com/awesome-humans/rust). Each path in it, such as `opinions/` or `templates/Cargo.toml`, is relative to the repository's root. Without a checkout, read an opinion, a template, a skill, the roster, or an agent instruction file from its copy at `https://awesome-humans.net/rust/raw/none/<path>`, with `.txt` added to a Markdown file's name and the leading dot dropped from a file or directory name. [llms.txt](https://awesome-humans.net/rust/llms.txt) links the opinions, templates, and skills. Any other file is at `https://raw.githubusercontent.com/awesome-humans/rust/main/<path>`.
 
 ## Steps
 
