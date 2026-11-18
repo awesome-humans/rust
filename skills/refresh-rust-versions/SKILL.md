@@ -37,7 +37,7 @@ As [agents/orchestration.md](../../agents/orchestration.md) describes, delegate 
    - `targets:` names the minor release, such as `rust-1.99`, so a point release such as 1.99.1 changes no target.
    - If everything matches, the toolchain part has nothing to do. Say so, and **still run step 4b**, because crate pins drift on their own schedule.
    - Report "up to date" and stop only when step 4b finds nothing too.
-   - If you stop here while a trigger pull request is open, say that it can merge as it is. It holds only the snapshot, and nothing else lands it on `main`.
+   - If you stop here while a trigger pull request is open, check that its snapshot names the release step 1 found, and say that it can merge as it is. It holds only the snapshot, and nothing else lands it on `main`. If the snapshot names a newer release, run steps 1 and 2 again for that release.
 3. **Start a worktree** from `main` on the branch `refresh/rust-<version>`, following the rules in [agents/worktrees.md](../../agents/worktrees.md).
    - To find an open trigger pull request, run `gh pr list --label rust-release --state open`. A leftover `automation/rust-release-watch` branch without one isn't a trigger.
    - If one is open, copy its snapshot into the worktree: run `git fetch origin automation/rust-release-watch`, then `git restore --source=FETCH_HEAD -- .github/state/rust-releases.json`. Commit it with the rest of the run.
