@@ -574,7 +574,7 @@ impl Site<'_> {
             return;
         };
 
-        let today = Timestamp::now().to_zoned(TimeZone::UTC).date();
+        let today = Timestamp::now().to_zoned_datetime(TimeZone::UTC).date();
         let age = reviewed.until(today).map_or(0, |span| span.get_days());
         let state = if age > OPINION_TOLERANCE {
             "stale"
