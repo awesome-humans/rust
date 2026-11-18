@@ -24,7 +24,7 @@ The `.github/workflows/rust-release-watch.yml` workflow checks the official stab
 
 ## Orchestration
 
-As [AGENTS.md: Orchestration and model economy](../../AGENTS.md#orchestration-and-model-economy) describes, delegate the web lookups to worker agents: the version checks in step 1, the crates.io lookups in step 4b, and the release-notes reading in step 5. Only the editor decides what changes, and edits `opinions/` and `templates/`.
+As [agents/orchestration.md](../../agents/orchestration.md) describes, delegate the web lookups to worker agents: the version checks in step 1, the crates.io lookups in step 4b, and the release-notes reading in step 5. Only the editor decides what changes, and edits `opinions/` and `templates/`.
 
 ## Steps
 
@@ -36,11 +36,11 @@ As [AGENTS.md: Orchestration and model economy](../../AGENTS.md#orchestration-an
    - `targets:` names the minor release, such as `rust-1.99`, so a point release such as 1.99.1 changes no target.
    - If everything matches, the toolchain part has nothing to do. Say so, and **still run step 4b**, because crate pins drift on their own schedule.
    - Report "up to date" and stop only when step 4b finds nothing too.
-3. **Start a worktree** on the branch `refresh/rust-<version>`, following the rules in [AGENTS.md](../../AGENTS.md).
+3. **Start a worktree** on the branch `refresh/rust-<version>`, following the rules in [agents/worktrees.md](../../agents/worktrees.md).
 4. **Update the template files** under `templates/`: the `edition` and `rust-version` in every `Cargo.toml`, and anything else pinned to a version. Then update the two kinds of pin that need more than a version string:
    - **4a. The toolchain pins.** Move `channel` in the root `rust-toolchain.toml`, and `rust-version` in the root `Cargo.toml`, to the new minor release, such as `1.100`. Pin the template copies the way their opinion says.
      - The root pins name the minor release, never a patch such as `1.99.1`. rustup resolves `1.99` to the newest 1.99 point release, so a point release arrives without an edit.
-     - The root pins move with every release, because [AGENTS.md: Scripts](../../AGENTS.md#scripts) holds `xtask/` to the repository's own opinions. Run `just clippy` and `just test` after the move. A new release adds Clippy lints, and CI denies warnings.
+     - The root pins move with every release, because [agents/checks.md: Scripts](../../agents/checks.md#scripts) holds `xtask/` to the repository's own opinions. Run `just clippy` and `just test` after the move. A new release adds Clippy lints, and CI denies warnings.
      - Renovate never changes the template pins: `renovate.json` turns the cargo manager off under `templates/`. Only this skill changes them.
    - **4b. The crate pins in `templates/Cargo.toml`.** Look up every dependency on crates.io, with the API (`https://crates.io/api/v1/crates/<name>`, sending a `User-Agent` header) or `cargo info <name>`.
      - Take the **latest stable** version: `max_stable_version` in the API's answer. Never take a prerelease, or a version whose `rust-version` is newer than `targets:`.
@@ -58,7 +58,7 @@ As [AGENTS.md: Orchestration and model economy](../../AGENTS.md#orchestration-an
    - Treat "running 0 tests" for a crate that has tests as a failure. It means a test target stopped being built, such as a `[[test]]` entry left behind by a rename.
    - Without a toolchain, flag the samples as unverified in the pull request.
 7. **If the source roster changed, record it** in the `AWESOME-HUMANS.md` decision log. Otherwise, summarise the run in the pull request.
-8. **Open a pull request** to the default branch, filling in the [`version-refresh.md`](https://github.com/awesome-humans/.github/blob/main/PULL_REQUEST_TEMPLATE/version-refresh.md) template, as [AGENTS.md](../../AGENTS.md) describes. It lists:
+8. **Open a pull request** to the default branch, filling in the [`version-refresh.md`](https://github.com/awesome-humans/.github/blob/main/PULL_REQUEST_TEMPLATE/version-refresh.md) template, as [agents/maintaining.md](../../agents/maintaining.md) describes. It lists:
    - The versions before and after: the Rust release, the edition, and each crate pin that changed.
    - The opinions that changed, and the ones verified as unchanged.
    - Whether the samples built, tested, and passed Clippy.

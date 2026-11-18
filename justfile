@@ -1,4 +1,4 @@
-# Every local and CI entry point (AGENTS.md: Scripts). CI calls these recipes, never cargo
+# Every local and CI entry point (agents/checks.md: Scripts). CI calls these recipes, never cargo
 # directly, so a check runs the same way on every machine. Run `just` to list them.
 
 set shell := ["bash", "-euo", "pipefail", "-c"]

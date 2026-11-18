@@ -181,7 +181,7 @@ These are unstable on nightly as of 2026-10-19, so they're not yet an opinion:
 - **Per-package feature unification** (`-Zfeature-unification`, [rust-lang/cargo#14774](https://github.com/rust-lang/cargo/issues/14774)), which would replace a workspace-hack crate.
 - **Public and private dependencies** (`-Zpublic-dependency`, [rust-lang/rust#44663](https://github.com/rust-lang/rust/issues/44663)).
 - **Path bases** (`-Zpath-bases`, [rust-lang/cargo#14355](https://github.com/rust-lang/cargo/issues/14355)).
-- **Single-file packages** (`-Zscript`, [rust-lang/cargo#12207](https://github.com/rust-lang/cargo/issues/12207)), which `AGENTS.md` already tracks as a possible replacement for `xtask` subcommands.
+- **Single-file packages** (`-Zscript`, [rust-lang/cargo#12207](https://github.com/rust-lang/cargo/issues/12207)), which `agents/checks.md` already tracks as a possible replacement for `xtask` subcommands.
 
 `niko-matsakis` proposes "battery packs", crates that bundle recommended dependencies, features, and templates, with a `cargo-bp` prototype ([Niko Matsakis: Battery packs](https://smallcultfollowing.com/babysteps/blog/2026/07/15/battery-packs/), 2026-07-15). It's a proposal and changes nothing in Cargo, so it isn't cited in the frontmatter, and it belongs in no opinion yet.
 
