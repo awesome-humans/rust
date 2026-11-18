@@ -1,0 +1,50 @@
+name: Templates
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    # Weekly, Mondays 06:30 UTC. rust-toolchain.toml pins a minor release, so a patch release
+    # brings a new rustc, Clippy, and rustfmt to this job without a change here. The copy
+    # this job builds also has no Cargo.lock, so once a template names a crate, each run
+    # resolves that crate's newest compatible release. Today no template names one, so only
+    # a patch release can fail this job on a day when nothing here changed. The schedule
+    # reports either within a week.
+    - cron: "30 6 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    # Nothing else compiles the files under templates/: they're a workspace with no
+    # members, so cargo stops there before it reads a lint or a rustfmt setting. This job
+    # copies them the way a consumer would, as the default copy and as each house profile's,
+    # adds a crate to each copy, and runs build, test, Clippy with warnings denied, and the
+    # rustfmt check on it.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      # rust-toolchain.toml names the release the templates target, and rustup installs
+      # that one. It builds the xtask check, and the copies too, because they sit under
+      # the repository root and no template ships a toolchain file of its own.
+      - name: Install the pinned toolchain
+        run: rustup toolchain install
+
+      # Caches the xtask crate's dependencies. The copies are rebuilt on every run.
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+
+      # Pin just to a release that was at least two weeks old when picked. The step below
+      # calls its recipe, never cargo directly, because the justfile holds every entry
+      # point.
+      - uses: taiki-e/install-action@cfdb7ed4ccc7c7dce37759eae89dc5674b469b39 # v2.90.3
+        with:
+          tool: just@1.58.0
+
+      - name: Build, test, lint, and format-check the templates
+        run: just build-templates

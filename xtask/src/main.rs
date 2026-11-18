@@ -6,6 +6,7 @@
 //! arguments it doesn't recognise.
 
 mod build_site;
+mod build_templates;
 mod comment_header;
 mod export_diagrams;
 mod frontmatter;
@@ -45,6 +46,12 @@ enum Command {
     /// Stage the /rust/ pages of awesome-humans.net in <dir>/rust/
     BuildSite {
         /// The staging directory, as the awesome-humans/website staging contract defines
+        #[arg(long, value_name = "dir")]
+        out: PathBuf,
+    },
+    /// Build, test, lint, and format-check the templates, as each profile's copy in <dir>/
+    BuildTemplates {
+        /// Where the copies go, one directory per profile
         #[arg(long, value_name = "dir")]
         out: PathBuf,
     },
@@ -88,6 +95,7 @@ fn main() -> ExitCode {
         Command::ValidateSources => validate_sources::run(&repo).print(),
         Command::ValidateReadmeIndex => validate_readme_index::run(&repo).print(),
         Command::ValidateTemplateOrder => validate_template_order::run(&repo).print(),
+        Command::BuildTemplates { out } => build_templates::run(&repo, &out).print(),
         Command::ExportDiagrams => match export_diagrams::run(&repo) {
             Ok(()) => {
                 println!("Exported to {}/", export_diagrams::OUTPUT);

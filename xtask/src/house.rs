@@ -163,6 +163,20 @@ pub fn spans(path: &str, text: &str, errors: &mut Vec<String>) -> Vec<Span> {
     spans
 }
 
+/// The valid profiles with a block or region in the file, sorted, each once. A profile id
+/// names a directory wherever a copy is written, so an invalid one, such as `../..`, never
+/// reaches a path: `spans` reports it to `errors`, and it's left out here.
+pub fn profiles(path: &str, text: &str, errors: &mut Vec<String>) -> Vec<String> {
+    let mut found: Vec<String> = spans(path, text, errors)
+        .into_iter()
+        .map(|span| span.profile)
+        .filter(|profile| is_valid_profile(profile))
+        .collect();
+    found.sort();
+    found.dedup();
+    found
+}
+
 /// The text with every house block or region removed except the given profile's, or all of
 /// them for `None`. A kept template region loses its two marker lines, which only staging
 /// reads. The sources list loses every other profile's id, so a copy names only the house
@@ -360,6 +374,22 @@ mod tests {
             [
                 "templates/Cargo.toml:4: house:bob ends, but the open region is house:alice",
                 "templates/Cargo.toml:2: house:alice never closes",
+            ]
+        );
+    }
+
+    #[test]
+    fn profiles_lists_each_valid_profile_once() {
+        let text = "# header\n# house:bob begin\n# house:bob end\n# house:../.. begin\n# house:../.. end\n# house:alice begin\n# house:alice end\n# house:bob begin\n# house:bob end\n";
+        let mut errors = Vec::new();
+        assert_eq!(
+            profiles("templates/Cargo.toml", text, &mut errors),
+            ["alice", "bob"]
+        );
+        assert_eq!(
+            errors,
+            [
+                "templates/Cargo.toml:4: '../..' isn't a profile id: use lowercase words joined by hyphens, other than none"
             ]
         );
     }
