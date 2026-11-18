@@ -47,6 +47,13 @@ const ECOSYSTEM_NAME: &str = "Rust";
 const REPOSITORY: &str = "awesome-humans/rust";
 const SCHEMA_BASE: &str = "https://raw.githubusercontent.com/awesome-humans/website/main/schemas";
 const SITE_URL: &str = "https://awesome-humans.net/";
+
+// Where a file links a shared convention, and the copy of it the site serves. The website
+// stages each convention to raw/none/conventions/, so an agent that can fetch only the site
+// reads it there.
+const CONVENTION_SOURCE: &str =
+    "https://github.com/awesome-humans/website/blob/main/pages/conventions/";
+const CONVENTION_COPY: &str = "https://awesome-humans.net/raw/none/conventions/";
 const HOUSE_OPINIONS: &str = "HOUSE-OPINIONS.md";
 const README: &str = "README.md";
 const AGENTS: &str = "AGENTS.md";
@@ -1262,7 +1269,8 @@ impl Site<'_> {
 
     // A raw copy is served from rust/raw/<profile>/, where a relative link to another file in
     // the repository leads nowhere, so each one becomes absolute: the file raw_link gives, or
-    // the GitHub tree for a directory with no page on the site. Fenced code blocks are left
+    // the GitHub tree for a directory with no page on the site. A link to a shared convention
+    // on GitHub becomes its copy on the site. Fenced code blocks are left
     // alone.
     fn absolute_links(&self, source: &str, text: &str, profile: Option<&str>) -> String {
         let mut fenced = false;
@@ -1279,6 +1287,16 @@ impl Site<'_> {
                 MARKDOWN_LINK
                     .replace_all(line, |link: &Captures| {
                         let target = &link["target"];
+                        let (path, anchor) = target
+                            .find('#')
+                            .map_or((target, ""), |hash| (&target[..hash], &target[hash..]));
+                        if let Some(convention) = path
+                            .strip_prefix(CONVENTION_SOURCE)
+                            .and_then(|file| file.strip_suffix(".md"))
+                            && !convention.contains('/')
+                        {
+                            return format!("]({CONVENTION_COPY}{convention}.md.txt{anchor})");
+                        }
                         if target.contains("://")
                             || target.starts_with("mailto:")
                             || target.starts_with('#')
@@ -1286,9 +1304,6 @@ impl Site<'_> {
                             return link[0].to_string();
                         }
 
-                        let (path, anchor) = target
-                            .find('#')
-                            .map_or((target, ""), |hash| (&target[..hash], &target[hash..]));
                         let resolved = combine(parent(source), path);
                         // A link shown as an example, such as one to opinions/<file>.md,
                         // names no file, and stays as written.
@@ -1626,7 +1641,7 @@ mod tests {
         let fixture = Fixture::new()
             .file("README.md", README_TEXT)
             .file("AGENTS.md", "# Agents\n\nSee [worktrees](agents/worktrees.md).\n")
-            .file("agents/worktrees.md", "# Worktrees\n\nSee [the index](../README.md#scope) and [the skills](../skills). A bullet reads `[Title](opinions/<file>.md)`.\n")
+            .file("agents/worktrees.md", "# Worktrees\n\nSee [the index](../README.md#scope) and [the skills](../skills). A bullet reads `[Title](opinions/<file>.md)`. Follow [Writing style](https://github.com/awesome-humans/website/blob/main/pages/conventions/writing-style.md#voice).\n")
             .file("LICENSE", "Apache")
             .file("HOUSE-OPINIONS.md", "# House opinions\n\nA block looks like this:\n\n/// house | simon-mckenna\n\n**House:** An example.\n\n///\n")
             .file(ROSTER, ROSTER_TEXT)
@@ -1810,7 +1825,7 @@ mod tests {
         );
         assert_eq!(
             staged(&fixture, "rust/raw/none/agents/worktrees.md.txt"),
-            "# Worktrees\n\nSee [the index](https://awesome-humans.net/rust/#scope) and [the skills](https://awesome-humans.net/rust/skills/). A bullet reads `[Title](opinions/<file>.md)`.\n"
+            "# Worktrees\n\nSee [the index](https://awesome-humans.net/rust/#scope) and [the skills](https://awesome-humans.net/rust/skills/). A bullet reads `[Title](opinions/<file>.md)`. Follow [Writing style](https://awesome-humans.net/raw/none/conventions/writing-style.md.txt#voice).\n"
         );
         // A file that isn't scanned for house opinions keeps the block it shows as an example.
         assert!(
