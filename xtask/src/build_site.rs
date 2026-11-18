@@ -894,11 +894,13 @@ impl Site<'_> {
                 }
             }
 
-            llms += &self.optional_links();
-
             if profile.is_none() {
                 llms += &profile_links(profiles);
             }
+
+            // llmstxt.org puts the Optional section last, so an agent short of context can
+            // drop the end.
+            llms += &self.optional_links();
 
             let name = profile.map_or_else(
                 || "llms.txt".to_string(),
@@ -1827,6 +1829,15 @@ mod tests {
         assert!(
             staged(&fixture, "rust/llms-simon-mckenna.txt")
                 .contains("raw/simon-mckenna/opinions/rust.md.txt")
+        );
+        // Optional is the last section, after House profiles.
+        assert!(
+            llms.find("\n## House profiles\n") < llms.find("\n## Optional\n"),
+            "{llms}"
+        );
+        assert!(
+            !llms[llms.find("\n## Optional\n").expect("Optional")..].contains("\n## House"),
+            "{llms}"
         );
 
         let nav: Value = serde_json::from_str(&staged(&fixture, "rust/nav.json")).expect("JSON");
