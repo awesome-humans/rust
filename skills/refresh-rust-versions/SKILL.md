@@ -37,9 +37,12 @@ As [agents/orchestration.md](../../agents/orchestration.md) describes, delegate 
    - `targets:` names the minor release, such as `rust-1.99`, so a point release such as 1.99.1 changes no target.
    - If everything matches, the toolchain part has nothing to do. Say so, and **still run step 4b**, because crate pins drift on their own schedule.
    - Report "up to date" and stop only when step 4b finds nothing too.
+   - If you stop here while a trigger pull request is open, say that it can merge as it is. It holds only the snapshot, and nothing else lands it on `main`.
 3. **Start a worktree** from `main` on the branch `refresh/rust-<version>`, following the rules in [agents/worktrees.md](../../agents/worktrees.md).
-   - If a trigger pull request is open, copy its snapshot into the worktree: run `git fetch origin automation/rust-release-watch`, then `git restore --source=FETCH_HEAD -- .github/state/rust-releases.json`. Commit it with the rest of the run.
-   - Without a trigger pull request, leave the snapshot alone. The workflow updates it on its next run.
+   - To find an open trigger pull request, run `gh pr list --label rust-release --state open`. A leftover `automation/rust-release-watch` branch without one isn't a trigger.
+   - If one is open, copy its snapshot into the worktree: run `git fetch origin automation/rust-release-watch`, then `git restore --source=FETCH_HEAD -- .github/state/rust-releases.json`. Commit it with the rest of the run.
+   - If that snapshot is older than the release step 1 found, run the workflow first, with `gh workflow run rust-release-watch.yml`, and copy the snapshot once it finishes.
+   - Without a trigger pull request, leave the snapshot alone. Only the workflow writes it. The trigger pull request it opens later holds only the snapshot, and can merge as it is.
 4. **Update the template files** under `templates/`: the `edition` and `rust-version` in every `Cargo.toml`, and anything else pinned to a version. Then update the two kinds of pin that need more than a version string:
    - **4a. The toolchain pins.** Move `channel` in the root `rust-toolchain.toml`, and `rust-version` in the root `Cargo.toml`, to the new minor release, such as `1.100`. Pin the template copies the way their opinion says.
      - The root pins name the minor release, never a patch such as `1.99.1`. rustup resolves `1.99` to the newest 1.99 point release, so a point release arrives without an edit.
@@ -69,7 +72,9 @@ As [agents/orchestration.md](../../agents/orchestration.md) describes, delegate 
 
    A person reviews it before it changes any opinion.
 
-   If the run copied a trigger pull request's snapshot, end the description with a `Refs: #<number>` trailer for it, and comment on the trigger pull request with the refresh pull request's number. After the refresh pull request merges, close the trigger pull request with `gh pr close <number> --delete-branch`. The workflow never closes it: once the snapshot on `main` matches the manifest, the workflow skips its pull request step.
+   If the run copied a trigger pull request's snapshot, end the description with a `Refs: #<number>` trailer for it, and comment on the trigger pull request with the refresh pull request's number. The comment says to close the trigger pull request once the refresh merges.
+
+   After the refresh pull request merges, close the trigger pull request with `gh pr close <number> --delete-branch`. The workflow never closes it: once the snapshot on `main` matches the manifest, the workflow skips its pull request step. If the trigger pull request's snapshot differs from the one on `main` by then, a newer release has arrived. Leave it open as the cue for the next run.
 
 ## Edge cases
 
