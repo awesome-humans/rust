@@ -25,7 +25,7 @@ By default, it follows sourced community practice only. If the user or the proje
    - `Cargo.toml`, `rust-toolchain.toml`, `rustfmt.toml`, `clippy.toml`, `deny.toml`, or `.cargo/config.toml`.
    - Tests, and CI workflows.
    - The areas: error handling, async code, `unsafe`, or dependencies.
-2. **Read the project's own decisions,** in its `AGENTS.md`, `README.md`, and contributing guide:
+2. **Read the project's own decisions,** in its agent instruction files, such as `AGENTS.md`, `CLAUDE.md`, or `.github/copilot-instructions.md`, and in its `README.md` and contributing guide. Read every one the project holds, because your harness might load only its own:
    - **Record the house profile the user or the project names,** or that neither names one. Without one, skip every house block in `opinions/`, and leave the house regions out of anything you copy from `templates/`. With one, keep that profile's blocks and regions, and skip the others. Without a checkout, read a profile's copy of each file from the links in `https://awesome-humans.net/rust/llms-<profile>.txt`, because the copies under `raw/none/` have no house opinions.
    - **Record each decision that departs from an opinion,** such as a lint it allows or an MSRV policy. A recorded decision takes precedence: follow it, and don't change it back.
 3. **Read each opinion that covers the task, in full,** from `opinions/`:
@@ -34,7 +34,13 @@ By default, it follows sourced community practice only. If the user or the proje
 
    Read them each time. An opinion changes with each release, so don't write from what you remember of one. Don't read an opinion the task doesn't touch.
 
-4. **Start a new file from its template.** When the task adds a file that `templates/` holds, such as `Cargo.toml` or `rustfmt.toml`, copy the template and trim it. In a file that already exists, change only what the task needs. Don't replace it with the template.
+4. **Start a new file from its template.** When the task adds a file that `templates/` holds, such as `Cargo.toml` or `rustfmt.toml`, copy the template and trim it:
+   - **Remove the header,** which is the first line, starting `awesome-humans/rust template`, and the lines under it that say where to copy the file. They describe the template, not the project's file.
+   - **Remove each setting and section the project doesn't use.**
+   - **Keep a comment that says why a setting is set.**
+
+   In a file that already exists, change only what the task needs. Don't replace it with the template.
+
 5. **Write the code as the opinions recommend:**
    - **Keep the versions the project targets.** Don't raise an `edition`, a `rust-version`, a toolchain `channel`, or a dependency version unless the task asks. A new crate in an empty repository targets the opinions' `targets:`.
    - **Where an opinion gives a recommendation and an exception,** apply the exception only when its stated condition holds.
