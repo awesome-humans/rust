@@ -69,7 +69,7 @@ const OPINION_TOLERANCE: i32 = 180;
 const CITABLE_ANCHOR: &str = "citable-quotable-in-opinions-and-templates";
 
 // Fetch tools summarise a page unless asked not to, and a summary paraphrases the rules.
-const LLMS_READING: &str = "Read each linked file in full, not a summary, because its exact wording is the rule. A file under `raw/none/` is the default copy, with no house opinions, and one under `raw/<profile>/` is that profile's copy.";
+const LLMS_READING: &str = "When you read a linked file, read it in full, not a summary, because its exact wording is the rule. A file under `raw/none/` is the default copy, with no house opinions, and one under `raw/<profile>/` is that profile's copy.";
 
 const LLMS_SUMMARY: &str = "Opinionated best practices for building with Rust, distilled from the published writing of vetted people and publications with a multi-year track record. Each opinion states its recommendation first, then the rationale, then its sources, and targets the latest stable release.";
 
