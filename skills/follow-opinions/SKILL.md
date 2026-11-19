@@ -26,7 +26,7 @@ By default, it follows sourced community practice only. If the user or the proje
    - Tests, and CI workflows.
    - The areas: error handling, async code, `unsafe`, or dependencies.
 2. **Read the project's own decisions,** in its `AGENTS.md`, `README.md`, and contributing guide:
-   - **Record the house profile it names,** or that it names none. Without one, skip every house block in `opinions/`, and leave the house regions out of anything you copy from `templates/`. With one, keep that profile's blocks and regions, and skip the others.
+   - **Record the house profile the user or the project names,** or that neither names one. Without one, skip every house block in `opinions/`, and leave the house regions out of anything you copy from `templates/`. With one, keep that profile's blocks and regions, and skip the others. Without a checkout, read a profile's copy of each file from the links in `https://awesome-humans.net/rust/llms-<profile>.txt`, because the copies under `raw/none/` have no house opinions.
    - **Record each decision that departs from an opinion,** such as a lint it allows or an MSRV policy. A recorded decision takes precedence: follow it, and don't change it back.
 3. **Read each opinion that covers the task, in full,** from `opinions/`:
    - [rust.md](../../opinions/rust.md), for every task.
@@ -41,7 +41,7 @@ By default, it follows sourced community practice only. If the user or the proje
    - **Where the code around your change follows another convention,** write the new code as the opinion recommends, unless that leaves one file with two styles. Don't rewrite the code around it.
    - **Don't use a feature that an opinion marks as nightly-only or "Coming next".**
    - **Where no opinion covers something,** follow the project's existing convention. Don't present your own preference as an opinion.
-6. **Build, lint, and test what you wrote,** with the commands the project documents. Without any, run `cargo clippy --workspace --all-targets --locked` and `cargo test`, and fix every warning your change adds.
+6. **Build, lint, and test what you wrote,** with the commands the project documents. Without any, run `cargo clippy --workspace --all-targets` and `cargo test`, and fix every warning your change adds. Add `--locked` to both when the project commits a `Cargo.lock`: without the file, `--locked` fails before Clippy runs.
 7. **Report, after the work:**
    - The opinions you read in full, and the templates you copied.
    - Each place where a decision of the project's took precedence over an opinion.

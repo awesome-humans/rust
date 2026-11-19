@@ -764,7 +764,7 @@ impl Site<'_> {
     // order of README.md's table, which validate-readme-index holds to the skills directory.
     fn stage_skills(&mut self, skills: &[Skill]) {
         let mut index = format!(
-            "# Skills\n\nAgent skills that apply the opinions in a project, check a project against them, and keep them current. They follow the [Agent Skills specification](https://agentskills.io/specification), so any compliant agent can run them. To run one, clone the repository and ask your agent to run the skill by name. If your agent only discovers skills in a directory of its own, see [AGENTS.md: Skills]({}#skills).\n\n`review-project` checks your own project, and `research-topic` answers a Rust question from the opinions and their sources. The others maintain this repository.\n\n| Skill | Purpose |\n| --- | --- |\n",
+            "# Skills\n\nAgent skills that apply the opinions in a project, check a project against them, and keep them current. They follow the [Agent Skills specification](https://agentskills.io/specification), so any compliant agent can run them. To run one, clone the repository and ask your agent to run the skill by name. If your agent only discovers skills in a directory of its own, see [AGENTS.md: Skills]({}#skills).\n\n`follow-opinions` applies the opinions while your agent writes code in your own project, `review-project` checks that project, and `research-topic` answers a Rust question from the opinions and their sources. The others maintain this repository.\n\n| Skill | Purpose |\n| --- | --- |\n",
             github("AGENTS.md", false)
         );
 
