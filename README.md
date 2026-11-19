@@ -4,6 +4,8 @@ An agentic take on [awesome-rust](https://github.com/rust-unofficial/awesome-rus
 
 The writers are listed in [AWESOME-HUMANS.md](AWESOME-HUMANS.md): people and publications with at least two years of accurate, independent writing on Rust.
 
+**Agents:** Start at [`llms.txt`](https://awesome-humans.net/rust/llms.txt). It links the opinions, templates, and skills as raw Markdown.
+
 > [!NOTE]
 > The Rust ecosystem is currently being bootstrapped. See [Research](research), the [research branches](https://github.com/awesome-humans/rust/branches/all?query=research%2F), and the [plan](PLAN.md). **Review by 2027-01-17.**
 
