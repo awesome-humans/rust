@@ -686,14 +686,14 @@ impl Site<'_> {
             ""
         };
         let lead = format!(
-            "**Unresolved research.** This topic is evidence that `research-topic` gathered, waiting on `resolve-research`. It isn't an opinion, and it can cite unvetted material.{follow}"
+            "**Unresolved research.** This topic is evidence that `stage-research` gathered, waiting on `resolve-research`. It isn't an opinion, and it can cite unvetted material.{follow}"
         );
         for (path, _) in research {
             self.stage_with_meta(path, false, &lead);
         }
 
         let mut index = String::from(
-            "# Research\n\nTopics under research: the evidence `research-topic` gathered, before `resolve-research` decides what becomes an opinion. Resolving a topic deletes it, so every topic here is still open. None of it is guidance yet.\n\n",
+            "# Research\n\nTopics under research: the evidence `stage-research` gathered, before `resolve-research` decides what becomes an opinion. Resolving a topic deletes it, so every topic here is still open. None of it is guidance yet.\n\n",
         );
         for (path, title) in research {
             let _ = writeln!(index, "- [{title}]({})", file_name(path));
