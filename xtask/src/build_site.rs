@@ -892,7 +892,7 @@ impl Site<'_> {
                 ),
                 (
                     "skills",
-                    "Agent Skills procedures. Run follow-opinions to apply the opinions while writing Rust code, and review-project to check a Rust project against them. The others maintain the repository.",
+                    "Agent Skills procedures. Run follow-opinions to apply the opinions while writing Rust code, review-project to check a Rust project against them, and research-topic to answer a Rust question from them. The others maintain the repository.",
                     &skill_links,
                 ),
             ] {
