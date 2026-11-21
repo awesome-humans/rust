@@ -50,6 +50,7 @@ By default, it follows sourced community practice only. If the user or the proje
 6. **Build, lint, and test what you wrote,** with the commands the project documents. Without any, run `cargo clippy --workspace --all-targets` and `cargo test`, and fix every warning your change adds. Add `--locked` to both when the project commits a `Cargo.lock`: without the file, `--locked` fails before Clippy runs.
 7. **Report, after the work:**
    - The opinions you read in full, and the templates you copied.
+   - The house profile you followed, and whether the user or the project named it.
    - Each place where a decision of the project's took precedence over an opinion.
    - Anything you noticed that deviates from an opinion and didn't change, in one line each. For a full comparison, suggest `review-project`.
    - Anything the task needed that no opinion covers, as a possible opinion gap. The user can raise it in an [issue](https://github.com/awesome-humans/rust/issues).
