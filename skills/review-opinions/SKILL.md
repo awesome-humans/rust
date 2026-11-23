@@ -6,6 +6,7 @@ compatibility: Requires git and internet access; a Rust toolchain needed to comp
 metadata:
   repo: awesome-humans/rust
   change-flow: report-only
+  internal: "true"
 ---
 
 # Review opinions

@@ -6,6 +6,7 @@ compatibility: Requires git; internet access only needed to re-verify a stale re
 metadata:
   repo: awesome-humans/rust
   change-flow: branch-pr
+  internal: "true"
 ---
 
 # Resolve a research topic
