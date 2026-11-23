@@ -1,4 +1,4 @@
-# Every local and CI entry point (AGENTS.md: Scripts). CI calls these recipes, never cargo
+# Every local and CI entry point (agents/checks.md: Scripts). CI calls these recipes, never cargo
 # directly, so a check runs the same way on every machine. Run `just` to list them.
 
 set shell := ["bash", "-euo", "pipefail", "-c"]
@@ -85,6 +85,10 @@ validate-readme-index:
 validate-template-order:
     cargo xtask validate-template-order
 
+# Build, test, lint, and format-check the templates, as the default copy and each house profile's
+build-templates out="target/templates":
+    cargo xtask build-templates --out "{{ out }}"
+
 # Draw the SVG diagrams in assets/diagrams/
 export-diagrams:
     cargo xtask export-diagrams
@@ -108,4 +112,4 @@ build-site out="target/site":
     cargo xtask build-site --out "{{ out }}"
 
 # Run every offline check CI runs. It redraws the diagrams, and fails until you commit any SVG it changes
-verify: check clippy test validate-skills validate-metadata validate-sources validate-readme-index validate-template-order check-diagrams build-site
+verify: check clippy test validate-skills validate-metadata validate-sources validate-readme-index validate-template-order build-templates check-diagrams build-site
