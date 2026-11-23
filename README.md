@@ -11,10 +11,10 @@ The writers are listed in [AWESOME-HUMANS.md](AWESOME-HUMANS.md): people and pub
 
 ## Usage
 
-- **Point your agent at it.** Tell your coding agent to follow the opinions when it writes code:
+- **Point your agent at it.** Ask your coding agent to run [`follow-opinions`](skills/follow-opinions/SKILL.md) when it writes code:
 
   ```text
-  Follow the conventions at awesome-humans.net/rust/llms.txt when writing Rust code
+  Use the follow-opinions skill at awesome-humans.net/rust/llms.txt when writing Rust code
   ```
 
   The opinions cover conventions, project layout, language usage, and crate choices.
@@ -115,9 +115,9 @@ Agent skills maintain the repository, and two of them, `follow-opinions` and `re
 
 The skills split work by cost. Lower-cost worker agents run the web searches and source scans in parallel. The strongest available model is the editor, and only the editor writes to the opinions and templates.
 
-Every skill that changes this repository works on its own branch, and its changes land through a pull request that passes CI, gets an agent review, and passes the maintainer's review. The three report-only skills change nothing, and `follow-opinions` writes only to the project it runs in. Each `SKILL.md` is canonical over this diagram.
+Every skill that changes this repository works on its own branch, and its changes land through a pull request that passes CI, gets an agent review, and passes the maintainer's review. The three report-only skills change nothing in this repository, and `follow-opinions` writes only to the project it runs in, so the diagram leaves it out. Each `SKILL.md` is canonical over this diagram.
 
-![Maintenance pipeline: each skill from what starts it, through CI checks, an agent review, and the maintainer's review, to the roster, research, or the opinions and templates; audit-freshness, review-opinions, and review-project only report](assets/diagrams/maintenance-pipeline.svg)
+![Maintenance pipeline: each skill except follow-opinions, from what starts it, through CI checks, an agent review, and the maintainer's review, to the roster, research, or the opinions and templates; audit-freshness, review-opinions, and review-project only report](assets/diagrams/maintenance-pipeline.svg)
 
 | Skill                                                            | Purpose                                                                                            |
 | ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |

@@ -1592,7 +1592,7 @@ fn profile_links(profiles: &[String]) -> String {
     if profiles.is_empty() {
         return String::new();
     }
-    let mut section = "\n## House profiles\n\nFollow a profile only when the user chooses one, by reading its file instead of this one.\n\n".to_string();
+    let mut section = "\n## House profiles\n\nFollow a house opinion only for the house profile the user chose, or that the project's own agent instruction files or README name. If they name different profiles, the user's choice wins. To follow a profile, read its file instead of this one.\n\n".to_string();
     for other in profiles {
         let _ = writeln!(
             section,
@@ -1841,7 +1841,7 @@ mod tests {
         ));
         assert!(
             llms.contains(
-                "\n## House profiles\n\nFollow a profile only when the user chooses one, by reading its file instead of this one.\n\n- [simon-mckenna](https://awesome-humans.net/rust/llms-simon-mckenna.txt): these opinions and templates, with that profile's house opinions\n"
+                "\n## House profiles\n\nFollow a house opinion only for the house profile the user chose, or that the project's own agent instruction files or README name. If they name different profiles, the user's choice wins. To follow a profile, read its file instead of this one.\n\n- [simon-mckenna](https://awesome-humans.net/rust/llms-simon-mckenna.txt): these opinions and templates, with that profile's house opinions\n"
             ),
             "{llms}"
         );
