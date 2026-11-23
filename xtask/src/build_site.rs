@@ -887,7 +887,7 @@ impl Site<'_> {
                 ),
                 (
                     "templates",
-                    "Copy-paste-ready starting points that encode the opinions. Copy one, remove its header, and trim it.",
+                    "Copy-paste-ready starting points that encode the opinions. Copy one, remove its header if it has one, and trim it.",
                     &template_links,
                 ),
                 (
