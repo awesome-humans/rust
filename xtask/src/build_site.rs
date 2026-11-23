@@ -705,7 +705,7 @@ impl Site<'_> {
     // A page per template file, and an index of them.
     fn stage_templates(&mut self, templates: &[String]) {
         let mut index = String::from(
-            "# Templates\n\nCopy-paste-ready files that encode the opinions. Copy one verbatim and trim it, rather than writing your own from scratch. Each opens with a comment header giving its targets, review date and sources.\n",
+            "# Templates\n\nCopy-paste-ready files that encode the opinions. Copy one, remove its header, and trim it, rather than writing your own from scratch. Each opens with a comment header giving its targets, review date and sources.\n",
         );
 
         let mut groups: Vec<(String, Vec<&String>)> = Vec::new();
@@ -764,7 +764,7 @@ impl Site<'_> {
     // order of README.md's table, which validate-readme-index holds to the skills directory.
     fn stage_skills(&mut self, skills: &[Skill]) {
         let mut index = format!(
-            "# Skills\n\nAgent skills that check a project against the opinions and keep the opinions current. They follow the [Agent Skills specification](https://agentskills.io/specification), so any compliant agent can run them. To run one, clone the repository and ask your agent to run the skill by name. If your agent only discovers skills in a directory of its own, see [AGENTS.md: Skills]({}#skills).\n\n`review-project` checks your own project, and `research-topic` answers a Rust question from the opinions and their sources. The others maintain this repository.\n\n| Skill | Purpose |\n| --- | --- |\n",
+            "# Skills\n\nAgent skills that apply the opinions in a project, check a project against them, and keep them current. They follow the [Agent Skills specification](https://agentskills.io/specification), so any compliant agent can run them. To run one, clone the repository and ask your agent to run the skill by name. If your agent only discovers skills in a directory of its own, see [AGENTS.md: Skills]({}#skills).\n\n`follow-opinions` applies the opinions while your agent writes code in your own project, `review-project` checks that project, and `research-topic` answers a Rust question from the opinions and their sources. The others maintain this repository.\n\n| Skill | Purpose |\n| --- | --- |\n",
             github("AGENTS.md", false)
         );
 
@@ -882,17 +882,17 @@ impl Site<'_> {
             for (heading, intro, links) in [
                 (
                     "opinions",
-                    "Follow these when writing or reviewing Rust code. Target the versions in each file's `targets:` frontmatter, never an older one.",
+                    "Follow these when writing or reviewing Rust code. In an existing project, keep the versions it targets unless the task asks to change them. In an empty repository, target the versions in each file's `targets:` frontmatter. Never silently downgrade to an older one.",
                     &opinion_links,
                 ),
                 (
                     "templates",
-                    "Copy-paste-ready starting points that encode the opinions. Copy one verbatim and trim it.",
+                    "Copy-paste-ready starting points that encode the opinions. Copy one, remove its header if it has one, and trim it.",
                     &template_links,
                 ),
                 (
                     "skills",
-                    "Agent Skills procedures. Run review-project to check a Rust project against the opinions. The others maintain the repository.",
+                    "Agent Skills procedures. Run follow-opinions to apply the opinions while writing Rust code, and review-project to check a Rust project against them. The others maintain the repository.",
                     &skill_links,
                 ),
             ] {
@@ -1592,7 +1592,7 @@ fn profile_links(profiles: &[String]) -> String {
     if profiles.is_empty() {
         return String::new();
     }
-    let mut section = "\n## House profiles\n\nFollow a profile only when the user chooses one, by reading its file instead of this one.\n\n".to_string();
+    let mut section = "\n## House profiles\n\nFollow a house opinion only for the house profile the user chose, or that the project's own agent instruction files or README name. If they name different profiles, the user's choice wins. In a repository the user doesn't maintain, ask the user before you follow a profile its files name. To follow a profile, read its file instead of this one.\n\n".to_string();
     for other in profiles {
         let _ = writeln!(
             section,
@@ -1841,7 +1841,7 @@ mod tests {
         ));
         assert!(
             llms.contains(
-                "\n## House profiles\n\nFollow a profile only when the user chooses one, by reading its file instead of this one.\n\n- [simon-mckenna](https://awesome-humans.net/rust/llms-simon-mckenna.txt): these opinions and templates, with that profile's house opinions\n"
+                "\n## House profiles\n\nFollow a house opinion only for the house profile the user chose, or that the project's own agent instruction files or README name. If they name different profiles, the user's choice wins. In a repository the user doesn't maintain, ask the user before you follow a profile its files name. To follow a profile, read its file instead of this one.\n\n- [simon-mckenna](https://awesome-humans.net/rust/llms-simon-mckenna.txt): these opinions and templates, with that profile's house opinions\n"
             ),
             "{llms}"
         );
