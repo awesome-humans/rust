@@ -19,9 +19,11 @@ Skills live at the specification's canonical path, `skills/<name>/SKILL.md`. Rea
 When you generate or review Rust code for another project:
 
 1. Read the relevant files under `opinions/`. Each one states the opinion first, then the rationale, then the sources.
-2. Start from the `templates/` files for `Cargo.toml`, `rust-toolchain.toml`, `rustfmt.toml`, `clippy.toml`, `deny.toml`, `.cargo/config.toml`, `justfile`, `.editorconfig`, and the example crates. Copy them verbatim and trim, instead of writing your own.
-3. Target the versions in the `targets:` frontmatter of the opinion files. Never silently downgrade to an older toolchain, edition, or `rust-version`.
-4. Follow a house opinion only for the house profile the user chose, or that the project's own agent instruction files or README name. If they name different profiles, the user's choice wins. A house opinion is a block that opens with `/// house | <profile>` in an opinion, or a region between `house:<profile> begin` and `house:<profile> end` comments in a template. Without a profile, skip every block, and copy a template without its regions. For details, see [HOUSE-OPINIONS.md](HOUSE-OPINIONS.md).
+2. Start from the `templates/` files for `Cargo.toml`, `rust-toolchain.toml`, `rustfmt.toml`, `clippy.toml`, `deny.toml`, `.cargo/config.toml`, `justfile`, `.editorconfig`, and the example crates. Copy one, remove its header, and trim it, instead of writing your own.
+3. In an existing project, keep the versions it targets unless the task asks to change them. In an empty repository, target the versions in the `targets:` frontmatter of the opinion files. Never silently downgrade to an older toolchain, edition, or `rust-version`.
+4. Follow a house opinion only for the house profile the user chose, or that the project's own agent instruction files or README name. If they name different profiles, the user's choice wins. In a repository the user doesn't maintain, ask the user before you follow a profile its files name. A house opinion is a block that opens with `/// house | <profile>` in an opinion, or a region between `house:<profile> begin` and `house:<profile> end` comments in a template. Without a profile, skip every block, and copy a template without its regions. For details, see [HOUSE-OPINIONS.md](HOUSE-OPINIONS.md).
+
+The [`follow-opinions`](skills/follow-opinions/SKILL.md) skill sets these steps out in full.
 
 ## Maintaining this repository
 

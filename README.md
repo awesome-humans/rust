@@ -89,7 +89,7 @@ In this repository, each house opinion is a marked block beside the sourced text
 ├── opinions/                 ← the opinions, one topic per file, code examples as needed
 │   └── rust.md
 ├── research/                 ← saved research topics (staging: promote or discard)
-├── skills/                   ← maintenance skills: see Maintenance via skills
+├── skills/                   ← agent skills: see Maintenance via skills
 ├── templates/                ← copy-paste-ready files that encode the opinions
 │   ├── Cargo.toml
 │   └── rustfmt.toml
@@ -111,7 +111,7 @@ In this repository, each house opinion is a marked block beside the sourced text
 
 ## Maintenance via skills
 
-Agent skills maintain the repository, and two of them, `follow-opinions` and `review-project`, run on someone else's project. They follow the [Agent Skills specification](https://agentskills.io/specification), so any compliant agent can run them. Each skill is a directory under [`skills/`](skills) with a `SKILL.md` file.
+Agent skills apply the opinions in a project, check a project against them, and keep them current. `follow-opinions` applies the opinions while your agent writes code in your own project, `review-project` checks that project, and `research-topic` answers a Rust question from the opinions and their sources. The others maintain this repository. They follow the [Agent Skills specification](https://agentskills.io/specification), so any compliant agent can run them. Each skill is a directory under [`skills/`](skills) with a `SKILL.md` file.
 
 The skills split work by cost. Lower-cost worker agents run the web searches and source scans in parallel. The strongest available model is the editor, and only the editor writes to the opinions and templates.
 
