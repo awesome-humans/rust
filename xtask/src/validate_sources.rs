@@ -5,7 +5,7 @@
 //! `templates/` is held to the same gate as `opinions/`, because it's what people copy.
 //!
 //! `research/` is deliberately outside the gate. A topic may cite unvetted material as long as
-//! the text flags it (research-topic), and resolve-research drops or re-sources every
+//! the text flags it (stage-research), and resolve-research drops or re-sources every
 //! unvetted claim when it promotes one.
 //!
 //! A house profile's ID, `house:<profile>`, isn't on the roster. Instead, each one in a file's
