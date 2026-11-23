@@ -6,6 +6,7 @@ compatibility: Requires git; internet access only needed to check latest release
 metadata:
   repo: awesome-humans/rust
   change-flow: report-only
+  internal: "true"
 ---
 
 # Audit freshness

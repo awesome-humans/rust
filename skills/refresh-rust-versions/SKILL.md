@@ -6,6 +6,7 @@ compatibility: Requires git and internet access
 metadata:
   repo: awesome-humans/rust
   change-flow: branch-pr
+  internal: "true"
 ---
 
 # Refresh Rust versions

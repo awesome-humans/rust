@@ -6,6 +6,7 @@ compatibility: Requires git
 metadata:
   repo: awesome-humans/rust
   change-flow: branch-pr
+  internal: "true"
 ---
 
 # Weave a house opinion
