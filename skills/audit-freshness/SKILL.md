@@ -72,14 +72,14 @@ To check state, read each linked issue and pull request with `gh` or the web. Re
 
 ### Inbound links
 
-Count what refers to each opinion and template, by link or by file name, from the repository itself: `skills/`, `AGENTS.md`, `HOUSE-OPINIONS.md`, the other opinions, the template comments, and `research/` topics. Leave out the `README.md` Scope bullets and layout tree, because every opinion appears there.
+Count what refers to each opinion and template, by link or by file name, from the repository itself: `skills/`, `AGENTS.md`, `agents/`, `HOUSE-OPINIONS.md`, the other opinions, the template comments, and `research/` topics. Leave out the `README.md` Scope bullets and layout tree, because every opinion appears there.
 
 Report each file with no inbound links as a pruning candidate. Nothing on the web or in another project shows up here, so a file with no inbound links might still be read. Never report it as stale on that count alone.
 
 ### Templates
 
 - **Templates match the opinions.** If an opinion names a lint, key, crate, or setting, and its template leaves it out, that's a finding. People copy `templates/`, so a gap ships the advice without the setting.
-- **Templates build, test, and pass Clippy and rustfmt.** Templates have no crate of their own, so `cargo` run in `templates/` stops with "the workspace has no members". Copy `templates/` to a scratch directory, and add one member with `cargo new --lib crates/example`, which adds itself to `members` and inherits the edition and `[workspace.lints]`. Then run `cargo build`, `cargo test`, `CARGO_BUILD_WARNINGS=deny cargo clippy --all-targets`, and `cargo fmt --check`. Lint and crate compatibility failures show up only this way. The format check covers `rustfmt.toml`: a setting rustfmt rejects fails it.
+- **Templates build, test, and pass Clippy and rustfmt.** Run `just build-templates`. Templates have no crate of their own, so `cargo` run in `templates/` stops with "the workspace has no members". The recipe copies `templates/` to `target/templates/<profile>/`, as the default copy and as each house profile's, and adds one member to each with `cargo new --lib crates/example`, which adds itself to `members` and inherits the edition and `[workspace.lints]`. Then it runs `cargo build`, `cargo test`, `CARGO_BUILD_WARNINGS=deny cargo clippy --all-targets`, and `cargo fmt --check`. The `Templates` workflow runs it on every pull request and weekly, so read its latest result on `main` first. Lint and crate compatibility failures show up only this way. The format check covers `rustfmt.toml`: rustfmt exits with an error on a value it can't parse, and only warns about a key it doesn't know or one that needs nightly, so the recipe fails on that warning too.
 
 ## Steps
 
@@ -101,7 +101,7 @@ Report each file with no inbound links as a pruning candidate. Nothing on the we
 
 - **A repository with no opinions yet:** Report that there's nothing to check. Don't pass.
 - **House content,** which is `house:<profile>` in `sources:` and that profile's house blocks or regions, as HOUSE-OPINIONS.md describes: The reserved ID is never an unknown-source finding, and never suggest removing it. `just validate-sources` fails a build where the ID and its blocks don't appear together, or `**House:**` sits outside a block. Review a house block's age with its file, and never count it as stale sourced text.
-- **Files with no comment header:** A JSON template, because JSON has no comment syntax ([AGENTS.md: Metadata](../../AGENTS.md#metadata)). None exists today. Missing metadata isn't a finding for one. Audit what it pins against the latest release instead. The root `rust-toolchain.toml` and `Cargo.toml` aren't templates, so they have no header either, and step 4a's pins are their record.
+- **Files with no comment header:** A JSON template, because JSON has no comment syntax ([agents/metadata.md](../../agents/metadata.md)). None exists today. Missing metadata isn't a finding for one. Audit what it pins against the latest release instead. The root `rust-toolchain.toml` and `Cargo.toml` aren't templates, so they have no header either, and step 4a's pins are their record.
 - **A crate pinned below the latest release on purpose,** for a known-bad release or a tracked major migration: Report the drift as informational once a comment beside the pin gives the reason. Deliberate staleness must look different from silent staleness.
 - **A resource that doesn't depend on a version,** such as naming conventions: It can declare `targets: [any]`. Version checks skip it, and review-age checks still apply.
 - **Clock skew or future dates** in the metadata: Report them as malformed.

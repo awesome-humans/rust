@@ -1,6 +1,6 @@
 # Words cspell.jsonc accepts on top of its en-GB and Rust dictionaries: names,
 # identifiers, and terms the dictionaries lack. One per line, sorted case-insensitively.
-# Never add an American spelling. For a quoted title, see AGENTS.md: Spelling.
+# Never add an American spelling. For a quoted title, see AGENTS.md: Writing style.
 agentskills
 Aleksandrov
 anssi
@@ -11,6 +11,7 @@ bors
 burntsushi
 Cascadia
 CISA
+codegen
 Consolas
 dasharray
 DENV
@@ -26,10 +27,12 @@ fieldless
 Fira
 frontmatter
 fullmatch
+futurelock
 Gjengset
 Greptime
 Gruevski
 hyperbezier
+impls
 insta
 katex
 Kladov
@@ -51,6 +54,7 @@ mckenna
 Miri
 Neue
 newtype
+newtypes
 nextest
 niko
 nnethercote
@@ -68,10 +72,12 @@ Ronacher
 roundup
 roundups
 RPIT
+RPITIT
 rsplit
 rumdl
 rustflags
 Rustonomicon
+Ryhl
 scannable
 Segoe
 smol

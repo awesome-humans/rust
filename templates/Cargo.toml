@@ -1,4 +1,4 @@
-# awesome-humans/rust template | targets: rust-1.99, edition-2024 | last-reviewed: 2026-10-19 | sources: corrode, rust-docs
+# awesome-humans/rust template | targets: rust-1.100, edition-2024 | last-reviewed: 2026-11-14 | sources: corrode, rust-docs
 # The workspace root. Copy it to the repository root, and inherit its settings in each crate
 # with `edition.workspace = true` and `[lints] workspace = true` (opinions/rust.md).
 # For a single crate, put these settings in its own Cargo.toml instead: drop `[workspace]`, move

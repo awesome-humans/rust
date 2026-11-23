@@ -118,12 +118,12 @@ tests/
 
 `matklad` uses `arbtest`, his own crate, in a Rust post on concurrent data structures ([Alex Kladov: Properly Testing Concurrent Data Structures](https://matklad.github.io/2024/07/05/properly-testing-concurrent-data-structures.html), 2024-07-05). It's one post, the crate's latest release is from 2024-12-18, and he wrote it, so it doesn't outweigh `sunshowers`. The same post points to `loom` for real concurrency testing: "if you need that, go read loom's docs".
 
-| Crate        | Version, crates.io 2026-10-19 | Role                                                      |
-| ------------ | ----------------------------- | --------------------------------------------------------- |
-| `proptest`   | 1.12.0, 2026-10-10            | Property tests with integrated shrinking                  |
-| `quickcheck` | 1.1.0, 2026-02-10             | Lost: shrinks by type alone and can't express constraints |
-| `cargo-fuzz` | 0.13.2, 2026-06-09            | Coverage-guided fuzzing on nightly, through libFuzzer     |
-| `loom`       | 0.7.2, 2024-04-23             | Explores every thread interleaving of concurrent code     |
+| Crate        | Version, crates.io 2026-10-19 | Role                                                           |
+| ------------ | ----------------------------- | -------------------------------------------------------------- |
+| `proptest`   | 1.12.0, 2026-10-10            | Property tests with integrated shrinking                       |
+| `quickcheck` | 1.1.0, 2026-02-10             | Ruled out: shrinks by type alone and can't express constraints |
+| `cargo-fuzz` | 0.13.2, 2026-06-09            | Coverage-guided fuzzing on nightly, through libFuzzer          |
+| `loom`       | 0.7.2, 2024-04-23             | Explores every thread interleaving of concurrent code          |
 
 `corrode` lists `cargo-fuzz` for fuzzing, and `cargo-llvm-cov` as "a good default for new projects" for coverage, which "works with `cargo test` and `cargo nextest`" ([Matthias Endler: Hardening Rust Code For Production](https://corrode.dev/blog/hardening-rust/), 2026-07-23). The same post adds `cargo test --release` in CI for "critical integration tests, arithmetic-heavy code, unsafe or FFI-heavy code", because overflow checks and optimisations differ between profiles. Miri belongs in `unsafe.md`.
 

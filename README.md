@@ -4,12 +4,17 @@ An agentic take on [awesome-rust](https://github.com/rust-unofficial/awesome-rus
 
 The writers are listed in [AWESOME-HUMANS.md](AWESOME-HUMANS.md): people and publications with at least two years of accurate, independent writing on Rust.
 
+**Agents:** Fetch [`llms.txt`](https://awesome-humans.net/rust/llms.txt) and every file it links as raw text. It links the opinions, templates, and skills.
+
+> [!NOTE]
+> The Rust ecosystem is currently being bootstrapped. See [Research](research), the [research branches](https://github.com/awesome-humans/rust/branches/all?query=research%2F), and the [plan](PLAN.md). **Review by 2027-01-17.**
+
 ## Usage
 
-- **Point your agent at it.** Tell your coding agent to follow the opinions when it writes code:
+- **Point your agent at it.** Ask your coding agent to run [`follow-opinions`](skills/follow-opinions/SKILL.md) when it writes code:
 
   ```text
-  Follow the conventions at awesome-humans.net/rust/llms.txt when writing Rust code
+  Use the follow-opinions skill at awesome-humans.net/rust/llms.txt when writing Rust code
   ```
 
   The opinions cover conventions, project layout, language usage, and crate choices.
@@ -44,7 +49,7 @@ The writers are listed in [AWESOME-HUMANS.md](AWESOME-HUMANS.md): people and pub
 
 Opinions target the latest stable Rust release and the latest edition, never an older toolchain. Nightly-only features appear only in "Coming next" notes. The maintenance skills move the repository to each new release.
 
-Every resource records when it was last reviewed against its sources. [AGENTS.md: Metadata](AGENTS.md#metadata) defines the fields. The [repository scripts](#repository-scripts) enforce them.
+Every resource records when it was last reviewed against its sources. [agents/metadata.md](agents/metadata.md) defines the fields. The [repository scripts](#repository-scripts) enforce them.
 
 ## Awesome humans
 
@@ -56,7 +61,7 @@ This diagram shows how a source is admitted and what its standing allows. The ad
 
 Standing can change. `vet-source` runs again when an admitted source goes dormant or drops in quality, and when a watch-listed source's blocker clears.
 
-There's one citable tier. Two markings in a source's notes limit how it's cited:
+Two markings in a source's notes limit how it's cited:
 
 - **Corroborate:** A source marked `**Corroborate.**` is never the only citation for a claim.
 - **Discovery-only:** A source marked `**Discovery-only.**` is never cited. Cite the primary source it links to instead.
@@ -79,16 +84,18 @@ In this repository, each house opinion is a marked block beside the sourced text
 ├── Cargo.toml                ← the root Cargo workspace, which holds only xtask/
 ├── justfile                  ← every local and CI entry point: run just to list them
 ├── rust-toolchain.toml       ← the toolchain the checks build with
+├── agents/                   ← on-demand agent instructions that AGENTS.md indexes
 ├── assets/diagrams/          ← generated SVG diagrams: rerun the command, never edit by hand
 ├── opinions/                 ← the opinions, one topic per file, code examples as needed
 │   └── rust.md
 ├── research/                 ← saved research topics (staging: promote or discard)
-├── skills/                   ← maintenance skills: see Maintenance via skills
+├── skills/                   ← agent skills: see Maintenance via skills
 ├── templates/                ← copy-paste-ready files that encode the opinions
 │   ├── Cargo.toml
 │   └── rustfmt.toml
 ├── xtask/src/                ← this repository's own CI checks, one subcommand each
 │   ├── build_site.rs
+│   ├── build_templates.rs
 │   ├── comment_header.rs     ← shared module: template headers
 │   ├── export_diagrams.rs
 │   ├── frontmatter.rs        ← shared module: YAML frontmatter
@@ -104,31 +111,33 @@ In this repository, each house opinion is a marked block beside the sourced text
 
 ## Maintenance via skills
 
-Agent skills maintain the repository. They follow the [Agent Skills specification](https://agentskills.io/specification), so any compliant agent can run them. Each skill is a directory under [`skills/`](skills) with a `SKILL.md` file.
+Agent skills apply the opinions in a project, check a project against them, and keep them current. `follow-opinions` applies the opinions while your agent writes code in your own project, `review-project` checks that project, and `research-topic` answers a Rust question from the opinions and their sources. The others maintain this repository. They follow the [Agent Skills specification](https://agentskills.io/specification), so any compliant agent can run them. Each skill is a directory under [`skills/`](skills) with a `SKILL.md` file.
 
 The skills split work by cost. Lower-cost worker agents run the web searches and source scans in parallel. The strongest available model is the editor, and only the editor writes to the opinions and templates.
 
-Every skill except the three report-only ones works on its own branch, and its changes land through a pull request that passes CI, gets an agent review, and passes the maintainer's review. Each `SKILL.md` is canonical over this diagram.
+Every skill that changes this repository works on its own branch, and its changes land through a pull request that passes CI, gets an agent review, and passes the maintainer's review. The three report-only skills change nothing in this repository. `follow-opinions` writes only to the project it runs in, and `research-topic` writes there only when asked, so the diagram leaves both out. Each `SKILL.md` is canonical over this diagram.
 
-![Maintenance pipeline: each skill from what starts it, through CI checks, an agent review, and the maintainer's review, to the roster, research, or the opinions and templates; audit-freshness, review-opinions, and review-project only report](assets/diagrams/maintenance-pipeline.svg)
+![Maintenance pipeline: each skill except follow-opinions and research-topic, from what starts it, through CI checks, an agent review, and the maintainer's review, to the roster, research, or the opinions and templates; audit-freshness, review-opinions, and review-project only report](assets/diagrams/maintenance-pipeline.svg)
 
 | Skill                                                            | Purpose                                                                                            |
 | ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
 | [`audit-freshness`](skills/audit-freshness/SKILL.md)             | Report resources whose `last-reviewed` date has drifted past tolerance                             |
+| [`follow-opinions`](skills/follow-opinions/SKILL.md)             | Apply the opinions and templates while writing or changing code in a project                       |
 | [`harvest-sources`](skills/harvest-sources/SKILL.md)             | Scan the awesome-humans sources for new posts, and add notable guidance to the opinions            |
 | [`refresh-rust-versions`](skills/refresh-rust-versions/SKILL.md) | Detect new stable Rust releases and editions, and update all opinions and templates to target them |
-| [`research-topic`](skills/research-topic/SKILL.md)               | Research a Rust topic from the opinions and vetted sources, and save it with citations             |
+| [`research-topic`](skills/research-topic/SKILL.md)               | Answer a Rust question from the opinions and vetted sources, citing each claim                     |
 | [`resolve-research`](skills/resolve-research/SKILL.md)           | Resolve a saved research topic by weaving it into the opinions and templates, or discard it        |
 | [`review-opinions`](skills/review-opinions/SKILL.md)             | Check that the opinions and templates agree with their cited sources and with each other           |
 | [`review-project`](skills/review-project/SKILL.md)               | Check an external project against the opinions and templates, and report deviations                |
+| [`stage-research`](skills/stage-research/SKILL.md)               | Research a Rust topic, and save it under `research/` with citations                                |
 | [`vet-source`](skills/vet-source/SKILL.md)                       | Evaluate a candidate source against the track-record criteria and admit or decline                 |
 | [`weave-house-opinion`](skills/weave-house-opinion/SKILL.md)     | Weave a house profile's opinion into the opinions and templates, visibly marked as House           |
 
 ### Research lifecycle
 
-Research is staged, never merged in place. `research-topic` saves the evidence, and `resolve-research` decides what becomes an opinion and deletes the file in the same pull request. A topic on disk is unresolved. The two `SKILL.md` files are canonical over this diagram.
+Research is staged, never merged in place. `stage-research` saves the evidence, and `resolve-research` decides what becomes an opinion and deletes the file in the same pull request. A topic on disk is unresolved. The two `SKILL.md` files are canonical over this diagram.
 
-![Research lifecycle: research-topic saves a topic under research/, and resolve-research promotes, discards or partly promotes it](assets/diagrams/research-lifecycle.svg)
+![Research lifecycle: stage-research saves a topic under research/, and resolve-research promotes, discards or partly promotes it](assets/diagrams/research-lifecycle.svg)
 
 A part that waits on an unvetted source stays on disk. It goes back through `resolve-research` if `vet-source` admits the source, and is discarded if not.
 
@@ -149,6 +158,7 @@ A second, [`.github/workflows/harvest-reminder.yml`](.github/workflows/harvest-r
 | `just validate-sources`        | Every source ID in `opinions/` and `templates/` exists in the [AWESOME-HUMANS.md](AWESOME-HUMANS.md) roster and is citable. Each `house:<profile>` ID has a house block or region of that profile, and every house opinion sits inside one. The roster tables and notes sections are sorted by ID, no ID appears twice, every notes section matches a row, and the Citable count is right |
 | `just validate-readme-index`   | This README lists every opinion and skill, and lists nothing that doesn't exist. Scope is sorted by title, the layout tree by file name, and the skills table by skill name                                                                                                                                                                                                               |
 | `just validate-template-order` | Every dependency and lint table in a TOML template is sorted by key, ignoring case, within each run of keys between blank lines                                                                                                                                                                                                                                                           |
+| `just build-templates`         | Every file under `templates/` builds, tests, and passes Clippy with warnings denied and `cargo fmt --check`. It copies them to `<out>/<profile>/`, `target/templates/` by default, as the default copy and as each house profile's, and adds one crate to each with `cargo new --lib`. It also fails when rustfmt warns that it ignored a setting                                         |
 | `just export-diagrams`         | Draws the SVG diagrams in `assets/diagrams/`. It doesn't check anything, but CI runs `just check-diagrams`, which redraws them and fails if the committed SVGs differ                                                                                                                                                                                                                     |
 | `just links`                   | Every link in the repository resolves, with the settings in `lychee.toml`. CI runs it on every pull request and weekly                                                                                                                                                                                                                                                                    |
 | `just build-site`              | Stages the `/rust/` pages of awesome-humans.net in `<out>/rust/`, `target/site/` by default, to the [awesome-humans/website staging contract](https://github.com/awesome-humans/website#staging-contract)                                                                                                                                                                                 |
@@ -159,7 +169,7 @@ Run them from the repository root, as CI does:
 just validate-metadata
 ```
 
-`just verify` runs every offline check CI runs, in one command: `just check`, `just clippy`, `just test`, the skills check, the four validators, `check-diagrams`, and `build-site`. It redraws the diagrams, and fails until you commit any SVG it changes. The link check is left to CI, because lychee is a separate binary and depends on third-party hosts. Run `just links` to check links locally. `just` with no arguments lists every recipe.
+`just verify` runs every offline check CI runs, in one command: `just check`, `just clippy`, `just test`, the skills check, the four validators, `build-templates`, `check-diagrams`, and `build-site`. `build-templates` is one of them because no template names a crate, so its copies build without the network. The `Templates` workflow also runs it weekly, because the pinned toolchain takes patch releases without a change here. It redraws the diagrams, and fails until you commit any SVG it changes. The link check is left to CI, because lychee is a separate binary and depends on third-party hosts. Run `just links` to check links locally. `just` with no arguments lists every recipe.
 
 Every check exits 0 when clean, 1 for findings, and 2 when it isn't run from the repository root. The checks read a missing `opinions/` or `templates/` directory as empty, but an empty one that exists, or a missing README section, is a finding.
 
