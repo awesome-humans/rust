@@ -1,6 +1,6 @@
 //! The one-line comment header on `templates/` files. A TOML or Rust file can't open with a
 //! `---` block and stay valid for the tools that read it, so the metadata goes in a comment on
-//! the first line instead (AGENTS.md: Metadata):
+//! the first line instead (agents/metadata.md):
 //!
 //! ```text
 //! # awesome-humans/rust template | targets: rust-1.99, edition-2024 | last-reviewed: … | …

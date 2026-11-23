@@ -18,13 +18,14 @@ Move every resource to the **latest stable** Rust release and the latest edition
 
 The `.github/workflows/rust-release-watch.yml` workflow checks the official stable channel manifest daily. When the stable release changes, it opens a **trigger pull request** labelled `rust-release` on the branch `automation/rust-release-watch`.
 
-- The trigger pull request only updates the snapshot in `.github/state/rust-releases.json`.
-- Run this skill on that branch to make the update, and merge both together.
+- The trigger pull request only updates the snapshot in `.github/state/rust-releases.json`. It's the cue to run this skill.
+- Never commit to `automation/rust-release-watch`. Until `main` has the new snapshot, each run of the workflow rebuilds that branch from `main` and force-pushes it, so a commit there is lost.
+- The skill works on its own branch, which step 3 starts, and copies the snapshot there. The refresh pull request then merges the snapshot and the update together, and step 8 closes the trigger pull request.
 - You can also run the skill by itself. The snapshot answers "Which stable release does this repository know about?" offline.
 
 ## Orchestration
 
-As [AGENTS.md: Orchestration and model economy](../../AGENTS.md#orchestration-and-model-economy) describes, delegate the web lookups to worker agents: the version checks in step 1, the crates.io lookups in step 4b, and the release-notes reading in step 5. Only the editor decides what changes, and edits `opinions/` and `templates/`.
+As [agents/orchestration.md](../../agents/orchestration.md) describes, delegate the web lookups to worker agents: the version checks in step 1, the crates.io lookups in step 4b, and the release-notes reading in step 5. Only the editor decides what changes, and edits `opinions/` and `templates/`.
 
 ## Steps
 
@@ -36,11 +37,16 @@ As [AGENTS.md: Orchestration and model economy](../../AGENTS.md#orchestration-an
    - `targets:` names the minor release, such as `rust-1.99`, so a point release such as 1.99.1 changes no target.
    - If everything matches, the toolchain part has nothing to do. Say so, and **still run step 4b**, because crate pins drift on their own schedule.
    - Report "up to date" and stop only when step 4b finds nothing too.
-3. **Start a worktree** on the branch `refresh/rust-<version>`, following the rules in [AGENTS.md](../../AGENTS.md).
+   - If you stop here while a trigger pull request is open, check that its snapshot names the release step 1 found, and say that it can merge as it is. It holds only the snapshot, and nothing else lands it on `main`. If the snapshot names a newer release, run steps 1 and 2 again for that release.
+3. **Start a worktree** from `main` on the branch `refresh/rust-<version>`, following the rules in [agents/worktrees.md](../../agents/worktrees.md).
+   - To find an open trigger pull request, run `gh pr list --label rust-release --state open`. A leftover `automation/rust-release-watch` branch without one isn't a trigger.
+   - If one is open, copy its snapshot into the worktree: run `git fetch origin automation/rust-release-watch`, then `git restore --source=FETCH_HEAD -- .github/state/rust-releases.json`. Commit it with the rest of the run.
+   - If that snapshot is older than the release step 1 found, run the workflow first, with `gh workflow run rust-release-watch.yml`, and copy the snapshot once it finishes. If it's newer, a release shipped after step 1 ran: run steps 1 and 2 again for that release.
+   - Without a trigger pull request, leave the snapshot alone. Only the workflow writes it. The trigger pull request it opens later holds only the snapshot. It can merge as it is once the refresh pull request has merged, and not before: with the snapshot on `main` and no refresh, the workflow opens no further trigger for that release.
 4. **Update the template files** under `templates/`: the `edition` and `rust-version` in every `Cargo.toml`, and anything else pinned to a version. Then update the two kinds of pin that need more than a version string:
    - **4a. The toolchain pins.** Move `channel` in the root `rust-toolchain.toml`, and `rust-version` in the root `Cargo.toml`, to the new minor release, such as `1.100`. Pin the template copies the way their opinion says.
      - The root pins name the minor release, never a patch such as `1.99.1`. rustup resolves `1.99` to the newest 1.99 point release, so a point release arrives without an edit.
-     - The root pins move with every release, because [AGENTS.md: Scripts](../../AGENTS.md#scripts) holds `xtask/` to the repository's own opinions. Run `just clippy` and `just test` after the move. A new release adds Clippy lints, and CI denies warnings.
+     - The root pins move with every release, because [agents/checks.md: Scripts](../../agents/checks.md#scripts) holds `xtask/` to the repository's own opinions. Run `just clippy` and `just test` after the move. A new release adds Clippy lints, and CI denies warnings.
      - Renovate never changes the template pins: `renovate.json` turns the cargo manager off under `templates/`. Only this skill changes them.
    - **4b. The crate pins in `templates/Cargo.toml`.** Look up every dependency on crates.io, with the API (`https://crates.io/api/v1/crates/<name>`, sending a `User-Agent` header) or `cargo info <name>`.
      - Take the **latest stable** version: `max_stable_version` in the API's answer. Never take a prerelease, or a version whose `rust-version` is newer than `targets:`.
@@ -53,18 +59,22 @@ As [AGENTS.md: Orchestration and model economy](../../AGENTS.md#orchestration-an
    - When a feature needs a new opinion, create a stub with a `TODO` and a source link, and add its `README.md` Scope bullet and Repository layout entry, which CI enforces.
    - Update `targets:` and `last-reviewed:` on every file you change **or verify as unchanged**.
    - **Never remove or weaken a house block or region** ([awesome-humans/website: House opinions](https://github.com/awesome-humans/website/blob/main/pages/conventions/house-opinions.md#how-this-works)). If a release makes one obsolete, note inside the block that the release supersedes it, and keep the marking. A template must still build with its house regions removed.
-6. **If a Rust toolchain is available, verify the code samples** against the new targets. Assemble the scratch workspace that [audit-freshness: Templates](../audit-freshness/SKILL.md#templates) describes, and run **`cargo build`, `cargo test`, `CARGO_BUILD_WARNINGS=deny cargo clippy --all-targets`, and `cargo fmt --check`**.
+6. **If a Rust toolchain is available, verify the code samples** against the new targets. Run **`just build-templates`**, which copies `templates/` into a workspace under `target/templates/` and runs `cargo build`, `cargo test`, `CARGO_BUILD_WARNINGS=deny cargo clippy --all-targets`, and `cargo fmt --check` on it. The recipe checks only the templates. To check an opinion's sample, add it to the copy the recipe leaves in `target/templates/none/`, and run the same four commands there.
    - Clippy is the check a new release most often fails. A sample that still compiles can trip a lint the release added or moved into a default group.
    - Treat "running 0 tests" for a crate that has tests as a failure. It means a test target stopped being built, such as a `[[test]]` entry left behind by a rename.
    - Without a toolchain, flag the samples as unverified in the pull request.
 7. **If the source roster changed, record it** in the `AWESOME-HUMANS.md` decision log. Otherwise, summarise the run in the pull request.
-8. **Open a pull request** to the default branch, filling in the [`version-refresh.md`](https://github.com/awesome-humans/.github/blob/main/PULL_REQUEST_TEMPLATE/version-refresh.md) template, as [AGENTS.md](../../AGENTS.md) describes. It lists:
+8. **Open a pull request** to the default branch, filling in the [`version-refresh.md`](https://github.com/awesome-humans/.github/blob/main/PULL_REQUEST_TEMPLATE/version-refresh.md) template, as [agents/maintaining.md](../../agents/maintaining.md) describes. It lists:
    - The versions before and after: the Rust release, the edition, and each crate pin that changed.
    - The opinions that changed, and the ones verified as unchanged.
    - Whether the samples built, tested, and passed Clippy.
    - Anything left as a TODO.
 
    A person reviews it before it changes any opinion.
+
+   If the run copied a trigger pull request's snapshot, end the description with a `Refs: #<number>` trailer for it, and comment on the trigger pull request with the refresh pull request's number. The comment says to close the trigger pull request once the refresh merges.
+
+   After the refresh pull request merges, close the trigger pull request, if it's still open, with `gh pr close <number> --delete-branch`. The workflow never closes it: once the snapshot on `main` matches the manifest, the workflow skips its pull request step. If the trigger pull request's snapshot differs from the one on `main` by then, a newer release has arrived. Leave it open as the cue for the next run.
 
 ## Edge cases
 

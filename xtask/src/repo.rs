@@ -129,7 +129,7 @@ impl Repo {
     }
 
     /// The `templates/` files that have a comment header: every one but JSON, which has no
-    /// comment syntax (AGENTS.md: Metadata).
+    /// comment syntax (agents/metadata.md).
     pub fn header_templates(&self) -> Vec<String> {
         self.template_files()
             .into_iter()
