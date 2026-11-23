@@ -278,7 +278,7 @@ Each section takes its own brand colour, in a light-mode and a dark-mode variant
 
 ## Phase 6: First opinions and templates
 
-Run `research-topic`, then `resolve-research`, for each topic. Write an opinion only from citable sources admitted in phase 3. In proposed order, with the sources expected to support each:
+Run `stage-research`, then `resolve-research`, for each topic. Write an opinion only from citable sources admitted in phase 3. In proposed order, with the sources expected to support each:
 
 | Opinion file             | Covers                                                                                                          | Expected sources                          |
 | ------------------------ | --------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |

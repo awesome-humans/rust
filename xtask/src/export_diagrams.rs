@@ -1,5 +1,5 @@
 //! `export-diagrams`: draws this repository's diagrams as SVG into `assets/diagrams/`: the
-//! maintenance pipeline, which shows each skill except follow-opinions from what starts it to
+//! maintenance pipeline, which shows each skill except follow-opinions and research-topic from what starts it to
 //! where its result lands, source standing, which shows how vet-source sorts a candidate, and
 //! the research lifecycle.
 //! The output is committed, so rerun this after changing a diagram here, and never edit the
@@ -54,7 +54,7 @@ const ROWS: &[Row] = &[
     Row {
         lane: "research",
         picks_up: &["a question", "about <topic>"],
-        skill: "research-topic",
+        skill: "stage-research",
         branch: Some("research/<topic>"),
         human_gate: "review",
         lands_in: "research",
@@ -134,10 +134,10 @@ fn rows_where(predicate: impl Fn(&Row) -> bool) -> Vec<usize> {
 )]
 fn pipeline() -> String {
     const TITLE: &str = "Maintenance pipeline";
-    const DESCRIPTION: &str = "Swimlane diagram of how this repository maintains itself: vet-source, research-topic, resolve-research, harvest-sources, refresh-rust-versions, \
+    const DESCRIPTION: &str = "Swimlane diagram of how this repository maintains itself: vet-source, stage-research, resolve-research, harvest-sources, refresh-rust-versions, \
         and weave-house-opinion each work on their own branch, pass the CI checks, get an agent review, pass the maintainer's review, and land in the roster, research, or the opinions and templates; \
         audit-freshness, review-opinions, and review-project only report. Their findings, the release watch, and the harvest reminder start the next run. \
-        follow-opinions isn't shown, because it writes only to the project it runs in.";
+        follow-opinions and research-topic aren't shown, because neither changes this repository.";
 
     // Columns, left to right, and the height of one row.
     const X_BAND: f64 = 12.0;
@@ -578,7 +578,7 @@ fn standing() -> String {
 )]
 fn research() -> String {
     const TITLE: &str = "Research lifecycle";
-    const DESCRIPTION: &str = "Flow diagram: research-topic opens a pull request that saves research/<topic>.md; resolve-research then promotes it into the opinions and templates, \
+    const DESCRIPTION: &str = "Flow diagram: stage-research opens a pull request that saves research/<topic>.md; resolve-research then promotes it into the opinions and templates, \
         discards it, or promotes part of it, deleting the topic in the same pull request. A blocked remainder stays staged and goes back through resolve-research \
         once vet-source clears the source it waits on.";
 
@@ -591,7 +591,7 @@ fn research() -> String {
         ),
     ];
 
-    // research-topic sits above the topic it saves, so the diagram is narrow enough for its
+    // stage-research sits above the topic it saves, so the diagram is narrow enough for its
     // text to stay legible in a README.
     const CENTER_Y: f64 = 182.0;
     const TOPIC_X: f64 = 20.0;
@@ -611,7 +611,7 @@ fn research() -> String {
         TOPIC_Y,
         TOPIC_WIDTH,
         64.0,
-        ("research-topic", "cited, on research/<topic>"),
+        ("stage-research", "cited, on research/<topic>"),
         "box",
         "tm",
         None,
