@@ -1,6 +1,6 @@
 ---
 name: research-topic
-description: Answer a question about a Rust topic from the opinions and vetted sources in awesome-humans/rust, such as "research async closures", "what's the story on error-handling crates", or "should we adopt cargo-nextest". Every claim cites its source, with that source's standing where it limits the claim, nightly-only features are labelled as the freshness policy requires, and the answer closes with what the opinions don't cover yet. Answers in the conversation, and writes nothing unless the user asks it to save the answer in their own project. Use whenever the user wants to understand, evaluate, or decide on a Rust subject, in their own project or with no project at all.
+description: Answer a question about a Rust topic from the opinions and vetted sources in awesome-humans/rust, and a named crate's own documentation, such as "research async closures", "what's the story on error-handling crates", or "should we adopt cargo-nextest". Every claim cites its source, with that source's standing where it limits the claim, nightly-only features are labelled as the freshness policy requires, and the answer closes with what the opinions don't cover yet. Answers in the conversation, and writes nothing unless the user asks it to save the answer in their own project. Use whenever the user wants to understand, evaluate, or decide on a Rust subject, in their own project or with no project at all.
 license: See repository LICENSE
 compatibility: Requires internet access for source reading; degrades to opinions-only offline
 metadata:
@@ -10,7 +10,7 @@ metadata:
 
 # Research a topic
 
-Answer "What should I know or do about X?" from this repository's opinions first, then its vetted roster. This skill **only answers**, in the conversation. It writes no file in this repository, and none in the user's project unless the user asks it to save the answer there.
+Answer "What should I know or do about X?" from this repository's opinions first, then its vetted roster, then references and unvetted material, each labelled. This skill **only answers**, in the conversation. It writes no file in this repository, and none in the user's project unless the user asks it to save the answer there.
 
 To save the research in this repository, so that it can become an opinion, run `stage-research` from a checkout. It follows these steps, and adds the ones that saving needs.
 
