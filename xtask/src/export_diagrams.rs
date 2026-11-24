@@ -720,12 +720,13 @@ fn research() -> String {
 }
 
 // The design system's tokens: bg, surface, raised, line, ink, muted, brand, house, and the
-// three lane-* tokens. Copy a changed value from
-// https://claude.ai/artifact/QfYm5d57sbJxs3W3jMyGiy, as the website repository's
-// awesome-humans.css does. The Rust accent stays out: the design system shows an ecosystem's
-// accent only in four places on the site, and a diagram isn't one. Brand marks the CI gate and
-// the outcome the agents work towards, and house what the maintainer decides. Each lane takes its
-// lane-* token, chosen to stay apart from those and from stale.
+// three lane-* tokens. The website repository's DESIGN.md sets the rules for them:
+// https://github.com/awesome-humans/website/blob/main/DESIGN.md. Copy a changed value from its
+// pages/stylesheets/awesome-humans.css, which holds every one. The Rust accent stays out: the
+// design system shows an ecosystem's accent only in four places on the site, and a diagram
+// isn't one. Brand marks the CI gate and the outcome the agents work towards, and house what the
+// maintainer decides. Each lane takes its lane-* token, chosen to stay apart from those and from
+// stale.
 const TOKENS_LIGHT: &str = "--bg: #ffffff; --surface: #f6f7f8; --band: #eef0f2; --fg: #0d1117; --muted: #5b6572; --line: #e3e6ea;
   --accent: #087d4e; --human: #9a6100; --auto: #087d4e;
   --sources: #017b80; --research: #6d7123; --opinions: #955080; --reports: #8253ac;";
