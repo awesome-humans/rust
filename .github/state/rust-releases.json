@@ -1,7 +1,7 @@
 {
   "channel": "stable",
-  "version": "1.100.0",
-  "date": "2026-11-12",
-  "commit-hash": "0ef1bc386059596dada8fb65b50425aab2ea637a",
-  "commit-date": "2026-11-09"
+  "version": "1.100.1",
+  "date": "2026-11-27",
+  "commit-hash": "20ddd01716a87c0fcf06ae4752d85a4abc15bcdf",
+  "commit-date": "2026-11-25"
 }
